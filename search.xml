@@ -1,8 +1,20 @@
 <?xml version="1.0" encoding="utf-8"?>
-<search>
-  <entry>
-    <title>第一篇文章！</title>
-    <url>/2025/03/06/2025.3.6/</url>
-    <content><![CDATA[<h2 id="这是我的第一篇文章！"><a href="#这是我的第一篇文章！" class="headerlink" title="这是我的第一篇文章！"></a>这是我的第一篇文章！</h2>]]></content>
-  </entry>
+<search> 
+  
+  
+    
+    <entry>
+      <title>第一篇文章！</title>
+      <link href="/2025/03/06/2025.3.6/"/>
+      <url>/2025/03/06/2025.3.6/</url>
+      
+        <content type="html"><![CDATA[<h2 id="这是我的第一篇文章！"><a href="#这是我的第一篇文章！" class="headerlink" title="这是我的第一篇文章！"></a>这是我的第一篇文章！</h2><figure class="highlight c++"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">#<span class="keyword">include</span> <span class="string">&lt;iostream&gt;</span></span></span><br><span class="line"><span class="keyword">using</span> <span class="keyword">namespace</span> std;</span><br><span class="line"><span class="function"><span class="type">int</span> <span class="title">main</span><span class="params">()</span></span></span><br><span class="line"><span class="function"></span>&#123;</span><br><span class="line">    <span class="built_in">print</span>(<span class="string">&quot;helloworld!&quot;</span>);</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure><figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">def</span> <span class="title function_">hello</span>():</span><br><span class="line">    <span class="built_in">print</span>(<span class="string">&quot;Hello, Hexo!&quot;</span>)</span><br></pre></td></tr></table></figure><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="built_in">sudo</span> apt-get install openjdk-21-jdk</span><br></pre></td></tr></table></figure>]]></content>
+      
+      
+      
+    </entry>
+    
+    
+  
+  
 </search>
