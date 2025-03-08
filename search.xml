@@ -3,7 +3,7 @@
   <entry>
     <title>第一篇文章！</title>
     <url>/2025/03/08/FirstBlog/</url>
-    <content><![CDATA[<h1 id="汇编语言（一）"><a href="#汇编语言（一）" class="headerlink" title="汇编语言（一）"></a>汇编语言（一）</h1><h4 id="CPU的组成"><a href="#CPU的组成" class="headerlink" title="CPU的组成"></a>CPU的组成</h4><ul>
+    <content><![CDATA[<h1 id="汇编语言（一）"><a href="#汇编语言（一）" class="headerlink" title="汇编语言（一）"></a>汇编语言（一）</h1><h2 id="CPU的组成"><a href="#CPU的组成" class="headerlink" title="CPU的组成"></a>CPU的组成</h2><ul>
 <li><strong>运算器</strong>进行信息处理；</li>
 <li><strong>寄存器</strong>进行信息存储；</li>
 <li><strong>控制器</strong>协调各种器件进行工作；</li>
@@ -12,8 +12,14 @@
 <div class="gallery-container" data-type="data" data-button data-limit="10" data-first="10">
     <div class="gallery-items">[{"url":"1.png","alt":"img","title":""}]</div>
   </div>
-<h4 id="8086上一代CPU的寄存器是八位的，那如何保证兼容性呢？"><a href="#8086上一代CPU的寄存器是八位的，那如何保证兼容性呢？" class="headerlink" title="8086上一代CPU的寄存器是八位的，那如何保证兼容性呢？"></a>8086上一代CPU的寄存器是八位的，那如何保证兼容性呢？</h4><p>把16位寄存器分成<strong>AH</strong>和<strong>AL</strong>两个独立的8位寄存器使用；<br>同样，32位或64位的寄存器也可以分，从而实现兼容性。<br>比如AX中现在存储0101010110101010，可以分为AH<strong>01010101</strong>和AL<strong>10101010</strong>来存储</p>
-<h2 id="汇编指令"><a href="#汇编指令" class="headerlink" title="汇编指令"></a>汇编指令</h2><h4 id="汇编指令-控制CPU完成的操作"><a href="#汇编指令-控制CPU完成的操作" class="headerlink" title="汇编指令                控制CPU完成的操作"></a>汇编指令                控制CPU完成的操作</h4><p>-mov ax,18                  将18送入AX<br>-mov ah,78                  将78送入AH<br>-add ax,8                   将AX中的值和8相加并把值存入AX<br>-mov ax,bx                  将BX中的值赋值给AX<br>-add ax,bx                  将AX和BX中的内容相加并把值存于AX<br>**注意：汇编指令不区分大小写，MOV也行。</p>
+<h2 id="8086上一代CPU的寄存器是八位的，那如何保证兼容性呢？"><a href="#8086上一代CPU的寄存器是八位的，那如何保证兼容性呢？" class="headerlink" title="8086上一代CPU的寄存器是八位的，那如何保证兼容性呢？"></a>8086上一代CPU的寄存器是八位的，那如何保证兼容性呢？</h2><p>把16位寄存器分成<strong>AH</strong>和<strong>AL</strong>两个独立的8位寄存器使用；<br>同样，32位或64位的寄存器也可以分，从而实现兼容性。<br>比如AX中现在存储0101010110101010，可以分为AH<strong>01010101</strong>和AL<strong>10101010</strong>来存储</p>
+<h2 id="汇编指令"><a href="#汇编指令" class="headerlink" title="汇编指令"></a>汇编指令</h2><h3 id="汇编指令-控制CPU完成的操作"><a href="#汇编指令-控制CPU完成的操作" class="headerlink" title="汇编指令                控制CPU完成的操作"></a>汇编指令                控制CPU完成的操作</h3><ul>
+<li>mov ax,18                  将18送入AX</li>
+<li>mov ah,78                  将78送入AH</li>
+<li>add ax,8                   将AX中的值和8相加并把值存入AX</li>
+<li>mov ax,bx                  将BX中的值赋值给AX</li>
+<li>add ax,bx                  将AX和BX中的内容相加并把值存于AX<br><strong>注意：汇编指令不区分大小写，MOV也行</strong></li>
+</ul>
 <div class="gallery-container" data-type="data" data-button data-limit="10" data-first="10">
     <div class="gallery-items">[{"url":"2.png","alt":"img","title":""}]</div>
   </div>
