@@ -1,20 +1,30 @@
 <?xml version="1.0" encoding="utf-8"?>
-<search> 
-  
-  
-    
-    <entry>
-      <title>第一篇文章！</title>
-      <link href="/2025/03/06/FirstBlog/"/>
-      <url>/2025/03/06/FirstBlog/</url>
-      
-        <content type="html"><![CDATA[<h2 id="这是我的第一篇文章！"><a href="#这是我的第一篇文章！" class="headerlink" title="这是我的第一篇文章！"></a>这是我的第一篇文章！</h2><h2 id="学习汇编语言"><a href="#学习汇编语言" class="headerlink" title="学习汇编语言"></a>学习汇编语言</h2><h2 id="CPU的组成：运算器进行信息处理；寄存器进行信息存储；控制器协调各种器件进行工作；内部总线实现CPU内各个器件之间的联系。"><a href="#CPU的组成：运算器进行信息处理；寄存器进行信息存储；控制器协调各种器件进行工作；内部总线实现CPU内各个器件之间的联系。" class="headerlink" title="CPU的组成：运算器进行信息处理；寄存器进行信息存储；控制器协调各种器件进行工作；内部总线实现CPU内各个器件之间的联系。"></a>CPU的组成：运算器进行信息处理；寄存器进行信息存储；控制器协调各种器件进行工作；内部总线实现CPU内各个器件之间的联系。</h2><div class="gallery-container" data-type="data" data-button data-limit="10" data-first="10">    <div class="gallery-items">[{"url":"1.png","alt":"img","title":""}]</div>  </div>]]></content>
-      
-      
-      
-    </entry>
-    
-    
-  
-  
+<search>
+  <entry>
+    <title>第一篇文章！</title>
+    <url>/2025/03/08/FirstBlog/</url>
+    <content><![CDATA[<h1 id="汇编语言（一）"><a href="#汇编语言（一）" class="headerlink" title="汇编语言（一）"></a>汇编语言（一）</h1><h4 id="CPU的组成"><a href="#CPU的组成" class="headerlink" title="CPU的组成"></a>CPU的组成</h4><ul>
+<li><strong>运算器</strong>进行信息处理；</li>
+<li><strong>寄存器</strong>进行信息存储；</li>
+<li><strong>控制器</strong>协调各种器件进行工作；</li>
+<li><strong>内部总线</strong>实现CPU内各个器件之间的联系。</li>
+</ul>
+<div class="gallery-container" data-type="data" data-button data-limit="10" data-first="10">
+    <div class="gallery-items">[{"url":"1.png","alt":"img","title":""}]</div>
+  </div>
+<h4 id="8086上一代CPU的寄存器是八位的，那如何保证兼容性呢？"><a href="#8086上一代CPU的寄存器是八位的，那如何保证兼容性呢？" class="headerlink" title="8086上一代CPU的寄存器是八位的，那如何保证兼容性呢？"></a>8086上一代CPU的寄存器是八位的，那如何保证兼容性呢？</h4><p>把16位寄存器分成<strong>AH</strong>和<strong>AL</strong>两个独立的8位寄存器使用；<br>同样，32位或64位的寄存器也可以分，从而实现兼容性。<br>比如AX中现在存储0101010110101010，可以分为AH<strong>01010101</strong>和AL<strong>10101010</strong>来存储</p>
+<h2 id="汇编指令"><a href="#汇编指令" class="headerlink" title="汇编指令"></a>汇编指令</h2><h4 id="汇编指令-控制CPU完成的操作"><a href="#汇编指令-控制CPU完成的操作" class="headerlink" title="汇编指令                控制CPU完成的操作"></a>汇编指令                控制CPU完成的操作</h4><p>-mov ax,18                  将18送入AX<br>-mov ah,78                  将78送入AH<br>-add ax,8                   将AX中的值和8相加并把值存入AX<br>-mov ax,bx                  将BX中的值赋值给AX<br>-add ax,bx                  将AX和BX中的内容相加并把值存于AX<br>**注意：汇编指令不区分大小写，MOV也行。</p>
+<div class="gallery-container" data-type="data" data-button data-limit="10" data-first="10">
+    <div class="gallery-items">[{"url":"2.png","alt":"img","title":""}]</div>
+  </div>
+<p>在进行低八位运算的时候，比如最后一行85+93，结果等于158，但发生了溢出，只能显示58，1舍弃而不是进位到高位。</p>
+<h2 id="物理地址"><a href="#物理地址" class="headerlink" title="物理地址"></a>物理地址</h2><p>每一个内存单元在存储空间中都有唯一的位置。8086CPU有20位地址总线，可传送20位地址，寻址能力为1MB（2的20次方）。8086是<strong>16位</strong>的CPU，16位地址表示的是地址总线的宽度，即CPU可以直接访问的地址范围。如果地址总线是16位，那么可表示的地址数量为2的十六次方&#x3D;65536个字节（即 64KB）。这意味着 CPU 最多只能寻址 64KB 的内存空间。<br>使用地址加法器将两个16位地址合成一个20位的物理地址。一个叫做<strong>段地址</strong>，另一个叫做<strong>偏移地址</strong>。<br><strong>段地址✖16 + 偏移地址 &#x3D; 物理地址，也称之为左移四位（二进制中），在十六进制里左移1位即可。</strong><br>最后得到的20位物理地址被地址总线传送到存储器里。<br>描述存储单元的方法（物理地址为21F60H，段地址为2000H，则偏移地址为1F60H）</p>
+<ul>
+<li>数据存放在内存2000：1F60单元中</li>
+<li>数据存放在内存的2000段中的1F60H中</li>
+</ul>
+<div class="gallery-container" data-type="data" data-button data-limit="10" data-first="10">
+    <div class="gallery-items">[{"url":"3.png","alt":"img","title":""}]</div>
+  </div>]]></content>
+  </entry>
 </search>
