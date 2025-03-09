@@ -33,4 +33,24 @@
     <div class="gallery-items">[{"url":"3.png","alt":"img","title":""}]</div>
   </div>]]></content>
   </entry>
+  <entry>
+    <title>Thread</title>
+    <url>/2025/03/09/Thread/</url>
+    <content><![CDATA[<h1 id="C-11多线程编程"><a href="#C-11多线程编程" class="headerlink" title="C++11多线程编程"></a>C++11多线程编程</h1><hr>
+<h1 id="进程与线程"><a href="#进程与线程" class="headerlink" title="进程与线程"></a>进程与线程</h1><ul>
+<li>进程就是正在运行的程序</li>
+<li>线程就是进程中的进程</li>
+<li>多线程可以提高效率。比如下图，你如果是串行的话就必须顺序执行，但如果并行的话你就可以在同一时间内干多个事情。但同时你也要注意你的“<strong>核数</strong>”，你不能同时刷抖音和听音乐，因为你没有四个耳朵，亦或者说你的手机同一时间内只有一个扬声器播放。</li>
+<li>线程的多少取决于CPU的<strong>核数</strong></li>
+</ul>
+<div class="gallery-container" data-type="data" data-button data-limit="10" data-first="10">
+    <div class="gallery-items">[{"url":"mple.png","alt":"img","title":""}]</div>
+  </div>
+
+<h1 id="C-11-Thread"><a href="#C-11-Thread" class="headerlink" title="C++11 Thread"></a>C++11 Thread</h1><ul>
+<li>准备工具 Visual Studio</li>
+<li>线程库 thread</li>
+</ul>
+<figure class="highlight c++"><table><tr><td class="code"><pre><span class="line"><span class="meta">#<span class="keyword">include</span> <span class="string">&lt;iostream&gt;</span></span></span><br><span class="line"><span class="meta">#<span class="keyword">include</span> <span class="string">&lt;thread&gt;</span></span></span><br></pre></td></tr></table></figure>]]></content>
+  </entry>
 </search>
