@@ -1,84 +1,47 @@
 <?xml version="1.0" encoding="utf-8"?>
-<search>
-  <entry>
-    <title>第一篇文章！</title>
-    <url>/2025/03/08/FirstBlog/</url>
-    <content><![CDATA[<h1 id="汇编语言（一）"><a href="#汇编语言（一）" class="headerlink" title="汇编语言（一）"></a>汇编语言（一）</h1><h2 id="CPU的组成"><a href="#CPU的组成" class="headerlink" title="CPU的组成"></a>CPU的组成</h2><ul>
-<li><strong>运算器</strong>进行信息处理；</li>
-<li><strong>寄存器</strong>进行信息存储；</li>
-<li><strong>控制器</strong>协调各种器件进行工作；</li>
-<li><strong>内部总线</strong>实现CPU内各个器件之间的联系。</li>
-</ul>
-<div class="gallery-container" data-type="data" data-button data-limit="10" data-first="10">
-    <div class="gallery-items">[{"url":"1.png","alt":"img","title":""}]</div>
-  </div>
-<h2 id="8086上一代CPU的寄存器是八位的，那如何保证兼容性呢？"><a href="#8086上一代CPU的寄存器是八位的，那如何保证兼容性呢？" class="headerlink" title="8086上一代CPU的寄存器是八位的，那如何保证兼容性呢？"></a>8086上一代CPU的寄存器是八位的，那如何保证兼容性呢？</h2><p>把16位寄存器分成<strong>AH</strong>和<strong>AL</strong>两个独立的8位寄存器使用；<br>同样，32位或64位的寄存器也可以分，从而实现兼容性。<br>比如AX中现在存储0101010110101010，可以分为AH<strong>01010101</strong>和AL<strong>10101010</strong>来存储</p>
-<h2 id="汇编指令"><a href="#汇编指令" class="headerlink" title="汇编指令"></a>汇编指令</h2><h3 id="汇编指令-控制CPU完成的操作"><a href="#汇编指令-控制CPU完成的操作" class="headerlink" title="汇编指令                控制CPU完成的操作"></a>汇编指令                控制CPU完成的操作</h3><ul>
-<li>mov ax,18                  将18送入AX</li>
-<li>mov ah,78                  将78送入AH</li>
-<li>add ax,8                   将AX中的值和8相加并把值存入AX</li>
-<li>mov ax,bx                  将BX中的值赋值给AX</li>
-<li>add ax,bx                  将AX和BX中的内容相加并把值存于AX<br><strong>注意：汇编指令不区分大小写，MOV也行</strong></li>
-</ul>
-<div class="gallery-container" data-type="data" data-button data-limit="10" data-first="10">
-    <div class="gallery-items">[{"url":"2.png","alt":"img","title":""}]</div>
-  </div>
-<p>在进行低八位运算的时候，比如最后一行85+93，结果等于158，但发生了溢出，只能显示58，1舍弃而不是进位到高位。</p>
-<h2 id="物理地址"><a href="#物理地址" class="headerlink" title="物理地址"></a>物理地址</h2><p>每一个内存单元在存储空间中都有唯一的位置。8086CPU有20位地址总线，可传送20位地址，寻址能力为1MB（2的20次方）。8086是<strong>16位</strong>的CPU，16位地址表示的是地址总线的宽度，即CPU可以直接访问的地址范围。如果地址总线是16位，那么可表示的地址数量为2的十六次方&#x3D;65536个字节（即 64KB）。这意味着 CPU 最多只能寻址 64KB 的内存空间。<br>使用地址加法器将两个16位地址合成一个20位的物理地址。一个叫做<strong>段地址</strong>，另一个叫做<strong>偏移地址</strong>。<br><strong>段地址✖16 + 偏移地址 &#x3D; 物理地址，也称之为左移四位（二进制中），在十六进制里左移1位即可。</strong><br>最后得到的20位物理地址被地址总线传送到存储器里。<br>描述存储单元的方法（物理地址为21F60H，段地址为2000H，则偏移地址为1F60H）</p>
-<ul>
-<li>数据存放在内存2000：1F60单元中</li>
-<li>数据存放在内存的2000段中的1F60H中</li>
-</ul>
-<div class="gallery-container" data-type="data" data-button data-limit="10" data-first="10">
-    <div class="gallery-items">[{"url":"3.png","alt":"img","title":""}]</div>
-  </div>]]></content>
-  </entry>
-  <entry>
-    <title>Thread</title>
-    <url>/2025/03/09/Thread/</url>
-    <content><![CDATA[<h1 id="C-11多线程编程"><a href="#C-11多线程编程" class="headerlink" title="C++11多线程编程"></a>C++11多线程编程</h1><hr>
-<h1 id="进程与线程"><a href="#进程与线程" class="headerlink" title="进程与线程"></a>进程与线程</h1><ul>
-<li>进程就是正在运行的程序</li>
-<li>线程就是进程中的进程</li>
-<li>多线程可以提高效率。</li>
-<li>线程的多少取决于CPU的<strong>核数</strong><br>如下图，如果是串行的话就必须顺序执行，但如果并行的话你就可以在同一时间内干多个事情。但同时要注意你的“<strong>核数</strong>”，你不能同时刷抖音和听音乐，因为你没有四个耳朵，亦或者说你的手机同一时间内只能处理一个应用播放声音。</li>
-</ul>
-<div class="gallery-container" data-type="data" data-button data-limit="10" data-first="10">
-    <div class="gallery-items">[{"url":"mple.png","alt":"","title":""}]</div>
-  </div>
-
-<h1 id="C-11-Thread"><a href="#C-11-Thread" class="headerlink" title="C++11 Thread"></a>C++11 Thread</h1><ul>
-<li>准备工具 Visual Studio</li>
-<li>线程库 thread</li>
-</ul>
-<figure class="highlight c++"><table><tr><td class="code"><pre><span class="line"><span class="meta">#<span class="keyword">include</span> <span class="string">&lt;iostream&gt;</span></span></span><br><span class="line"><span class="meta">#<span class="keyword">include</span> <span class="string">&lt;thread&gt;</span></span></span><br></pre></td></tr></table></figure>
-<h2 id="使用thread创建一个线程"><a href="#使用thread创建一个线程" class="headerlink" title="使用thread创建一个线程"></a>使用thread创建一个线程</h2><figure class="highlight c++"><table><tr><td class="code"><pre><span class="line"><span class="function"><span class="type">void</span> <span class="title">PrintHelloWorld</span><span class="params">()</span></span></span><br><span class="line"><span class="function"></span>&#123;</span><br><span class="line">    std::cout&lt;&lt;<span class="string">&quot;HelloWorld&quot;</span>&lt;&lt;std::endl;</span><br><span class="line">&#125;</span><br><span class="line"><span class="function"><span class="type">int</span> <span class="title">main</span><span class="params">()</span></span></span><br><span class="line"><span class="function"></span>&#123;</span><br><span class="line">    <span class="function">std::tread <span class="title">thread1</span><span class="params">(PrintHelloWorld)</span></span>;</span><br><span class="line">    <span class="keyword">return</span> <span class="number">0</span>;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
-<p>运行调试后，会得到下面结果：</p>
-<div class="gallery-container" data-type="data" data-button data-limit="10" data-first="10">
-    <div class="gallery-items">[{"url":"thread1.png","alt":"img","title":""}]</div>
-  </div>
-<p>我们发现报错了，为什么会这样呢？</p>
-<hr>
-<p>可以理解为main里是<strong>主线程</strong>，一开始我们便创建了一个<strong>子线程</strong>，并让其执行PrintHelloWorld的函数。当<strong>子线程</strong>没有执行完毕的时候，主线程已执行完毕。<strong>主线程不会等待子线程执行完毕</strong>，可能子线程才执行到Hello，主程序已经return 0了，所以出现报错；<strong>所以说主线程和子线程是并发运行的！</strong></p>
-<figure class="highlight c++"><table><tr><td class="code"><pre><span class="line">std::cout&lt;&lt;<span class="string">&quot;HelloworldMain&quot;</span>&lt;&lt;std::endl;</span><br></pre></td></tr></table></figure>
-<p>当我们再次加入一行代码时发现，先输出的是<strong>主线程</strong>的HelloworldMain,接下来才是<strong>子线程</strong>的Helloworld。从这里我们可以看出：<strong>创建线程是需要时间的</strong>。</p>
-<div class="gallery-container" data-type="data" data-button data-limit="10" data-first="10">
-    <div class="gallery-items">[{"url":"thread2.png","alt":"img","title":""}]</div>
-  </div>
-<h2 id="如何解决主线程和子线程先后结束时间不同而引起的程序崩溃？"><a href="#如何解决主线程和子线程先后结束时间不同而引起的程序崩溃？" class="headerlink" title="如何解决主线程和子线程先后结束时间不同而引起的程序崩溃？"></a>如何解决主线程和子线程先后结束时间不同而引起的程序崩溃？</h2><h3 id="函数thread-join"><a href="#函数thread-join" class="headerlink" title="函数thread.join()"></a><strong>函数thread.join()</strong></h3><p>在 C++ 中，std::thread::join() 的作用是 等待<strong>子线程执行完毕</strong>，然后<strong>主线程才继续执行</strong>。如果没有 join()，主线程可能会在子线程执行完成之前就结束，导致未定义行为程序报错。</p>
-<figure class="highlight c++"><table><tr><td class="code"><pre><span class="line"><span class="function">std::thread <span class="title">thread1</span><span class="params">(PrintHelloWorld)</span></span>;</span><br><span class="line">thread<span class="number">1.</span><span class="built_in">join</span>();</span><br><span class="line">std::cout &lt;&lt; <span class="string">&quot;helloworldMain&quot;</span> &lt;&lt; std::endl;</span><br><span class="line"><span class="built_in">system</span>(<span class="string">&quot;pause&quot;</span>);</span><br><span class="line"><span class="keyword">return</span> <span class="number">0</span>;</span><br></pre></td></tr></table></figure>
-<p>当我们添加了thread1.join()之后，相当于告诉主线程：“大哥你先等我弄完你再往下走，别丢下我！” （<strong>演示注释掉thread1.join()的情况</strong>）<br>join的作用是：<strong>确保子线程完成</strong>，执行顺序可控，但是会<strong>阻塞</strong>主线程，直到子线程完成。<br>阻塞示例 （joinable()用于判断线程是否可以使用join函数，返回的是一个bool值）</p>
-<figure class="highlight c++"><table><tr><td class="code"><pre><span class="line"><span class="meta">#<span class="keyword">include</span> <span class="string">&lt;iostream&gt;</span></span></span><br><span class="line"><span class="meta">#<span class="keyword">include</span> <span class="string">&lt;thread&gt;</span></span></span><br><span class="line"></span><br><span class="line"><span class="function"><span class="type">void</span> <span class="title">print</span><span class="params">()</span></span></span><br><span class="line"><span class="function"></span>&#123;</span><br><span class="line">	<span class="keyword">for</span> (<span class="type">int</span> i = <span class="number">0</span>; i &lt; <span class="number">100000</span>; i++) &#123;</span><br><span class="line">		std::cout &lt;&lt; i;</span><br><span class="line">	&#125;</span><br><span class="line">	std::cout &lt;&lt; std::endl;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="function"><span class="type">int</span> <span class="title">main</span><span class="params">()</span></span></span><br><span class="line"><span class="function"></span>&#123;</span><br><span class="line">	<span class="function">std::thread <span class="title">thread1</span><span class="params">(print)</span></span>;</span><br><span class="line">	<span class="keyword">if</span> (thread<span class="number">1.</span><span class="built_in">joinable</span>())</span><br><span class="line">	&#123;</span><br><span class="line">		thread<span class="number">1.</span><span class="built_in">join</span>();</span><br><span class="line">	&#125;</span><br><span class="line">	std::cout &lt;&lt; <span class="string">&quot;over&quot;</span>;</span><br><span class="line">	<span class="built_in">system</span>(<span class="string">&quot;pause&quot;</span>);</span><br><span class="line">	<span class="keyword">return</span> <span class="number">0</span>;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
-<h3 id="函数thread-detach"><a href="#函数thread-detach" class="headerlink" title="函数thread.detach()"></a><strong>函数thread.detach()</strong></h3><p>让子线程“脱离”主线程，主线程不再管理它。</p>
-<figure class="highlight c++"><table><tr><td class="code"><pre><span class="line"><span class="function">std::thread <span class="title">thread1</span><span class="params">(PrintHelloWorld)</span></span>;</span><br><span class="line">thread<span class="number">1.</span><span class="built_in">detach</span>();</span><br><span class="line"><span class="built_in">system</span>(<span class="string">&quot;pause&quot;</span>);</span><br><span class="line">std::cout &lt;&lt; <span class="string">&quot;1&quot;</span>;</span><br><span class="line"><span class="built_in">system</span>(<span class="string">&quot;pause&quot;</span>);</span><br><span class="line"><span class="keyword">return</span> <span class="number">0</span>;</span><br></pre></td></tr></table></figure>
-<p>你可以干你的事情，我也可以干我的事情，不管你了。像请客吃饭，请客的人把单买了之后说我先走一步，你们随意。对比上面的阻塞，我们发现detach是<strong>并发</strong>的。</p>
-]]></content>
+<search> 
+  
+  
+    
+    <entry>
+      <title>Thread</title>
+      <link href="/2025/03/09/Thread/"/>
+      <url>/2025/03/09/Thread/</url>
+      
+        <content type="html"><![CDATA[<h1 id="C-11多线程编程"><a href="#C-11多线程编程" class="headerlink" title="C++11多线程编程"></a>C++11多线程编程</h1><hr><h1 id="进程与线程"><a href="#进程与线程" class="headerlink" title="进程与线程"></a>进程与线程</h1><ul><li>进程就是正在运行的程序</li><li>线程就是进程中的进程</li><li>多线程可以提高效率。</li><li>线程的多少取决于CPU的<strong>核数</strong><br>如下图，如果是串行的话就必须顺序执行，但如果并行的话你就可以在同一时间内干多个事情。但同时要注意你的“<strong>核数</strong>”，你不能同时刷抖音和听音乐，因为你没有四个耳朵，亦或者说你的手机同一时间内只能处理一个应用播放声音。<br><img src="https://cdn.jsdelivr.net/gh/Explainfuture/PicturesBed/Thread1.png" alt="图片"></li></ul><h1 id="C-11-Thread"><a href="#C-11-Thread" class="headerlink" title="C++11 Thread"></a>C++11 Thread</h1><ul><li>准备工具 Visual Studio</li><li>线程库 thread</li></ul><figure class="highlight c++"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">#<span class="keyword">include</span> <span class="string">&lt;iostream&gt;</span></span></span><br><span class="line"><span class="meta">#<span class="keyword">include</span> <span class="string">&lt;thread&gt;</span></span></span><br></pre></td></tr></table></figure><h2 id="使用thread创建一个线程"><a href="#使用thread创建一个线程" class="headerlink" title="使用thread创建一个线程"></a>使用thread创建一个线程</h2><figure class="highlight c++"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="type">void</span> <span class="title">PrintHelloWorld</span><span class="params">()</span></span></span><br><span class="line"><span class="function"></span>&#123;</span><br><span class="line">    std::cout&lt;&lt;<span class="string">&quot;HelloWorld&quot;</span>&lt;&lt;std::endl;</span><br><span class="line">&#125;</span><br><span class="line"><span class="function"><span class="type">int</span> <span class="title">main</span><span class="params">()</span></span></span><br><span class="line"><span class="function"></span>&#123;</span><br><span class="line">    <span class="function">std::thread <span class="title">thread1</span><span class="params">(PrintHelloWorld)</span></span>;</span><br><span class="line">    <span class="keyword">return</span> <span class="number">0</span>;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure><p>运行调试后，会得到下面结果：<br><img src="https://cdn.jsdelivr.net/gh/Explainfuture/PicturesBed/Thread2.png" alt="图片"><br>我们发现报错了，为什么会这样呢？</p><hr><p>可以理解为main里是<strong>主线程</strong>，一开始我们便创建了一个<strong>子线程</strong>，并让其执行PrintHelloWorld的函数。当<strong>子线程</strong>没有执行完毕的时候，主线程已执行完毕。<strong>主线程不会等待子线程执行完毕</strong>，可能子线程才执行到Hello，主程序已经return 0了，所以出现报错；<strong>所以说主线程和子线程是并发运行的！</strong></p><figure class="highlight c++"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">std::cout&lt;&lt;<span class="string">&quot;HelloworldMain&quot;</span>&lt;&lt;std::endl;</span><br></pre></td></tr></table></figure><p>当我们再次加入一行代码时发现，先输出的是<strong>主线程</strong>的HelloworldMain,接下来才是<strong>子线程</strong>的Helloworld。从这里我们可以看出：<strong>创建线程是需要时间的</strong>。<br><img src="https://cdn.jsdelivr.net/gh/Explainfuture/PicturesBed/Thread3.png" alt="图片"></p><h2 id="如何解决主线程和子线程先后结束时间不同而引起的程序崩溃？"><a href="#如何解决主线程和子线程先后结束时间不同而引起的程序崩溃？" class="headerlink" title="如何解决主线程和子线程先后结束时间不同而引起的程序崩溃？"></a>如何解决主线程和子线程先后结束时间不同而引起的程序崩溃？</h2><h3 id="函数thread-join"><a href="#函数thread-join" class="headerlink" title="函数thread.join()"></a><strong>函数thread.join()</strong></h3><p>在 C++ 中，std::thread::join() 的作用是 等待<strong>子线程执行完毕</strong>，然后<strong>主线程才继续执行</strong>。如果没有 join()，主线程可能会在子线程执行完成之前就结束，导致未定义行为程序报错。</p><figure class="highlight c++"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line"><span class="function">std::thread <span class="title">thread1</span><span class="params">(PrintHelloWorld)</span></span>;</span><br><span class="line">thread<span class="number">1.</span><span class="built_in">join</span>();</span><br><span class="line">std::cout &lt;&lt; <span class="string">&quot;helloworldMain&quot;</span> &lt;&lt; std::endl;</span><br><span class="line"><span class="built_in">system</span>(<span class="string">&quot;pause&quot;</span>);</span><br><span class="line"><span class="keyword">return</span> <span class="number">0</span>;</span><br></pre></td></tr></table></figure><p>当我们添加了thread1.join()之后，相当于告诉主线程：“大哥你先等我弄完你再往下走，别丢下我！” （<strong>演示注释掉thread1.join()的情况</strong>）<br>join的作用是：<strong>确保子线程完成</strong>，执行顺序可控，但是会<strong>阻塞</strong>主线程，直到子线程完成。<br>阻塞示例 （joinable()用于判断线程是否可以使用join函数，返回的是一个bool值）</p><figure class="highlight c++"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">#<span class="keyword">include</span> <span class="string">&lt;iostream&gt;</span></span></span><br><span class="line"><span class="meta">#<span class="keyword">include</span> <span class="string">&lt;thread&gt;</span></span></span><br><span class="line"></span><br><span class="line"><span class="function"><span class="type">void</span> <span class="title">print</span><span class="params">()</span></span></span><br><span class="line"><span class="function"></span>&#123;</span><br><span class="line"><span class="keyword">for</span> (<span class="type">int</span> i = <span class="number">0</span>; i &lt; <span class="number">100000</span>; i++) &#123;</span><br><span class="line">std::cout &lt;&lt; i;</span><br><span class="line">&#125;</span><br><span class="line">std::cout &lt;&lt; std::endl;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="function"><span class="type">int</span> <span class="title">main</span><span class="params">()</span></span></span><br><span class="line"><span class="function"></span>&#123;</span><br><span class="line"><span class="function">std::thread <span class="title">thread1</span><span class="params">(print)</span></span>;</span><br><span class="line"><span class="keyword">if</span> (thread<span class="number">1.</span><span class="built_in">joinable</span>())</span><br><span class="line">&#123;</span><br><span class="line">thread<span class="number">1.</span><span class="built_in">join</span>();</span><br><span class="line">&#125;</span><br><span class="line">std::cout &lt;&lt; <span class="string">&quot;over&quot;</span>;</span><br><span class="line"><span class="built_in">system</span>(<span class="string">&quot;pause&quot;</span>);</span><br><span class="line"><span class="keyword">return</span> <span class="number">0</span>;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure><h3 id="函数thread-detach"><a href="#函数thread-detach" class="headerlink" title="函数thread.detach()"></a><strong>函数thread.detach()</strong></h3><p>让子线程“脱离”主线程，主线程不再管理它。</p><figure class="highlight c++"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line"><span class="function">std::thread <span class="title">thread1</span><span class="params">(PrintHelloWorld)</span></span>;</span><br><span class="line">thread<span class="number">1.</span><span class="built_in">detach</span>();</span><br><span class="line"><span class="built_in">system</span>(<span class="string">&quot;pause&quot;</span>);</span><br><span class="line">std::cout &lt;&lt; <span class="string">&quot;1&quot;</span>;</span><br><span class="line"><span class="built_in">system</span>(<span class="string">&quot;pause&quot;</span>);</span><br><span class="line"><span class="keyword">return</span> <span class="number">0</span>;</span><br></pre></td></tr></table></figure><p>你可以干你的事情，我也可以干我的事情，不管你了。像请客吃饭，请客的人把单买了之后说我先走一步，你们随意。对比上面的阻塞，我们发现detach是<strong>并发</strong>的。</p>]]></content>
+      
+      
       <categories>
-        <category>c++多线程</category>
+          
+          <category> c++多线程 </category>
+          
       </categories>
-      <tags>
-        <tag>c++</tag>
-        <tag>多线程</tag>
-      </tags>
-  </entry>
+      
+      
+        <tags>
+            
+            <tag> c++ </tag>
+            
+            <tag> 多线程 </tag>
+            
+        </tags>
+      
+    </entry>
+    
+    
+    
+    <entry>
+      <title>第一篇文章！</title>
+      <link href="/2025/03/08/FirstBlog/"/>
+      <url>/2025/03/08/FirstBlog/</url>
+      
+        <content type="html"><![CDATA[<h1 id="汇编语言（一）"><a href="#汇编语言（一）" class="headerlink" title="汇编语言（一）"></a>汇编语言（一）</h1><h2 id="CPU的组成"><a href="#CPU的组成" class="headerlink" title="CPU的组成"></a>CPU的组成</h2><ul><li><strong>运算器</strong>进行信息处理；</li><li><strong>寄存器</strong>进行信息存储；</li><li><strong>控制器</strong>协调各种器件进行工作；</li><li><strong>内部总线</strong>实现CPU内各个器件之间的联系。</li></ul><div class="gallery-container" data-type="data" data-button data-limit="10" data-first="10">    <div class="gallery-items">[{"url":"1.png","alt":"img","title":""}]</div>  </div><h2 id="8086上一代CPU的寄存器是八位的，那如何保证兼容性呢？"><a href="#8086上一代CPU的寄存器是八位的，那如何保证兼容性呢？" class="headerlink" title="8086上一代CPU的寄存器是八位的，那如何保证兼容性呢？"></a>8086上一代CPU的寄存器是八位的，那如何保证兼容性呢？</h2><p>把16位寄存器分成<strong>AH</strong>和<strong>AL</strong>两个独立的8位寄存器使用；<br>同样，32位或64位的寄存器也可以分，从而实现兼容性。<br>比如AX中现在存储0101010110101010，可以分为AH<strong>01010101</strong>和AL<strong>10101010</strong>来存储</p><h2 id="汇编指令"><a href="#汇编指令" class="headerlink" title="汇编指令"></a>汇编指令</h2><h3 id="汇编指令-控制CPU完成的操作"><a href="#汇编指令-控制CPU完成的操作" class="headerlink" title="汇编指令                控制CPU完成的操作"></a>汇编指令                控制CPU完成的操作</h3><ul><li>mov ax,18                  将18送入AX</li><li>mov ah,78                  将78送入AH</li><li>add ax,8                   将AX中的值和8相加并把值存入AX</li><li>mov ax,bx                  将BX中的值赋值给AX</li><li>add ax,bx                  将AX和BX中的内容相加并把值存于AX<br><strong>注意：汇编指令不区分大小写，MOV也行</strong></li></ul><div class="gallery-container" data-type="data" data-button data-limit="10" data-first="10">    <div class="gallery-items">[{"url":"2.png","alt":"img","title":""}]</div>  </div><p>在进行低八位运算的时候，比如最后一行85+93，结果等于158，但发生了溢出，只能显示58，1舍弃而不是进位到高位。</p><h2 id="物理地址"><a href="#物理地址" class="headerlink" title="物理地址"></a>物理地址</h2><p>每一个内存单元在存储空间中都有唯一的位置。8086CPU有20位地址总线，可传送20位地址，寻址能力为1MB（2的20次方）。8086是<strong>16位</strong>的CPU，16位地址表示的是地址总线的宽度，即CPU可以直接访问的地址范围。如果地址总线是16位，那么可表示的地址数量为2的十六次方&#x3D;65536个字节（即 64KB）。这意味着 CPU 最多只能寻址 64KB 的内存空间。<br>使用地址加法器将两个16位地址合成一个20位的物理地址。一个叫做<strong>段地址</strong>，另一个叫做<strong>偏移地址</strong>。<br><strong>段地址✖16 + 偏移地址 &#x3D; 物理地址，也称之为左移四位（二进制中），在十六进制里左移1位即可。</strong><br>最后得到的20位物理地址被地址总线传送到存储器里。<br>描述存储单元的方法（物理地址为21F60H，段地址为2000H，则偏移地址为1F60H）</p><ul><li>数据存放在内存2000：1F60单元中</li><li>数据存放在内存的2000段中的1F60H中</li></ul><div class="gallery-container" data-type="data" data-button data-limit="10" data-first="10">    <div class="gallery-items">[{"url":"3.png","alt":"img","title":""}]</div>  </div>]]></content>
+      
+      
+      
+    </entry>
+    
+    
+  
+  
 </search>
