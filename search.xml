@@ -44,7 +44,7 @@
 <li>线程的多少取决于CPU的<strong>核数</strong><br>如下图，如果是串行的话就必须顺序执行，但如果并行的话你就可以在同一时间内干多个事情。但同时要注意你的“<strong>核数</strong>”，你不能同时刷抖音和听音乐，因为你没有四个耳朵，亦或者说你的手机同一时间内只能处理一个应用播放声音。</li>
 </ul>
 <div class="gallery-container" data-type="data" data-button data-limit="10" data-first="10">
-    <div class="gallery-items">[{"url":"mple.png","alt":"img","title":""}]</div>
+    <div class="gallery-items">[{"url":"mple.png","alt":"","title":""}]</div>
   </div>
 
 <h1 id="C-11-Thread"><a href="#C-11-Thread" class="headerlink" title="C++11 Thread"></a>C++11 Thread</h1><ul>
