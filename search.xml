@@ -141,6 +141,9 @@
 <h3 id="STL——set"><a href="#STL——set" class="headerlink" title="STL——set"></a>STL——set</h3><p>set 有insert，erase，count，find,size等用法，通常用于查找的时候不用find（因为要返回迭代器的值），而是用count，set底层是红黑树，可以实现自动除重，比如insert(6)两次，只会有一个，所以count()的值只会是0和1；用于判断是否存储在里面。<br><img src="https://picbedex.oss-cn-shenzhen.aliyuncs.com/20250312112552261.png"></p>
 <figure class="highlight c++"><table><tr><td class="code"><pre><span class="line">set.<span class="built_in">insert</span>();</span><br><span class="line">set.<span class="built_in">erase</span>();</span><br><span class="line">set.<span class="built_in">count</span>();</span><br></pre></td></tr></table></figure>
 <p>unordered_set和set大体上一样，但是是用哈希表实现的，所以里面是无序的，但是查找很快,O(1)级，set的查找是O(logN);</p>
+<p>set插入vector的元素很方便，使用迭代器，同时通过assign分配新值给nums替换旧值。</p>
+<figure class="highlight c++"><table><tr><td class="code"><pre><span class="line"><span class="keyword">class</span> <span class="title class_">Solution</span> &#123;</span><br><span class="line"><span class="keyword">public</span>:</span><br><span class="line">    <span class="function"><span class="type">int</span> <span class="title">removeDuplicates</span><span class="params">(vector&lt;<span class="type">int</span>&gt;&amp; nums)</span> </span>&#123;</span><br><span class="line">        set &lt;<span class="type">int</span>&gt; <span class="built_in">s</span> (nums.<span class="built_in">begin</span>(),nums.<span class="built_in">end</span>());</span><br><span class="line">		nums.<span class="built_in">assign</span>(s.<span class="built_in">begin</span>(),s.<span class="built_in">end</span>());</span><br><span class="line">		<span class="keyword">return</span> nums.<span class="built_in">size</span>(); </span><br><span class="line">    &#125;</span><br><span class="line">&#125;;</span><br></pre></td></tr></table></figure>
+
 <p>给你一个整数数组 nums 。如果任一值在数组中出现 至少两次 ，返回 true ；如果数组中每个元素互不相同，返回 false 。</p>
 <figure class="highlight c++"><table><tr><td class="code"><pre><span class="line"><span class="keyword">class</span> <span class="title class_">Solution</span> &#123;</span><br><span class="line"><span class="keyword">public</span>:</span><br><span class="line">    <span class="function"><span class="type">bool</span> <span class="title">containsDuplicate</span><span class="params">(vector&lt;<span class="type">int</span>&gt;&amp; nums)</span> </span>&#123;</span><br><span class="line">        <span class="type">int</span> n = nums.<span class="built_in">size</span>();</span><br><span class="line">        set &lt;<span class="type">int</span>&gt; s;</span><br><span class="line">        <span class="keyword">for</span> (<span class="keyword">auto</span> a:nums)&#123;</span><br><span class="line">            s.<span class="built_in">insert</span>(a);</span><br><span class="line">        &#125;</span><br><span class="line">        <span class="type">int</span> ns = s.<span class="built_in">size</span>();</span><br><span class="line">        <span class="keyword">if</span> (n!=ns) <span class="keyword">return</span> <span class="literal">true</span>;</span><br><span class="line">        <span class="keyword">return</span> <span class="literal">false</span>;</span><br><span class="line">    &#125;</span><br><span class="line">&#125;;</span><br></pre></td></tr></table></figure>
 <p>判断前后两次的size是否相同，不同则有重复插入。</p>
@@ -181,7 +184,7 @@
 <h2 id="构造函数与析构函数"><a href="#构造函数与析构函数" class="headerlink" title="构造函数与析构函数"></a>构造函数与析构函数</h2><p>没有返回值，不用写void，函数名与类名相同，构造函数可以有参数，可以发生重载，创建对象的时候会自动调用，而且只调用一次。<br>析构函数前加一个~</p>
 <figure class="highlight c++"><table><tr><td class="code"><pre><span class="line"><span class="keyword">class</span> <span class="title class_">person</span></span><br><span class="line">&#123;</span><br><span class="line"><span class="keyword">public</span>:</span><br><span class="line">	<span class="built_in">person</span>()</span><br><span class="line">	&#123;</span><br><span class="line">		cout&lt;&lt;<span class="string">&quot;构造&quot;</span>;</span><br><span class="line">		&#125;	</span><br><span class="line">	~<span class="built_in">person</span>()</span><br><span class="line">	&#123;</span><br><span class="line">		cout&lt;&lt;<span class="string">&quot;析构&quot;</span>;</span><br><span class="line">	 &#125; </span><br><span class="line">&#125;;</span><br><span class="line"></span><br><span class="line"><span class="function"><span class="type">int</span> <span class="title">main</span><span class="params">()</span></span></span><br><span class="line"><span class="function"></span>&#123;</span><br><span class="line">	person p;</span><br><span class="line">	person p1;</span><br><span class="line"> &#125; </span><br></pre></td></tr></table></figure>
 
-<h2 id="继承"><a href="#继承" class="headerlink" title="继承"></a>继承</h2><p>可以省略冗余的代码，继承父类。 j<br>继承语法： class 子类 : 继承方式 父类<br>class cpp : public header<br><img src="https://picbedex.oss-cn-shenzhen.aliyuncs.com/20250321183703034.png">;<br><img src="https://picbedex.oss-cn-shenzhen.aliyuncs.com/20250321183742270.png">;<br>子类可以缩小权限范围，但不能扩大权限范围。<br><img src="https://picbedex.oss-cn-shenzhen.aliyuncs.com/20250321191947414.png"></p>
+<h2 id="继承"><a href="#继承" class="headerlink" title="继承"></a>继承</h2><p>可以省略冗余的代码，继承父类。<br>继承语法： class 子类 : 继承方式 父类<br>class cpp : public header<br><img src="https://picbedex.oss-cn-shenzhen.aliyuncs.com/20250321183703034.png">;<br><img src="https://picbedex.oss-cn-shenzhen.aliyuncs.com/20250321183742270.png">;<br>子类可以缩小权限范围，但不能扩大权限范围。<br><img src="https://picbedex.oss-cn-shenzhen.aliyuncs.com/20250321191947414.png"></p>
 ]]></content>
   </entry>
   <entry>
@@ -288,6 +291,49 @@
     <title>FindJob</title>
     <url>/2025/03/20/FindJob/</url>
     <content><![CDATA[<h2 id="这是一篇记录找工作学习了什么的博客，希望在未来的一年能实现。"><a href="#这是一篇记录找工作学习了什么的博客，希望在未来的一年能实现。" class="headerlink" title="这是一篇记录找工作学习了什么的博客，希望在未来的一年能实现。"></a>这是一篇记录找工作学习了什么的博客，希望在未来的一年能实现。</h2><p>2025.3.20 回顾指针，常量指针，指针常量，引用，内存访问，结构体指针（地址传参和值传参）。</p>
+]]></content>
+  </entry>
+  <entry>
+    <title>论文笔记</title>
+    <url>/2025/03/28/%E8%AE%BA%E6%96%87%E7%AC%94%E8%AE%B0/</url>
+    <content><![CDATA[<p>COFFEE<br>c:cross-layer optimization for fast and efficient executions of the SK algorithm on HPC systems with clusters of compute nodes<br>在有计算节点集群的HPC系统上快速高效执行SK算法。<br><strong>算法中：行、列都可以重新缩放</strong>，<strong>列缩放相较行缩放极其缓慢</strong>。<br>在多节点上的性能比单节点提升最高7.5倍，平均2倍；与天河一号的MPI Allreduce算法比，最高2.9，平均1.6.<br>SK算法：a simple but very useful iterative method to approach the double stochastic matrix of Sinkhorn’s theorem by alternately rescaling all rows and all columns of the given matrix.<br>对矩阵进行缩放列。</p>
+<p>现存的SK算法大多用去搞强化学习了（应用层），或者去加速收敛，很少有研究从计算机系统架构的角度考虑改进算法，特别是高性能计算（HPC）系统。HPC有他自己独特的计算、存储以及交流能力，看看是否能发挥全部潜力。SK算法在四个代表性应用的时间占比都超过一半（BALS的卷积也这样）所以就去优化。</p>
+<p><strong>这篇论文用MPI，通过多核、多节点集群加速SK算法。</strong><br>先分析经典算法在天河1上。<br>列缩放的时间远超行缩放，原因是<strong>通过列缩放进行的内存访问是高度非连续的，这导致了较高的缓存未命中率。</strong><br>解决方法：<strong>探险重新设计列缩放以及信息阻塞</strong>去减少缓存未命中；设计微核并且重新设计指令去<strong>增加并行性</strong></p>
+<p>优化思想：通用矩阵乘法、分层<br>分层的思想在MPI Allreduce算法（MPI_Allreduce 是 MPI（消息传递接口）中的一个函数，用于在所有进程之间<strong>进行归约操作并广播结果。</strong>）的相关优化中非常常见。</p>
+<p>选择SALaR（？）作为基准去研究。发现：实现Allreduce可以与SK算法的其他任务进行overlap（重叠）进一部提高性能   </p>
+<h2 id="本篇文章的主要contribution"><a href="#本篇文章的主要contribution" class="headerlink" title="本篇文章的主要contribution"></a>本篇文章的主要contribution</h2><ul>
+<li>我们分析了 SK 算法在 HPC 集群上的执行行为，并观察到两个主要的性能挑战。首先是其列重新缩放表现出高度非连续的内存访问模式，这导致非常高的缓存未命中率，从而大大降低了整体性能。第二，即使采用 Foster 的方法设计，列重新缩放也会严重限制并行性</li>
+<li>我们提出了 COFFEE，这是一种新颖的方法，它实现了多级优化设计，以优化 HPC 系统中大规模 SK 算法的处理（第 IV 节）。我们通过增强 MPI Allreduce 来提高并行效率，采用有效的领导者-工作者机制，尽可能重叠节点间(intra-node)通信、节点内通信和节点内计算</li>
+<li>我们在天河一号超级计算机上评估了 COFFEE 的原型实现，证明了其与 SOTA 解决方案相比具有显著的性能优势（第六节）。我们的实验结果表明，COFFEE 分别在单节点和多节点环境中带来了高达 7.5 倍和 2.9 倍的性能提升。</li>
+</ul>
+<h2 id="SK算法"><a href="#SK算法" class="headerlink" title="SK算法"></a>SK算法</h2><p>双随机矩阵,sk算法就是在行列都归一化后，每行元素相加都为1，每列元素相加也都为1<br><img src="https://picbedex.oss-cn-shenzhen.aliyuncs.com/20250328202355119.png"></p>
+<figure class="highlight py"><table><tr><td class="code"><pre><span class="line"><span class="keyword">import</span> numpy <span class="keyword">as</span> np</span><br><span class="line"><span class="keyword">def</span> <span class="title function_">sinkhorn</span>(<span class="params">A, max_iter=<span class="number">1000</span>, tol=<span class="number">1e-6</span></span>):</span><br><span class="line">    A = np.array(A, dtype=np.float64)</span><br><span class="line">    <span class="keyword">for</span> _ <span class="keyword">in</span> <span class="built_in">range</span>(max_iter):</span><br><span class="line">        A_prev = A.copy()</span><br><span class="line">        A /= A.<span class="built_in">sum</span>(axis=<span class="number">1</span>, keepdims=<span class="literal">True</span>)  <span class="comment"># 行归一化</span></span><br><span class="line">        A /= A.<span class="built_in">sum</span>(axis=<span class="number">0</span>, keepdims=<span class="literal">True</span>)  <span class="comment"># 列归一化</span></span><br><span class="line">        <span class="keyword">if</span> np.allclose(A, A_prev, atol=tol):</span><br><span class="line">            <span class="keyword">break</span></span><br><span class="line">    <span class="keyword">return</span> A</span><br><span class="line"></span><br><span class="line"><span class="comment"># 示例</span></span><br><span class="line">A = np.array([[<span class="number">4</span>, <span class="number">5</span>, <span class="number">6</span>], [<span class="number">3</span>, <span class="number">4</span>,<span class="number">2</span>],[<span class="number">7</span>,<span class="number">8</span>,<span class="number">5</span>]])</span><br><span class="line">B = sinkhorn(A)</span><br><span class="line"><span class="built_in">print</span>(B)</span><br><span class="line"><span class="built_in">print</span>(<span class="string">&quot;Row sums:&quot;</span>, B.<span class="built_in">sum</span>(axis=<span class="number">1</span>))</span><br><span class="line"><span class="built_in">print</span>(<span class="string">&quot;Col sums:&quot;</span>, B.<span class="built_in">sum</span>(axis=<span class="number">0</span>))</span><br></pre></td></tr></table></figure>
+<p><img src="https://picbedex.oss-cn-shenzhen.aliyuncs.com/20250328203003067.png"></p>
+<p>选SK算法而不是和其他算法有两重原因：</p>
+<ul>
+<li>现在主流的线性代数库（如 BLAS、NumPy、PyTorch 等）在进行矩阵乘法时，底层通常使用的是最基础的“三重循环”实现方式，而不是像 Strassen 或 Coppersmith-Winograd 这样的快速乘法算法。就像基本的矩阵乘法实现一样，最原始的 Sinkhorn-Knopp（SK）算法也<strong>更容易从计算机系统架构的角度进行优化</strong>。</li>
+<li>现有的 SK 算法研究主要集中于通过<strong>减少矩阵缩放迭代次数</strong>来加快收敛速度​​，但我们的目标是<strong>减少每次迭代的时间</strong>。</li>
+</ul>
+<p>我们不再去限制每一行&#x2F;每一列的和接近1，而是去最后计算的时候让行&#x2F;列和为1，在计算结果之前不需要让它接近1。<br><img src="https://picbedex.oss-cn-shenzhen.aliyuncs.com/20250328205256791.png"></p>
+<p>Intel团队用Python。为了在超算上运行，我们选C实现，是他们SOTApython的重写，有循环展开和数据并行优化，并且性能不逊于他们。</p>
+<p>串行处理行列缩放,明显看到列用了十几倍的时间。<br><img src="https://picbedex.oss-cn-shenzhen.aliyuncs.com/20250328212937491.png"></p>
+<h2 id="介绍典型的并行算法"><a href="#介绍典型的并行算法" class="headerlink" title="介绍典型的并行算法"></a>介绍典型的并行算法</h2><p>关键点：如何分割数据和任务让交流<strong>少一些</strong>，让计算任务更<strong>稳定</strong>。<br>处理方法：把矩阵按行划分成多个子矩阵，每个处理器只负责其中一些行，这样在<strong>行归一化</strong>的时候每个处理器只需要处理自己的行，不需要通信；最后让通信发生在<strong>列归一化</strong>阶段，这部分可以统一优化。这样目的是<strong>把本地能算的留在本地，只在必要时跨节点通信</strong>。<br>算法执行被拆成四步：</p>
+<ul>
+<li>每个进程独立地对自己那一块行子矩阵进行行归一化（和算法1的第1–10行一样），不需要通信；</li>
+<li>每个进程计算自己那部分子矩阵的列和；</li>
+<li>调用 MPI_Allreduce 汇总所有进程的列和，得到全矩阵每列的总和；</li>
+<li>每个进程根据上一步得到的列缩放因子，独立地对自己那块子矩阵做列归一化。<br>这样做能最大限度减少通信，仅在列缩放因子计算这一步使用 MPI，有利于并行效率。</li>
+</ul>
+]]></content>
+  </entry>
+  <entry>
+    <title>LearningHPC</title>
+    <url>/2025/03/28/LearningHPC/</url>
+    <content><![CDATA[<h2 id="Pytorch学习"><a href="#Pytorch学习" class="headerlink" title="Pytorch学习"></a>Pytorch学习</h2><h3 id="基础语法"><a href="#基础语法" class="headerlink" title="基础语法"></a>基础语法</h3><figure class="highlight python"><table><tr><td class="code"><pre><span class="line"><span class="keyword">from</span> PIL <span class="keyword">import</span> Image</span><br><span class="line">img_path = <span class="string">r&quot;D:\PythonProject2\hymenoptera_data\hymenoptera_data\train\ants\0013035.jpg&quot;</span></span><br><span class="line">img = Image.<span class="built_in">open</span>(img_path)</span><br></pre></td></tr></table></figure>
+<p>这样就可以实现图片的打开。<br><img src="https://picbedex.oss-cn-shenzhen.aliyuncs.com/20250328172122965.png"><br>因为在python里面\t或者是\n是转义字符，<strong>直接加r表示这就是原始语义</strong>。</p>
+<p>如果要读取一个文件夹里的许多图片，需要用到os库，然后使用列表的形式</p>
+<figure class="highlight python"><table><tr><td class="code"><pre><span class="line"><span class="keyword">import</span> os</span><br><span class="line">dir_path = <span class="string">r&quot;D:\PythonProject2\hymenoptera_data\hymenoptera_data\train\ants&quot;</span></span><br><span class="line">img_path_list = os.listdir(dir_path)</span><br></pre></td></tr></table></figure>
+<p>最后达到右边的效果<br><img src="https://picbedex.oss-cn-shenzhen.aliyuncs.com/20250328172705602.png"></p>
 ]]></content>
   </entry>
 </search>
