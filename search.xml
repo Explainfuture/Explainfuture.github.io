@@ -692,6 +692,9 @@
 <figure class="highlight c++"><table><tr><td class="code"><pre><span class="line"><span class="meta">#<span class="keyword">include</span> <span class="string">&lt;iostream&gt;</span></span></span><br><span class="line"><span class="keyword">using</span> <span class="keyword">namespace</span> std;</span><br><span class="line"></span><br><span class="line"><span class="function"><span class="type">void</span> <span class="title">func</span><span class="params">(<span class="type">int</span> arr[], <span class="type">int</span> i, <span class="type">int</span> length)</span></span></span><br><span class="line"><span class="function"></span>&#123;</span><br><span class="line">	<span class="keyword">if</span> (i == length)</span><br><span class="line">	&#123;</span><br><span class="line">		<span class="keyword">for</span> (<span class="type">int</span> j = <span class="number">0</span>; j &lt; length; j++)</span><br><span class="line">		&#123;</span><br><span class="line">			cout &lt;&lt; arr[j] &lt;&lt; <span class="string">&quot; &quot;</span>;</span><br><span class="line">		&#125;</span><br><span class="line">		cout &lt;&lt; endl;</span><br><span class="line">	&#125;</span><br><span class="line">	<span class="keyword">else</span></span><br><span class="line">	&#123;</span><br><span class="line">		<span class="built_in">func</span>(arr, i + <span class="number">1</span>, length);</span><br><span class="line">		<span class="built_in">func</span>(arr, i + <span class="number">1</span>, length);</span><br><span class="line">	&#125;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"></span><br><span class="line"><span class="function"><span class="type">int</span> <span class="title">main</span><span class="params">()</span></span></span><br><span class="line"><span class="function"></span>&#123;</span><br><span class="line">	<span class="type">int</span> arr[] = &#123; <span class="number">1</span>,<span class="number">2</span>,<span class="number">3</span> &#125;;</span><br><span class="line">	<span class="type">int</span> len = <span class="built_in">sizeof</span>(arr) / <span class="built_in">sizeof</span>(arr[<span class="number">0</span>]);</span><br><span class="line">	<span class="built_in">func</span>(arr, <span class="number">0</span>, len);</span><br><span class="line">	<span class="keyword">return</span> <span class="number">0</span>;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
 <p>子集树，其实就是递归选路径，需要一个辅助数组子集树</p>
 <figure class="highlight c++"><table><tr><td class="code"><pre><span class="line"><span class="function"><span class="type">void</span> <span class="title">func</span><span class="params">(<span class="type">int</span> arr[], <span class="type">int</span> i,<span class="type">int</span> length, <span class="type">int</span> x[])</span></span></span><br><span class="line"><span class="function"></span>&#123;</span><br><span class="line">	<span class="keyword">if</span> (i == length)</span><br><span class="line">	&#123;</span><br><span class="line">		<span class="keyword">for</span> (<span class="type">int</span> j = <span class="number">0</span>; j &lt; length; j++)</span><br><span class="line">		&#123;</span><br><span class="line">			<span class="keyword">if</span> (x[j]==<span class="number">1</span>) cout &lt;&lt; arr[j] &lt;&lt; <span class="string">&quot; &quot;</span>;</span><br><span class="line">			</span><br><span class="line">		&#125;</span><br><span class="line">		cout &lt;&lt; endl;</span><br><span class="line">	&#125;</span><br><span class="line">	<span class="keyword">else</span></span><br><span class="line">	&#123;</span><br><span class="line">		<span class="comment">/*x[i] = 1; //选这条路</span></span><br><span class="line"><span class="comment">		func(arr, i + 1, length,x);</span></span><br><span class="line"><span class="comment">		x[i] = 0; //不选这条路</span></span><br><span class="line"><span class="comment">		func(arr, i + 1, length,x);*/</span></span><br><span class="line">		<span class="keyword">for</span> (<span class="type">int</span> k = <span class="number">1</span>;k&gt;=<span class="number">0</span>;k--)</span><br><span class="line">		&#123;</span><br><span class="line">			x[i] = k;</span><br><span class="line">			<span class="built_in">func</span>(arr,i<span class="number">+1</span>,length,x);</span><br><span class="line">		&#125;</span><br><span class="line"></span><br><span class="line">	&#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>]]></content>
+      <tags>
+        <tag>cpp</tag>
+      </tags>
   </entry>
   <entry>
     <title>操作系统</title>
@@ -749,5 +752,24 @@
 </ul>
 <p>步长调度：其实就是时间片轮转，执行完当前的步长然后去看看队列中现在谁的总步长最短，就去执行它，如果所有人的步长都相同了，那就随机抽一个去执行。</p>
 ]]></content>
+  </entry>
+  <entry>
+    <title>cpp基础核心内容</title>
+    <url>/2025/04/20/cpp%E5%9F%BA%E7%A1%80%E6%A0%B8%E5%BF%83%E5%86%85%E5%AE%B9/</url>
+    <content><![CDATA[<h3 id="进程虚拟地址空间区域划分"><a href="#进程虚拟地址空间区域划分" class="headerlink" title="进程虚拟地址空间区域划分"></a>进程虚拟地址空间区域划分</h3><p>有四区</p>
+<ol>
+<li>代码区(.text) 存放程序的机器指令，通常是<strong>只读的</strong></li>
+<li>数据段(.data) 存放<strong>已初始化的全局变量和静态变量</strong></li>
+<li>BSS段 存放<strong>未初始化</strong>的<strong>全局变量和静态变量</strong>，操作系统在运行前会帮助自动初始化为0</li>
+<li>堆栈区(Heap and Stack) <ul>
+<li>堆区：程序运行时动态分配的内存(new 和 malloc)，由程序员管理</li>
+<li>栈区：函数调用时使用的内存，存放局部变量和返回地址，由系统自动分配和释放</li>
+</ul>
+</li>
+</ol>
+]]></content>
+      <tags>
+        <tag>cpp</tag>
+      </tags>
   </entry>
 </search>
