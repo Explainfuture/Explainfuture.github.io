@@ -209,7 +209,7 @@
 <h3 id="插入和删除"><a href="#插入和删除" class="headerlink" title="插入和删除"></a>插入和删除</h3><p>两端插入操作：<br>push_back(elem); &#x2F;&#x2F;在容器尾部添加一个数据<br>push_front(elem); &#x2F;&#x2F;在容器头部插入一个数据<br>pop_back(); &#x2F;&#x2F;删除容器最后一个数据<br>pop_front(); &#x2F;&#x2F;删除容器第一个数据<br>指定位置操作：<br>insert(pos,elem); &#x2F;&#x2F;在pos位置插入一个elem元素的拷贝，返回新数据的位置。<br>insert(pos,n,elem); &#x2F;&#x2F;在pos位置插入n个elem数据，无返回值。<br>insert(pos,beg,end); &#x2F;&#x2F;在pos位置插入[beg，end)区间的数据，无返回值。<br>clear();&#x2F;&#x2F;清空容器的所有数据<br>erase(beg,end); &#x2F;&#x2F;删除[beg，end)区间的数据，返回下一个数据的位置。<br>erase(pos); &#x2F;&#x2F;删除pos位置的数据，返回下一个数据的位置。</p>
 <h3 id="排序"><a href="#排序" class="headerlink" title="排序"></a>排序</h3><p>sort(d.begin(),d.end())</p>
 <h2 id="STL–queue"><a href="#STL–queue" class="headerlink" title="STL–queue"></a>STL–queue</h2><p>先进先出，很像尾插法。<br><img src="https://picbedex.oss-cn-shenzhen.aliyuncs.com/20250402113216514.png"><br><strong>不允许遍历！只能访问队头队尾！</strong><br>入队：q.push() 出队：q.pop()<br>基本操作<br><img src="https://picbedex.oss-cn-shenzhen.aliyuncs.com/20250402113412632.png"></p>
-]]></content>
+<figure class="highlight c++"><table><tr><td class="code"><pre><span class="line"><span class="meta">#<span class="keyword">include</span> <span class="string">&lt;iostream&gt;</span></span></span><br><span class="line"><span class="keyword">using</span> <span class="keyword">namespace</span> std;</span><br><span class="line"></span><br><span class="line"><span class="function"><span class="type">bool</span> <span class="title">compare</span><span class="params">(<span class="type">int</span> a, <span class="type">int</span> b)</span></span></span><br><span class="line"><span class="function"></span>&#123;</span><br><span class="line">	cout &lt;&lt; <span class="string">&quot;compare_int_int&quot;</span> &lt;&lt; endl;</span><br><span class="line">	<span class="keyword">return</span> a &gt; b;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="function"><span class="type">bool</span> <span class="title">compare</span><span class="params">(<span class="type">double</span> a, <span class="type">double</span> b)</span></span></span><br><span class="line"><span class="function"></span>&#123;</span><br><span class="line">	cout &lt;&lt; <span class="string">&quot;compare_double_double&quot;</span> &lt;&lt; endl;</span><br><span class="line">	<span class="keyword">return</span> a &gt; b;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="comment">/*</span></span><br><span class="line"><span class="comment">* //strcmp会逐个比较</span></span><br><span class="line"><span class="comment">const char* a = &quot;apple&quot;;</span></span><br><span class="line"><span class="comment">const char* b = &quot;apricot&quot;;</span></span><br><span class="line"><span class="comment">strcmp(a, b); // 比较 &#x27;a&#x27; vs &#x27;a&#x27; → &#x27;p&#x27; vs &#x27;p&#x27; → &#x27;p&#x27; vs &#x27;r&#x27; → 返回负数（&#x27;p&#x27; &lt; &#x27;r&#x27;）</span></span><br><span class="line"><span class="comment">*/</span></span><br><span class="line"><span class="type">const</span> <span class="type">char</span>* a = <span class="string">&quot;hello&quot;</span>; <span class="comment">//在内存中是&#x27;h&#x27;,&#x27;e&#x27;,&#x27;l&#x27;,&#x27;l&#x27;,&#x27;o&#x27;,&#x27;\0&#x27;，a是一个指针，指向&#x27;h&#x27;的地址。</span></span><br><span class="line"><span class="function"><span class="type">bool</span> <span class="title">compare</span><span class="params">(<span class="type">const</span> <span class="type">char</span> *a, <span class="type">const</span> <span class="type">char</span> *b)</span> <span class="comment">//const char* a 是一个指针，指向一个字符串的起始地址，字符串本质上是以 \0 结尾的 char 数组。</span></span></span><br><span class="line"><span class="function"></span>&#123;</span><br><span class="line">	cout &lt;&lt; <span class="string">&quot;compare_char*_char*&quot;</span> &lt;&lt; endl;</span><br><span class="line">	<span class="keyword">return</span> <span class="built_in">strcmp</span>(a,b)&gt;<span class="number">0</span>;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="function"><span class="type">int</span> <span class="title">main</span><span class="params">()</span></span></span><br><span class="line"><span class="function"></span>&#123;</span><br><span class="line">	<span class="built_in">compare</span>(<span class="number">10</span>, <span class="number">20</span>);</span><br><span class="line">	<span class="built_in">compare</span>(<span class="number">10.0</span>, <span class="number">20.0</span>);</span><br><span class="line">	<span class="built_in">compare</span>(<span class="string">&quot;aaa&quot;</span>, <span class="string">&quot;bbb&quot;</span>);</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>]]></content>
   </entry>
   <entry>
     <title>算法（一）</title>
@@ -756,14 +756,83 @@
   <entry>
     <title>cpp基础核心内容</title>
     <url>/2025/04/20/cpp%E5%9F%BA%E7%A1%80%E6%A0%B8%E5%BF%83%E5%86%85%E5%AE%B9/</url>
-    <content><![CDATA[<h3 id="进程虚拟地址空间区域划分"><a href="#进程虚拟地址空间区域划分" class="headerlink" title="进程虚拟地址空间区域划分"></a>进程虚拟地址空间区域划分</h3><p>有四区</p>
+    <content><![CDATA[<h2 id="三块核心内容"><a href="#三块核心内容" class="headerlink" title="三块核心内容"></a>三块核心内容</h2><h3 id="进程虚拟地址空间区域划分"><a href="#进程虚拟地址空间区域划分" class="headerlink" title="进程虚拟地址空间区域划分"></a>进程虚拟地址空间区域划分</h3><p>有四区</p>
 <ol>
 <li>代码区(.text) 存放程序的机器指令，通常是<strong>只读的</strong></li>
 <li>数据段(.data) 存放<strong>已初始化的全局变量和静态变量</strong></li>
 <li>BSS段 存放<strong>未初始化</strong>的<strong>全局变量和静态变量</strong>，操作系统在运行前会帮助自动初始化为0</li>
 <li>堆栈区(Heap and Stack) <ul>
 <li>堆区：程序运行时动态分配的内存(new 和 malloc)，由程序员管理</li>
-<li>栈区：函数调用时使用的内存，存放局部变量和返回地址，由系统自动分配和释放</li>
+<li>栈区：函数调用时使用的内存，存放局部变量和返回地址，由系统自动分配和释放<br><img src="https://picbedex.oss-cn-shenzhen.aliyuncs.com/20250420233311321.png"></li>
+</ul>
+</li>
+</ol>
+<figure class="highlight c++"><table><tr><td class="code"><pre><span class="line"><span class="function"><span class="type">int</span> <span class="title">main</span><span class="params">()</span></span></span><br><span class="line"><span class="function"></span>&#123;</span><br><span class="line">    <span class="type">int</span> a = <span class="number">12</span>；</span><br><span class="line">    <span class="type">int</span> b = <span class="number">0</span>;</span><br><span class="line">    <span class="type">int</span> c;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>这三条是其实是汇编的mov指令，存放在.text区，而main函数调用的时候会在栈开辟空间。</p>
+<h3 id="函数调用堆栈详细过程"><a href="#函数调用堆栈详细过程" class="headerlink" title="函数调用堆栈详细过程"></a>函数调用堆栈详细过程</h3><h3 id="程序编译链接原理"><a href="#程序编译链接原理" class="headerlink" title="程序编译链接原理"></a>程序编译链接原理</h3><p>预编译-编译-汇编-链接</p>
+<ol>
+<li>预编译 处理#include 之类的，除了#pragma lib和#pragma link，这两个是在链接时处理。</li>
+<li>编译 gcc &#x2F; g++（gcc用来编译c语言，g++用来编译c++，其实就是dev中的F9，只不过现在换成命令行形式）  在<strong>编译的过程中符号不分配虚拟地址</strong>，在链接分配。</li>
+<li>汇编 <strong>符号表的生成</strong>，生成.o文件</li>
+<li>链接 将各个段合并（比如main.o和sum.o）生成可执行文件，Linux下是.out&#x2F;Windows下是.exe<ul>
+<li>步骤一：所有的.o文件段合并，符号表合并后，进行<strong>符号解析</strong>（要找到所有符号表引用的定义）。</li>
+<li>步骤二：符号的重定向（让<em>UND</em>找到初始定义的位置）<strong>这是链接的核心</strong>，符号解析成功后，给所有的符号分配虚拟地址！</li>
+</ul>
+</li>
+</ol>
+<p>g++&#x2F;gcc语法</p>
+<ul>
+<li>gcc -c &#x2F; g++ -c  是编译 compile</li>
+<li>gcc -o &#x2F; g++ -o  是连接 objdump<br><img src="https://picbedex.oss-cn-shenzhen.aliyuncs.com/20250421103629431.png"><br><img src="https://picbedex.oss-cn-shenzhen.aliyuncs.com/20250421103540512.png"><br>使用objdump -t查看<strong>符号表</strong>（t - table）<br>使用cat查看文件内容</li>
+<li>在main.cpp中，我们看的定义gdata是一个外部引用的变量，sum是声明，看main.o的符号表，他们并不是没有符号，符号是<em>UND</em>(undefined)，这个意思是：<strong>我现在在当前代码上用到他们了，但是我却不知道他们是怎么定义的</strong>，UND是对于<strong>符号的引用</strong>，有确定数据段的是<strong>符号的定义</strong>需要在链接这一部分才能让他们找到“家”，main函数放在.text代码段上，我们定义了data，所以data放在了.data段</li>
+<li>在sum.o中，因为sum.cpp定义好了每一个位置，所以符号表都有。<br><img src="https://picbedex.oss-cn-shenzhen.aliyuncs.com/20250421110002638.png"><br>文件头，main.o 。 .o文件就是由<strong>各种各样的段</strong>来组成的<br><img src="https://picbedex.oss-cn-shenzhen.aliyuncs.com/20250421110042215.png"><br>可以使用objdump -s xxx.o查看段的信息<br>ld是链接器，负责链接。</li>
+<li>ELF文件头记录着文件的<strong>入口点地址</strong>，程序就知道从第几行开始执行了。</li>
+</ul>
+<p>总结 a.out和.o文件都是由各种段组成的，但区别在a.out多了一个#program headers段，有两个load，告诉程序在运行的时候需要加载哪些数据。<br><img src="https://picbedex.oss-cn-shenzhen.aliyuncs.com/20250421112526387.png"></p>
+<h2 id="C-基础部分"><a href="#C-基础部分" class="headerlink" title="C++基础部分"></a>C++基础部分</h2><h3 id="形参带默认值的函数"><a href="#形参带默认值的函数" class="headerlink" title="形参带默认值的函数"></a>形参带默认值的函数</h3><figure class="highlight c++"><table><tr><td class="code"><pre><span class="line"><span class="function"><span class="type">int</span> <span class="title">sum</span><span class="params">(<span class="type">int</span> a = <span class="number">20</span>, <span class="type">int</span> b )</span></span></span><br><span class="line"><span class="function"></span>&#123;</span><br><span class="line">	<span class="keyword">return</span> a + b;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="function"><span class="type">int</span> <span class="title">main</span><span class="params">()</span></span></span><br><span class="line"><span class="function"></span>&#123;</span><br><span class="line">	<span class="type">int</span> a = <span class="number">10</span>;</span><br><span class="line">	<span class="type">int</span> b = <span class="number">20</span>;</span><br><span class="line">	<span class="type">int</span> ret = <span class="built_in">sum</span>(a, b);</span><br><span class="line">	cout &lt;&lt; ret;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>这个代码是错误的，因为在函数传参压入栈的时候，参数是由右往左压，现在b没有默认值，所以是错的，如果定义b为20，a不定义，代码是正确的。代码顺序：<strong>从上到下，从右到左给默认值</strong></p>
+<h3 id="内联函数inline"><a href="#内联函数inline" class="headerlink" title="内联函数inline"></a>内联函数inline</h3><p>&#x2F;* inline内联函数和普通函数的区别？？？</p>
+<ul>
+<li>inline内联函数：在编译过程中，就<strong>没有函数的调用开销</strong>了，在函数的调用点直接<strong>把函数的代码进行展开处理</strong></li>
+<li>inline函数不再生成相应的函数符号（objdump -t）</li>
+<li>inline只是建议编译器把这个函数处理成内联函数，但是不是所有的inline都会被编译器处理成内联函数，比如递归，如果有符号说明没有内敛</li>
+<li>debug版本上，inline是不起作用的；inline只有在release版本下才能出现<br>*&#x2F;<br>函数调用的过程：</li>
+</ul>
+<figure class="highlight c++"><table><tr><td class="code"><pre><span class="line"><span class="function"><span class="type">int</span> <span class="title">sum</span><span class="params">(<span class="type">int</span> a , <span class="type">int</span> b = <span class="number">20</span>)</span></span></span><br><span class="line"><span class="function"></span>&#123;</span><br><span class="line">	<span class="keyword">return</span> a + b;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="function"><span class="type">int</span> <span class="title">main</span><span class="params">()</span></span></span><br><span class="line"><span class="function"></span>&#123;</span><br><span class="line">	<span class="type">int</span> a = <span class="number">10</span>;</span><br><span class="line">	<span class="type">int</span> b = <span class="number">20</span>;</span><br><span class="line">	<span class="number">3.</span> <span class="type">int</span> ret = <span class="built_in">sum</span>(a, b);</span><br><span class="line">	cout &lt;&lt; ret;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>在这里，第三行参数从右向左压栈，然后调用<strong>call</strong>指令，call 会把返回地址（main 函数中调用 sum 后的下一条指令）压入栈顶，然后跳转到 sum。要开辟函数栈帧，栈帧包含：返回地址、保存的寄存器、局部变量空间、对齐填充等。调用完后栈帧销毁，返回地址出栈，跳回 main 继续执行。虽然就是简简单单的x+y操作（三行汇编：mov add mov），但是如果循环了100000次呢？每一次都要这样开辟，很耗内存。<br>inline int sum(int x,int y)<br>{<br>    return x+y;<br>}<br>inline函数<strong>建议</strong>编译器内联展开函数（这是个建议，而不是强制），比如在第三行，很有可能编译成int ret &#x3D; a+b而不是调用函数。</p>
+<h3 id="函数重载"><a href="#函数重载" class="headerlink" title="函数重载"></a>函数重载</h3><p>&#x2F;*</p>
+<ol>
+<li>c++为什么支持函数重载，c语言不支持函数重载<ul>
+<li>C++代码产生函数符号的时候，是由函数名+参数列表组成的；C产生函数符号的时候，只由函数名组成。<br> 可以理解为C++：cmp_int_int &#x2F; cmp_double_double &#x2F; cmp_char *_char *，而c就会发生链接错误。</li>
+</ul>
+</li>
+<li>函数重载需要注意什么</li>
+<li>c++和c语言代码之间如何互相调用 （为何无法调用？因为函数符号不同，一个有列表一个没列表，会无法连接，<em>UND</em>）<ul>
+<li>C调用C++：无法直接调用，把c++源码扩在extern “C”</li>
+<li>C++调用C：把C函数的声明扩在extern “C”中<br>*&#x2F;<br>什么是重载函数？</li>
+</ul>
+</li>
+<li>一组函数，其中函数名相同，参数列表的<strong>个数或类型不同</strong>，那么这一组函数就称为 函数重载</li>
+<li>一组函数要称得上重载，一定先是处在同一个作用域中。</li>
+<li>const &#x2F; volatile,是怎么影响形参类型的。</li>
+<li>一组函数，函数名相同，参数列表也相同，仅仅是返回值不同，<strong>不叫重载</strong> 因为函数名参数列表都相同</li>
+</ol>
+<h3 id="const的用法"><a href="#const的用法" class="headerlink" title="const的用法"></a>const的用法</h3><ol>
+<li>const修饰的变量不能够再作为左值！！！初始化完成后，值不能被修改。</li>
+<li>c和c++中const的区别是什么?<br> const的编译方式不同，c中，const就是当作一个变量来编译生成指令的。<br> C++中，所有出现const常量名字的地方，都被常量的初始化替换了！！！所以在C++中使用const必须要初始化。比如const int a &#x3D; 20，接下来的int arr[a]，这个a不是a了，而是20。那使用指针有没有修改掉a的值呢？有，已经改掉了。</li>
+<li>c++的const必须初始化，叫常量。如果用变量为const定义的量赋值，就叫常变量(和C一样了)，因为初始值不是立即数，是一个变量，这时候printf出来的都会是变量。</li>
+</ol>
+<figure class="highlight c++"><table><tr><td class="code"><pre><span class="line"><span class="meta">#<span class="keyword">include</span> <span class="string">&lt;iostream&gt;</span></span></span><br><span class="line"><span class="keyword">using</span> <span class="keyword">namespace</span> std;</span><br><span class="line"></span><br><span class="line"><span class="function"><span class="type">int</span> <span class="title">main</span><span class="params">()</span></span></span><br><span class="line"><span class="function"></span>&#123;</span><br><span class="line">	<span class="type">int</span> b = <span class="number">20</span>;</span><br><span class="line">	<span class="type">const</span> <span class="type">int</span> a = b;</span><br><span class="line">	<span class="type">int</span>* p = (<span class="type">int</span>*)&amp;a;</span><br><span class="line">	*p = <span class="number">30</span>;</span><br><span class="line">	cout &lt;&lt; a &lt;&lt; <span class="string">&quot; &quot;</span> &lt;&lt; *(&amp;a)&lt;&lt;<span class="string">&quot; &quot;</span>&lt;&lt;*p;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<h3 id="new-malloc-delete-free"><a href="#new-malloc-delete-free" class="headerlink" title="new&#x2F;malloc delete&#x2F;free"></a>new&#x2F;malloc delete&#x2F;free</h3><ol>
+<li>delete和free的区别？malloc和free<strong>称作C的库函数</strong>，new和delete是运算符。</li>
+<li>new不仅可以开辟内存，还可以初始化内存；malloc只负责开辟内存大小的空间，返回的指针是void *，所以要强制类型转换。 <code>c++int *p = (int*)malloc(sizeof(int)*20);</code></li>
+<li>malloc开辟失败，是通过返回值和nullptr作比较；new开辟失败，通过<strong>抛出异常</strong>。</li>
+<li>new有几种？<ul>
+<li>int *p &#x3D; new int(20);</li>
+<li>int *p2 &#x3D; new (nothrow) int; &#x2F;&#x2F;不抛出异常</li>
+<li>const int *p3 &#x3D; new const int(40);</li>
+<li>int data &#x3D; 0;int *p4 &#x3D; new (&amp;data) int(50); &#x2F;&#x2F;定位new，在指定的位置赋值</li>
 </ul>
 </li>
 </ol>
