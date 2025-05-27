@@ -1,0 +1,364 @@
+<!DOCTYPE html><html lang="zh-CN" data-theme="light"><head><meta charset="UTF-8"><meta http-equiv="X-UA-Compatible" content="IE=edge"><meta name="viewport" content="width=device-width, initial-scale=1.0,viewport-fit=cover"><title>jvm | Explainfuture's Blog</title><meta name="author" content="Explainfuture"><meta name="copyright" content="Explainfuture"><meta name="format-detection" content="telephone=no"><meta name="theme-color" content="ffffff"><meta name="description" content="什么是JVM? 定义：Java Virtual Machine java程序的运行环境（更确切：java二进制字节码的运行环境） 好处： 一次编写，到处运行的基石（跨平台） 自动内存管理，垃圾回收功能（垃圾回收处理堆内存的无用对象） 数组下标越界检查 多态   比较：Jvm Jre Jdk的关系  JVM的内存结构程序计数器（PC）1. 定义 Program Counter Register 使用">
+<meta property="og:type" content="article">
+<meta property="og:title" content="jvm">
+<meta property="og:url" content="https://www.explainsf.com/2025/05/27/jvm/index.html">
+<meta property="og:site_name" content="Explainfuture&#39;s Blog">
+<meta property="og:description" content="什么是JVM? 定义：Java Virtual Machine java程序的运行环境（更确切：java二进制字节码的运行环境） 好处： 一次编写，到处运行的基石（跨平台） 自动内存管理，垃圾回收功能（垃圾回收处理堆内存的无用对象） 数组下标越界检查 多态   比较：Jvm Jre Jdk的关系  JVM的内存结构程序计数器（PC）1. 定义 Program Counter Register 使用">
+<meta property="og:locale" content="zh_CN">
+<meta property="og:image" content="https://www.explainsf.com/image/head.jpeg">
+<meta property="article:published_time" content="2025-05-27T00:47:41.000Z">
+<meta property="article:modified_time" content="2025-05-27T09:11:41.669Z">
+<meta property="article:author" content="Explainfuture">
+<meta property="article:tag" content="java">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:image" content="https://www.explainsf.com/image/head.jpeg"><script type="application/ld+json">{
+  "@context": "https://schema.org",
+  "@type": "BlogPosting",
+  "headline": "jvm",
+  "url": "https://www.explainsf.com/2025/05/27/jvm/",
+  "image": "https://www.explainsf.com/image/head.jpeg",
+  "datePublished": "2025-05-27T00:47:41.000Z",
+  "dateModified": "2025-05-27T09:11:41.669Z",
+  "author": [
+    {
+      "@type": "Person",
+      "name": "Explainfuture",
+      "url": "https://www.explainsf.com/"
+    }
+  ]
+}</script><link rel="shortcut icon" href="/image/favicon.ico"><link rel="canonical" href="https://www.explainsf.com/2025/05/27/jvm/index.html"><link rel="preconnect" href="//cdn.jsdelivr.net"/><link rel="preconnect" href="//fonts.googleapis.com" crossorigin=""/><link rel="preconnect" href="//busuanzi.ibruce.info"/><link rel="stylesheet" href="/css/index.css"><link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@fortawesome/fontawesome-free/css/all.min.css"><link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/node-snackbar/dist/snackbar.min.css" media="print" onload="this.media='all'"><script>
+    (() => {
+      
+    const saveToLocal = {
+      set: (key, value, ttl) => {
+        if (!ttl) return
+        const expiry = Date.now() + ttl * 86400000
+        localStorage.setItem(key, JSON.stringify({ value, expiry }))
+      },
+      get: key => {
+        const itemStr = localStorage.getItem(key)
+        if (!itemStr) return undefined
+        const { value, expiry } = JSON.parse(itemStr)
+        if (Date.now() > expiry) {
+          localStorage.removeItem(key)
+          return undefined
+        }
+        return value
+      }
+    }
+
+    window.btf = {
+      saveToLocal,
+      getScript: (url, attr = {}) => new Promise((resolve, reject) => {
+        const script = document.createElement('script')
+        script.src = url
+        script.async = true
+        Object.entries(attr).forEach(([key, val]) => script.setAttribute(key, val))
+        script.onload = script.onreadystatechange = () => {
+          if (!script.readyState || /loaded|complete/.test(script.readyState)) resolve()
+        }
+        script.onerror = reject
+        document.head.appendChild(script)
+      }),
+      getCSS: (url, id) => new Promise((resolve, reject) => {
+        const link = document.createElement('link')
+        link.rel = 'stylesheet'
+        link.href = url
+        if (id) link.id = id
+        link.onload = link.onreadystatechange = () => {
+          if (!link.readyState || /loaded|complete/.test(link.readyState)) resolve()
+        }
+        link.onerror = reject
+        document.head.appendChild(link)
+      }),
+      addGlobalFn: (key, fn, name = false, parent = window) => {
+        if (!false && key.startsWith('pjax')) return
+        const globalFn = parent.globalFn || {}
+        globalFn[key] = globalFn[key] || {}
+        globalFn[key][name || Object.keys(globalFn[key]).length] = fn
+        parent.globalFn = globalFn
+      }
+    }
+  
+      
+      const activateDarkMode = () => {
+        document.documentElement.setAttribute('data-theme', 'dark')
+        if (document.querySelector('meta[name="theme-color"]') !== null) {
+          document.querySelector('meta[name="theme-color"]').setAttribute('content', '#0d0d0d')
+        }
+      }
+      const activateLightMode = () => {
+        document.documentElement.setAttribute('data-theme', 'light')
+        if (document.querySelector('meta[name="theme-color"]') !== null) {
+          document.querySelector('meta[name="theme-color"]').setAttribute('content', 'ffffff')
+        }
+      }
+
+      btf.activateDarkMode = activateDarkMode
+      btf.activateLightMode = activateLightMode
+
+      const theme = saveToLocal.get('theme')
+    
+          theme === 'dark' ? activateDarkMode() : theme === 'light' ? activateLightMode() : null
+        
+      
+      const asideStatus = saveToLocal.get('aside-status')
+      if (asideStatus !== undefined) {
+        document.documentElement.classList.toggle('hide-aside', asideStatus === 'hide')
+      }
+    
+      
+    const detectApple = () => {
+      if (/iPad|iPhone|iPod|Macintosh/.test(navigator.userAgent)) {
+        document.documentElement.classList.add('apple')
+      }
+    }
+    detectApple()
+  
+    })()
+  </script><link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Titillium+Web&amp;display=swap" media="print" onload="this.media='all'"><script>const GLOBAL_CONFIG = {
+  root: '/',
+  algolia: undefined,
+  localSearch: {"path":"/search.xml","preload":true,"top_n_per_article":-1,"unescape":true,"languages":{"hits_empty":"未找到符合您查询的内容：${query}","hits_stats":"共找到 ${hits} 篇文章"}},
+  translate: undefined,
+  highlight: {"plugin":"highlight.js","highlightCopy":true,"highlightLang":true,"highlightHeightLimit":false,"highlightFullpage":true,"highlightMacStyle":true},
+  copy: {
+    success: '复制成功',
+    error: '复制失败',
+    noSupport: '浏览器不支持'
+  },
+  relativeDate: {
+    homepage: true,
+    post: true
+  },
+  runtime: '',
+  dateSuffix: {
+    just: '刚刚',
+    min: '分钟前',
+    hour: '小时前',
+    day: '天前',
+    month: '个月前'
+  },
+  copyright: undefined,
+  lightbox: 'null',
+  Snackbar: {"chs_to_cht":"已切换为繁体中文","cht_to_chs":"已切换为简体中文","day_to_night":"已切换为深色模式","night_to_day":"已切换为浅色模式","bgLight":"#49b1f5","bgDark":"#1f1f1f","position":"top-right"},
+  infinitegrid: {
+    js: 'https://cdn.jsdelivr.net/npm/@egjs/infinitegrid/dist/infinitegrid.min.js',
+    buttonText: '加载更多'
+  },
+  isPhotoFigcaption: false,
+  islazyloadPlugin: true,
+  isAnchor: false,
+  percent: {
+    toc: true,
+    rightside: false,
+  },
+  autoDarkmode: false
+}</script><script id="config-diff">var GLOBAL_CONFIG_SITE = {
+  title: 'jvm',
+  isHighlightShrink: false,
+  isToc: true,
+  pageType: 'post'
+}</script><meta name="generator" content="Hexo 7.3.0"></head><body><div id="web_bg" style="background-image: url(https://picbedex.oss-cn-shenzhen.aliyuncs.com/20250311153314058.jpg);"></div><div id="sidebar"><div id="menu-mask"></div><div id="sidebar-menus"><div class="avatar-img text-center"><img src= "data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7" data-lazy-src="/image/head.jpeg" onerror="this.onerror=null;this.src='/img/friend_404.gif'" alt="avatar"/></div><div class="site-data text-center"><a href="/archives/"><div class="headline">文章</div><div class="length-num">19</div></a><a href="/tags/"><div class="headline">标签</div><div class="length-num">4</div></a><a href="/categories/"><div class="headline">分类</div><div class="length-num">2</div></a></div><div class="menus_items"><div class="menus_item"><a class="site-page" href="/"><i class="fa-fw fas fa-home"></i><span> 首页</span></a></div><div class="menus_item"><a class="site-page" href="/archives/"><i class="fa-fw fas fa-archive"></i><span> 时间轴</span></a></div><div class="menus_item"><a class="site-page" href="/tags/"><i class="fa-fw fas fa-tags"></i><span> 标签</span></a></div><div class="menus_item"><a class="site-page" href="/categories/"><i class="fa-fw fas fa-folder-open"></i><span> 分类</span></a></div><div class="menus_item"><span class="site-page group"><i class="fa-fw fa fa-heartbeat"></i><span> 清单</span><i class="fas fa-chevron-down"></i></span><ul class="menus_item_child"><li><a class="site-page child" href="/music/"><i class="fa-fw fas fa-music"></i><span> 音乐</span></a></li><li><a class="site-page child" href="/Gallery/"><i class="fa-fw fas fa-images"></i><span> 照片</span></a></li><li><a class="site-page child" href="/movies/"><i class="fa-fw fas fa-video"></i><span> 电影</span></a></li></ul></div><div class="menus_item"><a class="site-page" href="/link/"><i class="fa-fw fas fa-link"></i><span> 友链</span></a></div><div class="menus_item"><a class="site-page" href="/about/"><i class="fa-fw fas fa-heart"></i><span> 关于</span></a></div></div></div></div><div class="post" id="body-wrap"><header class="post-bg" id="page-header" style="background-image: url(https://picbedex.oss-cn-shenzhen.aliyuncs.com/20250311153417995.jpg);"><nav id="nav"><span id="blog-info"><a class="nav-site-title" href="/"><span class="site-name">Explainfuture's Blog</span></a><a class="nav-page-title" href="/"><span class="site-name">jvm</span></a></span><div id="menus"><div id="search-button"><span class="site-page social-icon search"><i class="fas fa-search fa-fw"></i><span> 搜索</span></span></div><div class="menus_items"><div class="menus_item"><a class="site-page" href="/"><i class="fa-fw fas fa-home"></i><span> 首页</span></a></div><div class="menus_item"><a class="site-page" href="/archives/"><i class="fa-fw fas fa-archive"></i><span> 时间轴</span></a></div><div class="menus_item"><a class="site-page" href="/tags/"><i class="fa-fw fas fa-tags"></i><span> 标签</span></a></div><div class="menus_item"><a class="site-page" href="/categories/"><i class="fa-fw fas fa-folder-open"></i><span> 分类</span></a></div><div class="menus_item"><span class="site-page group"><i class="fa-fw fa fa-heartbeat"></i><span> 清单</span><i class="fas fa-chevron-down"></i></span><ul class="menus_item_child"><li><a class="site-page child" href="/music/"><i class="fa-fw fas fa-music"></i><span> 音乐</span></a></li><li><a class="site-page child" href="/Gallery/"><i class="fa-fw fas fa-images"></i><span> 照片</span></a></li><li><a class="site-page child" href="/movies/"><i class="fa-fw fas fa-video"></i><span> 电影</span></a></li></ul></div><div class="menus_item"><a class="site-page" href="/link/"><i class="fa-fw fas fa-link"></i><span> 友链</span></a></div><div class="menus_item"><a class="site-page" href="/about/"><i class="fa-fw fas fa-heart"></i><span> 关于</span></a></div></div><div id="toggle-menu"><span class="site-page"><i class="fas fa-bars fa-fw"></i></span></div></div></nav><div id="post-info"><h1 class="post-title">jvm</h1><div id="post-meta"><div class="meta-firstline"><span class="post-meta-date"><i class="far fa-calendar-alt fa-fw post-meta-icon"></i><span class="post-meta-label">发表于</span><time class="post-meta-date-created" datetime="2025-05-27T00:47:41.000Z" title="发表于 2025-05-27 08:47:41">2025-05-27</time><span class="post-meta-separator">|</span><i class="fas fa-history fa-fw post-meta-icon"></i><span class="post-meta-label">更新于</span><time class="post-meta-date-updated" datetime="2025-05-27T09:11:41.669Z" title="更新于 2025-05-27 17:11:41">2025-05-27</time></span><span class="post-meta-categories"><span class="post-meta-separator">|</span><i class="fas fa-inbox fa-fw post-meta-icon"></i><a class="post-meta-categories" href="/categories/javaLearn/">javaLearn</a></span></div><div class="meta-secondline"><span class="post-meta-separator">|</span><span class="post-meta-wordcount"><i class="far fa-file-word fa-fw post-meta-icon"></i><span class="post-meta-label">总字数:</span><span class="word-count">2.7k</span><span class="post-meta-separator">|</span><i class="far fa-clock fa-fw post-meta-icon"></i><span class="post-meta-label">阅读时长:</span><span>8分钟</span></span><span class="post-meta-separator">|</span><span class="post-meta-pv-cv" id="" data-flag-title=""><i class="far fa-eye fa-fw post-meta-icon"></i><span class="post-meta-label">浏览量:</span><span id="busuanzi_value_page_pv"><i class="fa-solid fa-spinner fa-spin"></i></span></span></div></div></div></header><main class="layout" id="content-inner"><div id="post"><article class="container post-content" id="article-container"><h2 id="什么是JVM"><a href="#什么是JVM" class="headerlink" title="什么是JVM?"></a>什么是JVM?</h2><ul>
+<li>定义：Java Virtual Machine <strong>java程序的运行环境（更确切：java二进制字节码的运行环境）</strong></li>
+<li>好处：<ul>
+<li>一次编写，到处运行的基石（跨平台）</li>
+<li>自动内存管理，垃圾回收功能（垃圾回收处理<strong>堆内存</strong>的无用对象）</li>
+<li>数组下标越界检查</li>
+<li>多态</li>
+</ul>
+</li>
+<li>比较：<strong>Jvm Jre Jdk的关系</strong><br><img src= "data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7" data-lazy-src="https://picbedex.oss-cn-shenzhen.aliyuncs.com/20250527085752230.png"></li>
+</ul>
+<h2 id="JVM的内存结构"><a href="#JVM的内存结构" class="headerlink" title="JVM的内存结构"></a>JVM的内存结构</h2><h3 id="程序计数器（PC）"><a href="#程序计数器（PC）" class="headerlink" title="程序计数器（PC）"></a>程序计数器（PC）</h3><h4 id="1-定义"><a href="#1-定义" class="headerlink" title="1. 定义"></a>1. 定义</h4><ul>
+<li>Program Counter Register 使用<strong>寄存器</strong>实现</li>
+</ul>
+<h4 id="2-作用："><a href="#2-作用：" class="headerlink" title="2. 作用："></a>2. 作用：</h4><ul>
+<li>记住下一条jvm指令的执行地址</li>
+</ul>
+<h4 id="3-特点："><a href="#3-特点：" class="headerlink" title="3. 特点："></a>3. 特点：</h4><ul>
+<li>线程私有：每一个线程都是独立的，都有自己的时间片，以及自己的程序计数器</li>
+<li>不会存在内存溢出</li>
+</ul>
+<h3 id="虚拟机栈"><a href="#虚拟机栈" class="headerlink" title="虚拟机栈"></a>虚拟机栈</h3><h4 id="1-定义（java-virtual-machine-stacks）"><a href="#1-定义（java-virtual-machine-stacks）" class="headerlink" title="1. 定义（java virtual machine stacks）"></a>1. 定义（java virtual machine stacks）</h4><ul>
+<li>每个线程运行时所需要的内存称为虚拟机栈，<strong>线程私有</strong></li>
+<li>栈由多个<strong>栈帧（Frame）组成，每个栈帧对应一次方法调用。</strong></li>
+<li>每个线程只能有一个活动栈帧，<strong>对应着当前正在执行的那个方法</strong>（人话：栈顶）</li>
+</ul>
+<h4 id="2-问题辨析："><a href="#2-问题辨析：" class="headerlink" title="2. 问题辨析："></a>2. 问题辨析：</h4><ol>
+<li>垃圾回收是否涉及栈内存？<ul>
+<li>不涉及。虚拟机栈随着方法调用自动创建和销毁，不由 GC 管理。</li>
+</ul>
+</li>
+<li>栈内存分配越大越好吗？<ul>
+<li>大栈空间意味着系统能够同时创建的线程数减少，影响并发能力。 比如栈空间1m，物理内存500m，可以跑500个线程，但如果栈空间2m，只能跑250个线程。</li>
+<li>上下文切换开销大，线程切换需要<strong>保存&#x2F;恢复</strong>上下文信息。</li>
+<li>若程序调用栈不深，反而浪费内存。</li>
+</ul>
+</li>
+<li>方法内的局部变量是否是线程安全的？（判断是否是线程安全要看变量是否是<strong>共享&#x2F;私有</strong>的）<ul>
+<li>如果方法内局部变量没有逃离方法的作用访问，它是线程安全的</li>
+<li>如果是局部变量引用了对象，并逃离方法的作用方法，需要考虑线程安全</li>
+</ul>
+</li>
+</ol>
+<h4 id="3-栈内存溢出"><a href="#3-栈内存溢出" class="headerlink" title="3. 栈内存溢出"></a>3. 栈内存溢出</h4><ul>
+<li>方法调用层级过深（递归未终止）导致<strong>栈帧过多。</strong></li>
+<li>单个栈帧过大（如定义超大数组、局部变量过多）导致<strong>内存耗尽。</strong></li>
+</ul>
+<h3 id="本地方法栈"><a href="#本地方法栈" class="headerlink" title="本地方法栈"></a>本地方法栈</h3><p>native method，不是由java代码编写的方法，由c&#x2F;c++实现。用本地方法接口</p>
+<h3 id="堆"><a href="#堆" class="headerlink" title="堆"></a>堆</h3><h4 id="1-定义（Heap）"><a href="#1-定义（Heap）" class="headerlink" title="1. 定义（Heap）"></a>1. 定义（Heap）</h4><ul>
+<li>通过new关键字创建的对象都会使用堆内存</li>
+<li>是<strong>JVM中最大的一块内存区域</strong>，用于<strong>存储所有对象实例和数组</strong>。</li>
+</ul>
+<h4 id="2-特点"><a href="#2-特点" class="headerlink" title="2. 特点"></a>2. 特点</h4><ul>
+<li><strong>线程共享</strong>：多个线程可以访问堆中的同一对象，需考虑线程安全问题。</li>
+<li><strong>由垃圾回收器管理</strong>：GC 自动清理无引用对象，回收内存空间。</li>
+</ul>
+<h4 id="3-堆内存溢出（OutOfMemoryError-Java-heap-space）"><a href="#3-堆内存溢出（OutOfMemoryError-Java-heap-space）" class="headerlink" title="3. 堆内存溢出（OutOfMemoryError: Java heap space）"></a>3. 堆内存溢出（OutOfMemoryError: Java heap space）</h4><ul>
+<li>只要new出来的对象还在被使用，就不会被回收，一直在添加，最后会溢出。</li>
+</ul>
+<h3 id="方法区（Method-Area）"><a href="#方法区（Method-Area）" class="headerlink" title="方法区（Method Area）"></a>方法区（Method Area）</h3><h4 id="1-定义-1"><a href="#1-定义-1" class="headerlink" title="1. 定义"></a>1. 定义</h4><ul>
+<li>JVM 内存结构的一部分，用于<strong>存储类的元数据信息</strong>，包括：<ul>
+<li>类的结构（字段、方法、接口等）</li>
+<li>常量池（如字符串字面量、符号引用）</li>
+<li>静态变量</li>
+<li>类的代码（字节码）、JIT 编译后的代码等</li>
+</ul>
+</li>
+</ul>
+<h4 id="2-特点-1"><a href="#2-特点-1" class="headerlink" title="2. 特点"></a>2. 特点</h4><ul>
+<li><strong>所有线程共享</strong>；</li>
+<li>属于 JVM 规范中规定的逻辑区域；</li>
+<li>在 HotSpot 虚拟机中，早期称为 <strong>永久代（PermGen）</strong>，从 <strong>JDK 8</strong> 起被 <strong>元空间（Metaspace）</strong> 取代；</li>
+<li>元空间使用 <strong>本地内存</strong>（非堆内存）进行分配；</li>
+<li>方法区也会发生内存溢出，例如：动态加载大量类时抛出 <code>OutOfMemoryError: Metaspace</code>。</li>
+</ul>
+<h4 id="3-常见用途"><a href="#3-常见用途" class="headerlink" title="3. 常见用途"></a>3. 常见用途</h4><ul>
+<li>类加载（包括反射、代理等）</li>
+<li>存放静态成员和常量</li>
+<li>热点代码编译缓存（如 JIT 编译结果）</li>
+</ul>
+<h4 id="4-简洁记忆"><a href="#4-简洁记忆" class="headerlink" title="4. 简洁记忆"></a>4. 简洁记忆</h4><blockquote>
+<p>方法区用于存放类信息、常量、静态变量，是线程共享的逻辑区域，从 JDK 8 起由元空间替代。</p>
+</blockquote>
+<h4 id="5-运行时常量池"><a href="#5-运行时常量池" class="headerlink" title="5. 运行时常量池"></a>5. 运行时常量池</h4><ul>
+<li>常量池，就是一张表，虚拟机指令根据这张常量表找到要执行的类名、方法名、参数类型、字面量等信息</li>
+<li>.class 文件里有一张“常量池表”（静态的）；加载这个类时，这张表内容就复制进 JVM 的运行时常量池；JVM 执行方法时，所有的名字、字面量、描述信息都要从这里查；它就像“JVM的大字典”，翻译代码里各种符号，让它知道具体地址和内容。</li>
+</ul>
+<h5 id="StringTable（串池）"><a href="#StringTable（串池）" class="headerlink" title="StringTable（串池）"></a>StringTable（串池）</h5><ol>
+<li>StringTable特性<br>在预编译的时候会创建常量池，将字符串都添加进常量表中，比如s1,s2,s3就会被添加进串池里，s4的时候使用拼接字符串，其实底层调用了StringBuilder的append方法，new出了一个StringBuilder对象，一个在方法区，一个在堆区，他们所指向的对象不同，比较结果自然false；<br>如果使用equals，只需要比较值，如果使用&#x3D;&#x3D;，需要比较值和指向的对象</li>
+</ol>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">public</span> <span class="keyword">static</span> <span class="keyword">void</span> <span class="title function_">main</span><span class="params">(String[] args)</span> &#123;</span><br><span class="line">        <span class="type">String</span> <span class="variable">s1</span> <span class="operator">=</span> <span class="string">&quot;a&quot;</span>;</span><br><span class="line">        <span class="type">String</span> <span class="variable">s2</span> <span class="operator">=</span> <span class="string">&quot;b&quot;</span>;</span><br><span class="line">        <span class="type">String</span> <span class="variable">s3</span> <span class="operator">=</span> <span class="string">&quot;ab&quot;</span>;</span><br><span class="line">        <span class="type">String</span> <span class="variable">s4</span> <span class="operator">=</span> s1+s2;</span><br><span class="line">        <span class="type">String</span> <span class="variable">s5</span> <span class="operator">=</span> s1+s2;</span><br><span class="line">        <span class="type">String</span> <span class="variable">s6</span> <span class="operator">=</span> <span class="string">&quot;ab&quot;</span>;</span><br><span class="line">        System.out.println(s4==s5);</span><br><span class="line">        System.out.println(s3==s6);</span><br><span class="line">    &#125;v</span><br></pre></td></tr></table></figure>
+<blockquote>
+<p>一句话总结 ： &#x3D;&#x3D; 比较的是“是不是同一个人”，.equals() 比较的是“名字是不是一样”。</p>
+</blockquote>
+<ul>
+<li>常量池中的字符串仅是符号，第一次用到时才成为对象</li>
+<li>利用串池的机制，来避免重复创建字符串对象</li>
+<li>字符串变量拼接的原理是StringBuilder(1.8)</li>
+<li>字符串常量拼接的原理是编译器优化 “a”+”b” 直接优化成 “ab”</li>
+<li>可以使用intern方法，主动将串池中还没有的字符串放进串池。<ul>
+<li>s.intern() 尝试将字符串s的内容放入常量池，如果常量池里有s，那就返回常量池的内容；如果常量池中没有s，就将s添加进入常量池，并返回常量池中的s</li>
+</ul>
+</li>
+</ul>
+<ol start="2">
+<li>StringTable位置</li>
+</ol>
+<h2 id="垃圾回收-GC（垃圾回收）的目的就是自动释放内存，防止内存泄漏和程序崩溃。"><a href="#垃圾回收-GC（垃圾回收）的目的就是自动释放内存，防止内存泄漏和程序崩溃。" class="headerlink" title="垃圾回收 GC（垃圾回收）的目的就是自动释放内存，防止内存泄漏和程序崩溃。"></a>垃圾回收 GC（垃圾回收）的目的就是自动释放内存，防止内存泄漏和程序崩溃。</h2><h3 id="1-如何判断一个对象可以被回收"><a href="#1-如何判断一个对象可以被回收" class="headerlink" title="1.如何判断一个对象可以被回收"></a>1.如何判断一个对象可以被回收</h3><h4 id="1-引用计数法"><a href="#1-引用计数法" class="headerlink" title="1. 引用计数法"></a>1. 引用计数法</h4><p>循环引用会导致内存泄漏</p>
+<h4 id="2-可达性分析算法"><a href="#2-可达性分析算法" class="headerlink" title="2. 可达性分析算法"></a>2. 可达性分析算法</h4><h5 id="1-原理："><a href="#1-原理：" class="headerlink" title="1.原理："></a>1.原理：</h5><p>夏天吃葡萄，拎起一串葡萄，如果在根上的就不是垃圾，不能被回收；掉落下来的可以回收。</p>
+<ul>
+<li>Java虚拟机中的垃圾回收器采用可达性分析来探索所有存活对象</li>
+<li>扫描堆中的对象，看是否能够沿着GC Root对象为起点的引用链找到该对象，找不到表示可以回收。</li>
+<li>哪些对象可以作为GC Root？</li>
+</ul>
+<h5 id="2-四种（-一个终结器）引用"><a href="#2-四种（-一个终结器）引用" class="headerlink" title="2. 四种（+一个终结器）引用"></a>2. 四种（+一个终结器）引用</h5><h6 id="1-强引用（Strong-Reference）"><a href="#1-强引用（Strong-Reference）" class="headerlink" title="1. 强引用（Strong Reference）"></a>1. 强引用（Strong Reference）</h6><ul>
+<li>最常见、默认的引用方式，例如：<code>Object obj = new Object();</code></li>
+<li>只要强引用还存在，<strong>对象永远不会被 GC 回收</strong></li>
+<li>应用场景：日常代码中创建对象时默认的引用类型</li>
+</ul>
+<h6 id="2-软引用（Soft-Reference）"><a href="#2-软引用（Soft-Reference）" class="headerlink" title="2. 软引用（Soft Reference）"></a>2. 软引用（Soft Reference）</h6><ul>
+<li>使用类：<code>SoftReference&lt;T&gt;</code></li>
+<li>当内存不足时才会被 GC 回收，<strong>适合做缓存</strong></li>
+<li>示例：图片缓存、内存敏感对象</li>
+<li>应用场景：避免 OOM 时自动释放内存</li>
+</ul>
+<h6 id="3-弱引用（Weak-Reference）"><a href="#3-弱引用（Weak-Reference）" class="headerlink" title="3. 弱引用（Weak Reference）"></a>3. 弱引用（Weak Reference）</h6><ul>
+<li>使用类：<code>WeakReference&lt;T&gt;</code></li>
+<li>一旦 GC 运行，无论内存是否足够，都会被回收</li>
+<li>示例：<code>ThreadLocal</code> 中的值、<code>WeakHashMap</code></li>
+<li>应用场景：辅助结构、缓存，但对象生命周期短</li>
+</ul>
+<h6 id="4-虚引用（Phantom-Reference）"><a href="#4-虚引用（Phantom-Reference）" class="headerlink" title="4. 虚引用（Phantom Reference）"></a>4. 虚引用（Phantom Reference）</h6><ul>
+<li>使用类：<code>PhantomReference&lt;T&gt;</code> + <code>ReferenceQueue&lt;T&gt;</code></li>
+<li><strong>无法通过引用获取对象</strong>，仅用于监听对象是否即将被 GC 回收</li>
+<li>应用场景：资源清理、DirectMemory 手动释放等高级用途</li>
+</ul>
+<h6 id="5-终结器引用（Finalizer-Cleaner）"><a href="#5-终结器引用（Finalizer-Cleaner）" class="headerlink" title="5. 终结器引用（Finalizer &#x2F; Cleaner）"></a>5. 终结器引用（Finalizer &#x2F; Cleaner）</h6><ul>
+<li>一种过时的引用机制，依赖 <code>finalize()</code> 方法</li>
+<li>对象在被 GC 回收前，会被加入 Finalizer 队列，并延迟处理</li>
+<li>缺点：性能差、不可控、不推荐使用</li>
+<li>JDK 9+ 推荐使用 <code>java.lang.ref.Cleaner</code> 替代<br><img src= "data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7" data-lazy-src="https://picbedex.oss-cn-shenzhen.aliyuncs.com/20250527153314738.png"><blockquote>
+<p>记忆口诀：<strong>强软弱虚，越来越容易被回收</strong>；终结器引用用于回收通知，但现在被 Cleaner 替代。<br><strong>GC 就是根据“引用关系”判断对象是否还能活着；没有引用的对象，才是“垃圾”。</strong></p>
+</blockquote>
+</li>
+</ul>
+<h3 id="2-垃圾回收算法"><a href="#2-垃圾回收算法" class="headerlink" title="2.垃圾回收算法"></a>2.垃圾回收算法</h3><h4 id="1-标记清除"><a href="#1-标记清除" class="headerlink" title="1.标记清除"></a>1.标记清除</h4><ul>
+<li><strong>基本思想</strong>：从 GC Roots 出发，标记所有可达对象；标记完成后，清除未被标记的对象。<br><img src= "data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7" data-lazy-src="https://picbedex.oss-cn-shenzhen.aliyuncs.com/20250527153606894.png"></li>
+<li>优点：速度快</li>
+<li>缺点：内存碎片太多，内存空间不连续。</li>
+</ul>
+<h4 id="2-标记整理"><a href="#2-标记整理" class="headerlink" title="2.标记整理"></a>2.标记整理</h4><ul>
+<li><strong>基本思想</strong>：先从 GC Roots 出发标记所有可达对象，然后<strong>将存活对象向一端移动</strong>，最后清理掉边界以外的无效内存。<br><img src= "data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7" data-lazy-src="https://picbedex.oss-cn-shenzhen.aliyuncs.com/20250527154143192.png"></li>
+<li>优点：碎片化消失</li>
+<li>缺点：效率降低，因为涉及地址的移动</li>
+</ul>
+<h4 id="3-复制"><a href="#3-复制" class="headerlink" title="3.复制"></a>3.复制</h4><ul>
+<li><strong>基本思想</strong>：将内存分为两块等大小的区域（from 和 to）。每次 GC 时，从 GC Roots 标记存活对象，然后将其<strong>复制到另一块空间（to）</strong>，保持连续分布，最后清空 from 区并交换角色。<br><img src= "data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7" data-lazy-src="https://picbedex.oss-cn-shenzhen.aliyuncs.com/20250527154506611.png"></li>
+<li>优点：避免碎片化</li>
+<li>缺点：双倍空间</li>
+</ul>
+<h3 id="3-分代垃圾回收（Generational-Garbage-Collection）"><a href="#3-分代垃圾回收（Generational-Garbage-Collection）" class="headerlink" title="3. 分代垃圾回收（Generational Garbage Collection）"></a>3. 分代垃圾回收（Generational Garbage Collection）</h3><p>Java 堆内存被划分为两大区域：</p>
+<ul>
+<li><strong>新生代（Young Generation）</strong><ul>
+<li>包括三部分：伊甸园 区、Survivor <strong>From</strong> 区、Survivor <strong>To</strong> 区</li>
+<li>采用 <strong>复制算法</strong> 进行垃圾回收</li>
+</ul>
+</li>
+<li><strong>老年代（Old Generation）</strong><ul>
+<li>存放存活时间长、经过多次 GC 仍未回收的对象</li>
+<li>通常采用 <strong>标记-整理算法</strong><blockquote>
+<p>类比比喻：<strong>新生代 &#x3D; 日常清理，老年代 &#x3D; 每年大扫除</strong></p>
+</blockquote>
+</li>
+</ul>
+</li>
+</ul>
+<p><img src= "data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7" data-lazy-src="https://picbedex.oss-cn-shenzhen.aliyuncs.com/20250527160108307.png"></p>
+<h4 id="新生代回收流程（Minor-GC）："><a href="#新生代回收流程（Minor-GC）：" class="headerlink" title="新生代回收流程（Minor GC）："></a>新生代回收流程（Minor GC）：</h4><ul>
+<li>所有新对象优先分配在 <strong>Eden 区</strong>；</li>
+<li>当 Eden 区满了，就触发一次 <strong>Minor GC</strong>；</li>
+<li>GC 时，将 Eden 和 From 区存活的对象<strong>复制到 To 区</strong>，并<strong>对象年龄+1</strong>；</li>
+<li>From 和 To 区角色互换（类似复制算法）；</li>
+<li>若对象年龄超过一定阈值（如 15 次），就<strong>晋升到老年代</strong>。</li>
+</ul>
+<h4 id="老年代回收流程（Full-GC）："><a href="#老年代回收流程（Full-GC）：" class="headerlink" title="老年代回收流程（Full GC）："></a>老年代回收流程（Full GC）：</h4><ul>
+<li>如果老年代空间不足，先尝试触发 Minor GC；</li>
+<li>如果仍不足，将触发一次 <strong>Full GC</strong>，同时回收新生代和老年代；</li>
+<li>Full GC 开销大，伴随 <strong>Stop The World（STW）</strong>，影响性能更显著。</li>
+</ul>
+<h4 id="额外说明："><a href="#额外说明：" class="headerlink" title="额外说明："></a>额外说明：</h4><ul>
+<li><strong>Minor GC</strong>：发生频率高，时间短，只回收新生代；会触发一次stop the world</li>
+<li><strong>Full GC</strong>：发生频率低，时间长，会暂停所有线程。</li>
+</ul>
+<blockquote>
+<p>💡 新生代回收通常使用“复制算法”，老年代回收通常使用“标记-整理算法”。</p>
+</blockquote>
+<h2 id="JMM（Java-Memory-Modle）"><a href="#JMM（Java-Memory-Modle）" class="headerlink" title="JMM（Java Memory Modle）"></a>JMM（Java Memory Modle）</h2><p>java内存模型，JMM定义了一套在多线程读写共享数据时（成员变量，数组）时，对数据的可见性、有序性和原子性的规则和保障。</p>
+<h3 id="synchronized（同步关键字）"><a href="#synchronized（同步关键字）" class="headerlink" title="synchronized（同步关键字）"></a>synchronized（同步关键字）</h3><p>语法</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">sychronized(对象)&#123;</span><br><span class="line">    要作为原子操作的代码</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure></article><div class="post-copyright"><div class="post-copyright__author"><span class="post-copyright-meta"><i class="fas fa-circle-user fa-fw"></i>文章作者: </span><span class="post-copyright-info"><a href="https://www.explainsf.com">Explainfuture</a></span></div><div class="post-copyright__type"><span class="post-copyright-meta"><i class="fas fa-square-arrow-up-right fa-fw"></i>文章链接: </span><span class="post-copyright-info"><a href="https://www.explainsf.com/2025/05/27/jvm/">https://www.explainsf.com/2025/05/27/jvm/</a></span></div><div class="post-copyright__notice"><span class="post-copyright-meta"><i class="fas fa-circle-exclamation fa-fw"></i>版权声明: </span><span class="post-copyright-info">本博客所有文章除特别声明外，均采用 <a href="https://creativecommons.org/licenses/by-nc-sa/4.0/" target="_blank">CC BY-NC-SA 4.0</a> 许可协议。转载请注明来源 <a href="https://www.explainsf.com" target="_blank">Explainfuture's Blog</a>！</span></div></div><div class="tag_share"><div class="post-meta__tag-list"><a class="post-meta__tags" href="/tags/java/">java</a></div><div class="post-share"><div class="social-share" data-image="/image/head.jpeg" data-sites="wechat,qq"></div><link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/butterfly-extsrc/sharejs/dist/css/share.min.css" media="print" onload="this.media='all'"><script src="https://cdn.jsdelivr.net/npm/butterfly-extsrc/sharejs/dist/js/social-share.min.js" defer></script></div></div><nav class="pagination-post" id="pagination"><a class="pagination-related full-width" href="/2025/05/19/javaAlgorithm/" title="javaAlgorithm"><div class="cover" style="background: var(--default-bg-color)"></div><div class="info"><div class="info-1"><div class="info-item-1">上一篇</div><div class="info-item-2">javaAlgorithm</div></div><div class="info-2"><div class="info-item-1">java是一种面向对象的语言，入口程序也是一个类，类的属性有public,private,protected; 12345public class Main&#123;    public class main(String arg[])&#123;        System.out.println(&quot;helloworld!&quot;);    &#125;&#125; 2025.5.19 二分查找应用场景：有序 数组二分三元素 ：left，mid，right目标可能存在的区间，在[left,right]之间，所以循环条件就是他。循环变更的是：left和right，是基于这一次选择的mid来变更的，而不是left和right++ &#x2F;...</div></div></div></a></nav><div class="relatedPosts"><div class="headline"><i class="fas fa-thumbs-up fa-fw"></i><span>相关推荐</span></div><div class="relatedPosts-list"><a class="pagination-related" href="/2025/04/23/JavaLearn/" title="JavaLearn"><div class="cover" style="background: var(--default-bg-color)"></div><div class="info text-center"><div class="info-1"><div class="info-item-1"><i class="far fa-calendar-alt fa-fw"></i> 2025-04-23</div><div class="info-item-2">JavaLearn</div></div><div class="info-2"><div class="info-item-1">从今天开始，cpp转java，其实语言不是最重要的，重要的是思想，就像小学拿铅笔写字，初高中用水性笔，大学用电容笔一样，但做的都是同一件事情，写字。 环境变量一开始就被环境变量上了一课，本博客使用hexo写的，我把D:\给删掉了，导致无法使用hexo指令，npm和node也找不到，添加完环境变量后就又能正常使用了。 基本语法类名要和文件名相同，如果创建了Main.java文件，里面的类就要写为public class Main，否则会报错 123456public class Main &#123;    public static void main(String[] args) &#123;        //打印helloworld        System.out.println(&quot;Hello World&quot;);    &#125;&#125; 制表符可以在语句后面使用\n（字符串），但通用的语法是 +”\n” +”\t”,\t是制表符，补齐8个空格，让文本对齐 123456789101112131415public class Main...</div></div></div></a><a class="pagination-related" href="/2025/04/27/javaweb/" title="javaweb"><div class="cover" style="background: var(--default-bg-color)"></div><div class="info text-center"><div class="info-1"><div class="info-item-1"><i class="far fa-calendar-alt fa-fw"></i> 2025-04-27</div><div class="info-item-2">javaweb</div></div><div class="info-2"><div class="info-item-1">Server后端开发：代码开发（java）–框架简化代码（Spring）–用包（库，包管理器：Maven）总结就是三步：语言，框架，以及包 拼接起来就是：Fronted—www—Server—Database前端发送到后端的叫请求(Request)，后端发给前端的叫响应(Response)。 web网站的工作流程一个web网站大致由三个部分组成：前端服务器(前端程序)，后端服务器(后端程序)，数据库服务器用户在浏览器输入域名，浏览器会根据域名请求访问前端服务器，前端服务器在接收到请求后会向浏览器返回前端代码，(浏览器也是一个程序，内置了解析前端代码的解析引擎)，从而解析出对应的页面样式需要学习的技术：Maven、SpringBoot Web、MySQL(got it)、SpringBoot Mybatis 初识web前端 网页的组成部分：文字、图片、音频、超链接、视频 我们看到的网页背后的本质：前端代码 前端代码如何转换成用户眼中的网页：浏览器转化(解析和渲染(浏览器内核))成用户看到的网页  Web标准：  HTML(HyperText Markup...</div></div></div></a><a class="pagination-related" href="/2025/05/19/javaAlgorithm/" title="javaAlgorithm"><div class="cover" style="background: var(--default-bg-color)"></div><div class="info text-center"><div class="info-1"><div class="info-item-1"><i class="far fa-calendar-alt fa-fw"></i> 2025-05-19</div><div class="info-item-2">javaAlgorithm</div></div><div class="info-2"><div class="info-item-1">java是一种面向对象的语言，入口程序也是一个类，类的属性有public,private,protected; 12345public class Main&#123;    public class main(String arg[])&#123;        System.out.println(&quot;helloworld!&quot;);    &#125;&#125; 2025.5.19 二分查找应用场景：有序 数组二分三元素 ：left，mid，right目标可能存在的区间，在[left,right]之间，所以循环条件就是他。循环变更的是：left和right，是基于这一次选择的mid来变更的，而不是left和right++ &#x2F;...</div></div></div></a><a class="pagination-related" href="/2025/05/15/Java%E5%85%AB%E8%82%A1/" title="Java八股"><div class="cover" style="background: var(--default-bg-color)"></div><div class="info text-center"><div class="info-1"><div class="info-item-1"><i class="far fa-calendar-alt fa-fw"></i> 2025-05-15</div><div class="info-item-2">Java八股</div></div><div class="info-2"><div class="info-item-1">5.0（MySQL&amp;&amp;Redis）– 4.8RocketMQ&#x2F;Kafka –JVM – JUC  注解注解就像是给代码段贴上一张小标签，告诉编译器、框架或工具需要怎么去处理它，比如 12@Autowiredprivate UserService userService; 就可以告诉Spring框架进行这个对象的注入，而不是自己再手动new一个。用人话来说，你拿快递的时候，快递盒子上会写备注：@轻拿轻放，提醒快递员应该怎么做。 </div></div></div></a></div></div></div><div class="aside-content" id="aside-content"><div class="card-widget card-info text-center"><div class="avatar-img"><img src= "data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7" data-lazy-src="/image/head.jpeg" onerror="this.onerror=null;this.src='/img/friend_404.gif'" alt="avatar"/></div><div class="author-info-name">Explainfuture</div><div class="author-info-description">这是一个计科学生终于开始学东西的记录网站</div><div class="site-data"><a href="/archives/"><div class="headline">文章</div><div class="length-num">19</div></a><a href="/tags/"><div class="headline">标签</div><div class="length-num">4</div></a><a href="/categories/"><div class="headline">分类</div><div class="length-num">2</div></a></div><a id="card-info-btn" target="_blank" rel="noopener" href="https://github.com/Explainfuture"><i class="fab fa-github"></i><span>Follow Me</span></a><div class="card-info-social-icons"><a class="social-icon" href="https://github.com/Explainfuture" target="_blank" title="Github"><i class="fab fa-github" style="color: #24292e;"></i></a><a class="social-icon" href="mailto:lcc@hnu.edu.cn" target="_blank" title="Email"><i class="fas fa-envelope" style="color: #4a7dbe;"></i></a></div></div><div class="card-widget card-announcement"><div class="item-headline"><i class="fas fa-bullhorn fa-shake"></i><span>公告</span></div><div class="announcement_content">This is my Blog</div></div><div class="sticky_layout"><div class="card-widget" id="card-toc"><div class="item-headline"><i class="fas fa-stream"></i><span>目录</span><span class="toc-percentage"></span></div><div class="toc-content"><ol class="toc"><li class="toc-item toc-level-2"><a class="toc-link" href="#%E4%BB%80%E4%B9%88%E6%98%AFJVM"><span class="toc-number">1.</span> <span class="toc-text">什么是JVM?</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#JVM%E7%9A%84%E5%86%85%E5%AD%98%E7%BB%93%E6%9E%84"><span class="toc-number">2.</span> <span class="toc-text">JVM的内存结构</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#%E7%A8%8B%E5%BA%8F%E8%AE%A1%E6%95%B0%E5%99%A8%EF%BC%88PC%EF%BC%89"><span class="toc-number">2.1.</span> <span class="toc-text">程序计数器（PC）</span></a><ol class="toc-child"><li class="toc-item toc-level-4"><a class="toc-link" href="#1-%E5%AE%9A%E4%B9%89"><span class="toc-number">2.1.1.</span> <span class="toc-text">1. 定义</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#2-%E4%BD%9C%E7%94%A8%EF%BC%9A"><span class="toc-number">2.1.2.</span> <span class="toc-text">2. 作用：</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#3-%E7%89%B9%E7%82%B9%EF%BC%9A"><span class="toc-number">2.1.3.</span> <span class="toc-text">3. 特点：</span></a></li></ol></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E8%99%9A%E6%8B%9F%E6%9C%BA%E6%A0%88"><span class="toc-number">2.2.</span> <span class="toc-text">虚拟机栈</span></a><ol class="toc-child"><li class="toc-item toc-level-4"><a class="toc-link" href="#1-%E5%AE%9A%E4%B9%89%EF%BC%88java-virtual-machine-stacks%EF%BC%89"><span class="toc-number">2.2.1.</span> <span class="toc-text">1. 定义（java virtual machine stacks）</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#2-%E9%97%AE%E9%A2%98%E8%BE%A8%E6%9E%90%EF%BC%9A"><span class="toc-number">2.2.2.</span> <span class="toc-text">2. 问题辨析：</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#3-%E6%A0%88%E5%86%85%E5%AD%98%E6%BA%A2%E5%87%BA"><span class="toc-number">2.2.3.</span> <span class="toc-text">3. 栈内存溢出</span></a></li></ol></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E6%9C%AC%E5%9C%B0%E6%96%B9%E6%B3%95%E6%A0%88"><span class="toc-number">2.3.</span> <span class="toc-text">本地方法栈</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E5%A0%86"><span class="toc-number">2.4.</span> <span class="toc-text">堆</span></a><ol class="toc-child"><li class="toc-item toc-level-4"><a class="toc-link" href="#1-%E5%AE%9A%E4%B9%89%EF%BC%88Heap%EF%BC%89"><span class="toc-number">2.4.1.</span> <span class="toc-text">1. 定义（Heap）</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#2-%E7%89%B9%E7%82%B9"><span class="toc-number">2.4.2.</span> <span class="toc-text">2. 特点</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#3-%E5%A0%86%E5%86%85%E5%AD%98%E6%BA%A2%E5%87%BA%EF%BC%88OutOfMemoryError-Java-heap-space%EF%BC%89"><span class="toc-number">2.4.3.</span> <span class="toc-text">3. 堆内存溢出（OutOfMemoryError: Java heap space）</span></a></li></ol></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E6%96%B9%E6%B3%95%E5%8C%BA%EF%BC%88Method-Area%EF%BC%89"><span class="toc-number">2.5.</span> <span class="toc-text">方法区（Method Area）</span></a><ol class="toc-child"><li class="toc-item toc-level-4"><a class="toc-link" href="#1-%E5%AE%9A%E4%B9%89-1"><span class="toc-number">2.5.1.</span> <span class="toc-text">1. 定义</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#2-%E7%89%B9%E7%82%B9-1"><span class="toc-number">2.5.2.</span> <span class="toc-text">2. 特点</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#3-%E5%B8%B8%E8%A7%81%E7%94%A8%E9%80%94"><span class="toc-number">2.5.3.</span> <span class="toc-text">3. 常见用途</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#4-%E7%AE%80%E6%B4%81%E8%AE%B0%E5%BF%86"><span class="toc-number">2.5.4.</span> <span class="toc-text">4. 简洁记忆</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#5-%E8%BF%90%E8%A1%8C%E6%97%B6%E5%B8%B8%E9%87%8F%E6%B1%A0"><span class="toc-number">2.5.5.</span> <span class="toc-text">5. 运行时常量池</span></a><ol class="toc-child"><li class="toc-item toc-level-5"><a class="toc-link" href="#StringTable%EF%BC%88%E4%B8%B2%E6%B1%A0%EF%BC%89"><span class="toc-number">2.5.5.1.</span> <span class="toc-text">StringTable（串池）</span></a></li></ol></li></ol></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E5%9E%83%E5%9C%BE%E5%9B%9E%E6%94%B6-GC%EF%BC%88%E5%9E%83%E5%9C%BE%E5%9B%9E%E6%94%B6%EF%BC%89%E7%9A%84%E7%9B%AE%E7%9A%84%E5%B0%B1%E6%98%AF%E8%87%AA%E5%8A%A8%E9%87%8A%E6%94%BE%E5%86%85%E5%AD%98%EF%BC%8C%E9%98%B2%E6%AD%A2%E5%86%85%E5%AD%98%E6%B3%84%E6%BC%8F%E5%92%8C%E7%A8%8B%E5%BA%8F%E5%B4%A9%E6%BA%83%E3%80%82"><span class="toc-number">3.</span> <span class="toc-text">垃圾回收 GC（垃圾回收）的目的就是自动释放内存，防止内存泄漏和程序崩溃。</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#1-%E5%A6%82%E4%BD%95%E5%88%A4%E6%96%AD%E4%B8%80%E4%B8%AA%E5%AF%B9%E8%B1%A1%E5%8F%AF%E4%BB%A5%E8%A2%AB%E5%9B%9E%E6%94%B6"><span class="toc-number">3.1.</span> <span class="toc-text">1.如何判断一个对象可以被回收</span></a><ol class="toc-child"><li class="toc-item toc-level-4"><a class="toc-link" href="#1-%E5%BC%95%E7%94%A8%E8%AE%A1%E6%95%B0%E6%B3%95"><span class="toc-number">3.1.1.</span> <span class="toc-text">1. 引用计数法</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#2-%E5%8F%AF%E8%BE%BE%E6%80%A7%E5%88%86%E6%9E%90%E7%AE%97%E6%B3%95"><span class="toc-number">3.1.2.</span> <span class="toc-text">2. 可达性分析算法</span></a><ol class="toc-child"><li class="toc-item toc-level-5"><a class="toc-link" href="#1-%E5%8E%9F%E7%90%86%EF%BC%9A"><span class="toc-number">3.1.2.1.</span> <span class="toc-text">1.原理：</span></a></li><li class="toc-item toc-level-5"><a class="toc-link" href="#2-%E5%9B%9B%E7%A7%8D%EF%BC%88-%E4%B8%80%E4%B8%AA%E7%BB%88%E7%BB%93%E5%99%A8%EF%BC%89%E5%BC%95%E7%94%A8"><span class="toc-number">3.1.2.2.</span> <span class="toc-text">2. 四种（+一个终结器）引用</span></a><ol class="toc-child"><li class="toc-item toc-level-6"><a class="toc-link" href="#1-%E5%BC%BA%E5%BC%95%E7%94%A8%EF%BC%88Strong-Reference%EF%BC%89"><span class="toc-number">3.1.2.2.1.</span> <span class="toc-text">1. 强引用（Strong Reference）</span></a></li><li class="toc-item toc-level-6"><a class="toc-link" href="#2-%E8%BD%AF%E5%BC%95%E7%94%A8%EF%BC%88Soft-Reference%EF%BC%89"><span class="toc-number">3.1.2.2.2.</span> <span class="toc-text">2. 软引用（Soft Reference）</span></a></li><li class="toc-item toc-level-6"><a class="toc-link" href="#3-%E5%BC%B1%E5%BC%95%E7%94%A8%EF%BC%88Weak-Reference%EF%BC%89"><span class="toc-number">3.1.2.2.3.</span> <span class="toc-text">3. 弱引用（Weak Reference）</span></a></li><li class="toc-item toc-level-6"><a class="toc-link" href="#4-%E8%99%9A%E5%BC%95%E7%94%A8%EF%BC%88Phantom-Reference%EF%BC%89"><span class="toc-number">3.1.2.2.4.</span> <span class="toc-text">4. 虚引用（Phantom Reference）</span></a></li><li class="toc-item toc-level-6"><a class="toc-link" href="#5-%E7%BB%88%E7%BB%93%E5%99%A8%E5%BC%95%E7%94%A8%EF%BC%88Finalizer-Cleaner%EF%BC%89"><span class="toc-number">3.1.2.2.5.</span> <span class="toc-text">5. 终结器引用（Finalizer &#x2F; Cleaner）</span></a></li></ol></li></ol></li></ol></li><li class="toc-item toc-level-3"><a class="toc-link" href="#2-%E5%9E%83%E5%9C%BE%E5%9B%9E%E6%94%B6%E7%AE%97%E6%B3%95"><span class="toc-number">3.2.</span> <span class="toc-text">2.垃圾回收算法</span></a><ol class="toc-child"><li class="toc-item toc-level-4"><a class="toc-link" href="#1-%E6%A0%87%E8%AE%B0%E6%B8%85%E9%99%A4"><span class="toc-number">3.2.1.</span> <span class="toc-text">1.标记清除</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#2-%E6%A0%87%E8%AE%B0%E6%95%B4%E7%90%86"><span class="toc-number">3.2.2.</span> <span class="toc-text">2.标记整理</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#3-%E5%A4%8D%E5%88%B6"><span class="toc-number">3.2.3.</span> <span class="toc-text">3.复制</span></a></li></ol></li><li class="toc-item toc-level-3"><a class="toc-link" href="#3-%E5%88%86%E4%BB%A3%E5%9E%83%E5%9C%BE%E5%9B%9E%E6%94%B6%EF%BC%88Generational-Garbage-Collection%EF%BC%89"><span class="toc-number">3.3.</span> <span class="toc-text">3. 分代垃圾回收（Generational Garbage Collection）</span></a><ol class="toc-child"><li class="toc-item toc-level-4"><a class="toc-link" href="#%E6%96%B0%E7%94%9F%E4%BB%A3%E5%9B%9E%E6%94%B6%E6%B5%81%E7%A8%8B%EF%BC%88Minor-GC%EF%BC%89%EF%BC%9A"><span class="toc-number">3.3.1.</span> <span class="toc-text">新生代回收流程（Minor GC）：</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#%E8%80%81%E5%B9%B4%E4%BB%A3%E5%9B%9E%E6%94%B6%E6%B5%81%E7%A8%8B%EF%BC%88Full-GC%EF%BC%89%EF%BC%9A"><span class="toc-number">3.3.2.</span> <span class="toc-text">老年代回收流程（Full GC）：</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#%E9%A2%9D%E5%A4%96%E8%AF%B4%E6%98%8E%EF%BC%9A"><span class="toc-number">3.3.3.</span> <span class="toc-text">额外说明：</span></a></li></ol></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#JMM%EF%BC%88Java-Memory-Modle%EF%BC%89"><span class="toc-number">4.</span> <span class="toc-text">JMM（Java Memory Modle）</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#synchronized%EF%BC%88%E5%90%8C%E6%AD%A5%E5%85%B3%E9%94%AE%E5%AD%97%EF%BC%89"><span class="toc-number">4.1.</span> <span class="toc-text">synchronized（同步关键字）</span></a></li></ol></li></ol></div></div><div class="card-widget card-recent-post"><div class="item-headline"><i class="fas fa-history"></i><span>最新文章</span></div><div class="aside-list"><div class="aside-list-item no-cover"><div class="content"><a class="title" href="/2025/05/27/jvm/" title="jvm">jvm</a><time datetime="2025-05-27T00:47:41.000Z" title="发表于 2025-05-27 08:47:41">2025-05-27</time></div></div><div class="aside-list-item no-cover"><div class="content"><a class="title" href="/2025/05/19/javaAlgorithm/" title="javaAlgorithm">javaAlgorithm</a><time datetime="2025-05-19T01:35:38.000Z" title="发表于 2025-05-19 09:35:38">2025-05-19</time></div></div><div class="aside-list-item no-cover"><div class="content"><a class="title" href="/2025/05/15/Java%E5%85%AB%E8%82%A1/" title="Java八股">Java八股</a><time datetime="2025-05-15T05:04:40.000Z" title="发表于 2025-05-15 13:04:40">2025-05-15</time></div></div><div class="aside-list-item no-cover"><div class="content"><a class="title" href="/2025/04/27/javaweb/" title="javaweb">javaweb</a><time datetime="2025-04-27T11:32:11.000Z" title="发表于 2025-04-27 19:32:11">2025-04-27</time></div></div><div class="aside-list-item no-cover"><div class="content"><a class="title" href="/2025/04/25/MySQL/" title="MySQL">MySQL</a><time datetime="2025-04-25T07:09:49.000Z" title="发表于 2025-04-25 15:09:49">2025-04-25</time></div></div></div></div></div></div></main><footer id="footer" style="background-image: url(/image/bg.jpg);"><div id="footer-wrap"><div class="copyright">&copy;2025 By Explainfuture</div><div class="framework-info"><span>框架 </span><a target="_blank" rel="noopener" href="https://hexo.io">Hexo 7.3.0</a><span class="footer-separator">|</span><span>主题 </span><a target="_blank" rel="noopener" href="https://github.com/jerryc127/hexo-theme-butterfly">Butterfly 5.3.5</a></div><div class="footer_custom_text">良辰美景奈何天。<p><a target="_blank" href="https://hexo.io/"><img src= "data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7" data-lazy-src="https://img.shields.io/badge/Frame-Hexo-blue?style=flat&logo=hexo" title="博客框架为Hexo"></a>&nbsp;<a target="_blank" href="https://butterfly.js.org/"><img src= "data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7" data-lazy-src="https://img.shields.io/badge/Theme-Butterfly-6513df?style=flat&logo=bitdefender" title="主题采用butterfly"></a>&nbsp;<a target="_blank" href="https://www.jsdelivr.com/"><img src= "data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7" data-lazy-src="https://img.shields.io/badge/CDN-jsDelivr-orange?style=flat&logo=jsDelivr" title="本站使用JsDelivr为静态资源提供CDN加速"></a> &nbsp;<a target="_blank" href="https://vercel.com/ "><img src= "data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7" data-lazy-src="https://img.shields.io/badge/Hosted-Vervel-brightgreen?style=flat&logo=Vercel" title="本站采用双线部署，默认线路托管于Vercel"></a>&nbsp;<a target="_blank" href="https://vercel.com/ "><img src= "data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7" data-lazy-src="https://img.shields.io/badge/Hosted-Coding-0cedbe?style=flat&logo=Codio" title="本站采用双线部署，联通线路托管于Coding"></a>&nbsp;<a target="_blank" href="https://github.com/"><img src= "data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7" data-lazy-src="https://img.shields.io/badge/Source-Github-d021d6?style=flat&logo=GitHub" title="本站项目由Gtihub托管"></a>&nbsp;<a target="_blank" href="http://creativecommons.org/licenses/by-nc-sa/4.0/"><img src= "data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7" data-lazy-src="https://img.shields.io/badge/Copyright-BY--NC--SA%204.0-d42328?style=flat&logo=Claris" title="本站采用知识共享署名-非商业性使用-相同方式共享4.0国际许可协议进行许可"></a></p></div></div></footer></div><div id="rightside"><div id="rightside-config-hide"><button id="readmode" type="button" title="阅读模式"><i class="fas fa-book-open"></i></button><button id="darkmode" type="button" title="日间和夜间模式切换"><i class="fas fa-adjust"></i></button><button id="hide-aside-btn" type="button" title="单栏和双栏切换"><i class="fas fa-arrows-alt-h"></i></button></div><div id="rightside-config-show"><button id="rightside-config" type="button" title="设置"><i class="fas fa-cog fa-spin"></i></button><button class="close" id="mobile-toc-button" type="button" title="目录"><i class="fas fa-list-ul"></i></button><button id="go-up" type="button" title="回到顶部"><span class="scroll-percent"></span><i class="fas fa-arrow-up"></i></button></div></div><div><script src="/js/utils.js"></script><script src="/js/main.js"></script><script src="https://cdn.jsdelivr.net/npm/instant.page/instantpage.min.js" type="module"></script><script src="https://cdn.jsdelivr.net/npm/vanilla-lazyload/dist/lazyload.iife.min.js"></script><script src="https://cdn.jsdelivr.net/npm/node-snackbar/dist/snackbar.min.js"></script><div class="js-pjax"></div><script defer="defer" id="fluttering_ribbon" mobile="true" src="https://cdn.jsdelivr.net/npm/butterfly-extsrc/dist/canvas-fluttering-ribbon.min.js"></script><script src="https://cdn.jsdelivr.net/npm/butterfly-extsrc/dist/activate-power-mode.min.js"></script><script>POWERMODE.colorful = true;
+POWERMODE.shake = true;
+POWERMODE.mobile = false;
+document.body.addEventListener('input', POWERMODE);
+</script><link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/aplayer/dist/APlayer.min.css" media="print" onload="this.media='all'"><script src="https://cdn.jsdelivr.net/npm/aplayer/dist/APlayer.min.js"></script><script src="https://cdn.jsdelivr.net/npm/butterfly-extsrc/metingjs/dist/Meting.min.js"></script><script async data-pjax src="//busuanzi.ibruce.info/busuanzi/2.3/busuanzi.pure.mini.js"></script><div id="local-search"><div class="search-dialog"><nav class="search-nav"><span class="search-dialog-title">搜索</span><span id="loading-status"></span><button class="search-close-button"><i class="fas fa-times"></i></button></nav><div class="text-center" id="loading-database"><i class="fas fa-spinner fa-pulse"></i><span>  数据加载中</span></div><div class="search-wrap"><div id="local-search-input"><div class="local-search-box"><input class="local-search-box--input" placeholder="请输入关键字" type="text"/></div></div><hr/><div id="local-search-results"></div><div id="local-search-stats-wrap"></div></div></div><div id="search-mask"></div><script src="/js/search/local-search.js"></script></div></div></body></html>
