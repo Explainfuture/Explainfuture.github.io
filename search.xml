@@ -1473,6 +1473,105 @@
 <li>主线程（用户线程）结束后，GC 守护线程也会随 JVM 退出而结束</li>
 <li>守护线程适合执行日志、监控、GC 等后台任务</li>
 </ul>
-<h2 id="3-共享模型之管程-Monitor"><a href="#3-共享模型之管程-Monitor" class="headerlink" title="3.共享模型之管程(Monitor)"></a>3.共享模型之管程(Monitor)</h2>]]></content>
+<h2 id="3-共享模型之管程-Monitor"><a href="#3-共享模型之管程-Monitor" class="headerlink" title="3.共享模型之管程(Monitor)"></a>3.共享模型之管程(Monitor)</h2><h3 id="1-共享带来的问题"><a href="#1-共享带来的问题" class="headerlink" title="1.共享带来的问题"></a>1.共享带来的问题</h3><figure class="highlight java"><table><tr><td class="code"><pre><span class="line"><span class="type">Thread</span> <span class="variable">t1</span> <span class="operator">=</span> <span class="keyword">new</span> <span class="title class_">Thread</span>(()-&gt;&#123;</span><br><span class="line">    <span class="keyword">for</span> (<span class="type">int</span> <span class="variable">i</span> <span class="operator">=</span> <span class="number">0</span>; i &lt; <span class="number">5000</span>; i++) &#123;</span><br><span class="line">        cnt++;</span><br><span class="line">    &#125;</span><br><span class="line">&#125;,<span class="string">&quot;t1&quot;</span>);</span><br><span class="line"><span class="type">Thread</span> <span class="variable">t2</span> <span class="operator">=</span> <span class="keyword">new</span> <span class="title class_">Thread</span>(()-&gt;&#123;</span><br><span class="line">    <span class="keyword">for</span> (<span class="type">int</span> <span class="variable">i</span> <span class="operator">=</span> <span class="number">0</span>; i &lt; <span class="number">5000</span>; i++) &#123;</span><br><span class="line">        cnt--;</span><br><span class="line">    &#125;</span><br><span class="line">&#125;,<span class="string">&quot;t2&quot;</span>);</span><br><span class="line">sout(cnt);</span><br></pre></td></tr></table></figure>
+<p>不一定是0。<br>多个线程<strong>对共享资源进行读写操作</strong>，上下文交换引起的指令交错<br><img src="https://picbedex.oss-cn-shenzhen.aliyuncs.com/20250528160715423.png"></p>
+<ul>
+<li>问题出现在多个线程访问<strong>共享资源</strong></li>
+<li>一段代码块内如果存在对<strong>共享资源</strong>的多线程读写操作，称这段代码块为临界区</li>
+<li>竞态条件（Race Condition）<ul>
+<li>多个线程在临界区内执行，由于代码的执行顺序不同而导致结果无法预测，称之发生了<strong>静态条件</strong></li>
+</ul>
+</li>
+</ul>
+<h3 id="2-静态条件解决方案"><a href="#2-静态条件解决方案" class="headerlink" title="2.静态条件解决方案"></a>2.静态条件解决方案</h3><ul>
+<li>阻塞式<ul>
+<li>Synchronized、lock</li>
+</ul>
+</li>
+<li>非阻塞式<ul>
+<li>原子变量</li>
+</ul>
+</li>
+</ul>
+<h4 id="synchronized（对象锁）"><a href="#synchronized（对象锁）" class="headerlink" title="synchronized（对象锁）"></a>synchronized（对象锁）</h4><ol>
+<li>语法</li>
+</ol>
+<figure class="highlight java"><table><tr><td class="code"><pre><span class="line"><span class="keyword">synchronized</span> (对象)&#123;</span><br><span class="line">    <span class="comment">//临界区代码</span></span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<h5 id="类比说明"><a href="#类比说明" class="headerlink" title="类比说明"></a>类比说明</h5><ul>
+<li>把 <code>obj</code> 想象成一个 <strong>房间</strong>，房间只有一个 <strong>门</strong>。</li>
+<li>每个线程（如 <code>t1</code>、<code>t2</code>）就像是 <strong>想进房间干活的人</strong>。</li>
+<li>一次只能一个线程进房间，其他线程必须在门外 <strong>排队等待</strong>。</li>
+</ul>
+<hr>
+<h5 id="执行过程"><a href="#执行过程" class="headerlink" title="执行过程"></a>执行过程</h5><ol>
+<li><code>t1</code> 运行到 <code>synchronized(obj)</code><br>→ 拿到钥匙，进入房间（获得锁）<br>→ 门被锁上，其他线程进不来。</li>
+<li><code>t2</code> 也运行到 <code>synchronized(obj)</code><br>→ 发现门被锁，<strong>阻塞在门外</strong>，等待钥匙。</li>
+<li><code>t1</code> 时间片用完，被系统挂起<br>→ 虽然暂停了，但<strong>钥匙还在它手上</strong>（锁未释放）<br>→ <code>t2</code> 仍无法进入房间。</li>
+<li><code>t1</code> 被重新调度回来<br>→ 执行完同步代码块，<strong>出门还钥匙</strong>（释放锁）<br>→ 唤醒 <code>t2</code>，<code>t2</code> 拿到钥匙进入房间继续执行。</li>
+</ol>
+<hr>
+<h6 id="关键类比总结"><a href="#关键类比总结" class="headerlink" title="关键类比总结"></a>关键类比总结</h6><table>
+<thead>
+<tr>
+<th>Java 概念</th>
+<th>房间类比</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>锁对象（如 obj）</td>
+<td>房间</td>
+</tr>
+<tr>
+<td>synchronized(obj)</td>
+<td>进入房间前先锁门</td>
+</tr>
+<tr>
+<td>获得锁</td>
+<td>拿到钥匙，进入房间</td>
+</tr>
+<tr>
+<td>阻塞线程</td>
+<td>在门外排队等待钥匙</td>
+</tr>
+<tr>
+<td>释放锁</td>
+<td>出门还钥匙，唤醒别人</td>
+</tr>
+</tbody></table>
+<h6 id="面向对象加锁"><a href="#面向对象加锁" class="headerlink" title="面向对象加锁"></a>面向对象加锁</h6><figure class="highlight java"><table><tr><td class="code"><pre><span class="line"><span class="keyword">public</span> <span class="keyword">class</span> <span class="title class_">Main</span> &#123;</span><br><span class="line">    <span class="keyword">public</span> <span class="keyword">static</span> <span class="keyword">void</span> <span class="title function_">main</span><span class="params">(String[] args)</span> <span class="keyword">throws</span> InterruptedException &#123;</span><br><span class="line">        <span class="type">Room</span> <span class="variable">r</span> <span class="operator">=</span> <span class="keyword">new</span> <span class="title class_">Room</span>();</span><br><span class="line">        <span class="type">Thread</span> <span class="variable">t1</span> <span class="operator">=</span> <span class="keyword">new</span> <span class="title class_">Thread</span>(()-&gt;&#123;</span><br><span class="line">            <span class="keyword">for</span> (<span class="type">int</span> <span class="variable">i</span> <span class="operator">=</span> <span class="number">0</span>; i &lt; <span class="number">5000</span>; i++) &#123;</span><br><span class="line">                r.Increase();</span><br><span class="line">            &#125;</span><br><span class="line">        &#125;,<span class="string">&quot;t1&quot;</span>);</span><br><span class="line">        <span class="type">Thread</span> <span class="variable">t2</span> <span class="operator">=</span> <span class="keyword">new</span> <span class="title class_">Thread</span>(()-&gt;&#123;</span><br><span class="line">            <span class="keyword">for</span> (<span class="type">int</span> <span class="variable">i</span> <span class="operator">=</span> <span class="number">0</span>; i &lt; <span class="number">5000</span>; i++) &#123;</span><br><span class="line">                r.Decrease();</span><br><span class="line">            &#125;</span><br><span class="line">        &#125;,<span class="string">&quot;t2&quot;</span>);</span><br><span class="line"></span><br><span class="line">        t1.start();</span><br><span class="line">        t2.start();</span><br><span class="line">        t1.join();</span><br><span class="line">        t2.join();</span><br><span class="line">        r.getCnt();</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br><span class="line"><span class="keyword">class</span> <span class="title class_">Room</span>&#123;</span><br><span class="line">    <span class="keyword">private</span> <span class="type">int</span> cnt;</span><br><span class="line">    <span class="keyword">public</span> <span class="keyword">void</span> <span class="title function_">Increase</span><span class="params">()</span>&#123;</span><br><span class="line">        <span class="keyword">synchronized</span> (<span class="built_in">this</span>)&#123;</span><br><span class="line">            cnt++;</span><br><span class="line">        &#125;</span><br><span class="line">    &#125;</span><br><span class="line">    <span class="keyword">public</span> <span class="keyword">void</span> <span class="title function_">Decrease</span><span class="params">()</span>&#123;</span><br><span class="line">        <span class="keyword">synchronized</span> (<span class="built_in">this</span>)&#123;</span><br><span class="line">            cnt--;</span><br><span class="line">        &#125;</span><br><span class="line">    &#125;</span><br><span class="line">    <span class="keyword">public</span> <span class="keyword">void</span> <span class="title function_">getCnt</span><span class="params">()</span>&#123;</span><br><span class="line">        System.out.println(cnt);</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<h6 id="在方法上加锁"><a href="#在方法上加锁" class="headerlink" title="在方法上加锁"></a>在方法上加锁</h6><ol>
+<li>在实例上加锁</li>
+</ol>
+<figure class="highlight java"><table><tr><td class="code"><pre><span class="line"><span class="keyword">class</span> <span class="title class_">test</span>&#123;</span><br><span class="line">    <span class="keyword">public</span> <span class="keyword">synchronized</span> <span class="keyword">void</span> <span class="title function_">test</span><span class="params">()</span>&#123;</span><br><span class="line"></span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>等价于</p>
+<figure class="highlight java"><table><tr><td class="code"><pre><span class="line"><span class="keyword">class</span> <span class="title class_">test</span>&#123;</span><br><span class="line">    <span class="keyword">public</span> <span class="keyword">void</span> <span class="title function_">test</span><span class="params">()</span>&#123;</span><br><span class="line">        <span class="keyword">synchronized</span> (<span class="built_in">this</span>)&#123;</span><br><span class="line"></span><br><span class="line">        &#125;</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<ol start="2">
+<li>在类上加锁</li>
+</ol>
+<figure class="highlight java"><table><tr><td class="code"><pre><span class="line"><span class="keyword">class</span> <span class="title class_">test</span>&#123;</span><br><span class="line">    <span class="keyword">public</span> <span class="keyword">synchronized</span> <span class="keyword">static</span> <span class="keyword">void</span> <span class="title function_">test</span><span class="params">()</span>&#123;</span><br><span class="line"></span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>等价于</p>
+<figure class="highlight java"><table><tr><td class="code"><pre><span class="line"><span class="keyword">class</span> <span class="title class_">Test</span>&#123;</span><br><span class="line">    <span class="keyword">public</span> <span class="keyword">void</span> <span class="title function_">test</span><span class="params">()</span>&#123;</span><br><span class="line">        <span class="keyword">synchronized</span> (Test.class)&#123;</span><br><span class="line"></span><br><span class="line">        &#125;</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<ul>
+<li>this 就像你家门 → 每家自己锁</li>
+<li>Test.class 就像整栋楼大门 → 所有人公用<br>区别是静态方法（类对象） 非静态方法（当前实例）<br>synchronized锁的是当前实例，Test锁的是整个类<br>搜 <code>线程八锁</code>进行练习，主要分析锁住的是不是同一个对象，如果不是同一个对象，那就是并行，不存在多线程；是同一个对象，就是并发。<br>实例方法加锁锁 this，每个对象一把锁；<br>静态方法加锁锁 class，全类共用一把锁；<br>不同对象加锁不冲突，相同对象才竞争；<br>类锁和实例锁互不影响。</li>
+</ul>
+<h4 id="线程安全：局部变量-vs-静态变量"><a href="#线程安全：局部变量-vs-静态变量" class="headerlink" title="线程安全：局部变量 vs 静态变量"></a>线程安全：局部变量 vs 静态变量</h4><h5 id="局部变量是线程安全的"><a href="#局部变量是线程安全的" class="headerlink" title="局部变量是线程安全的"></a>局部变量是线程安全的</h5><ul>
+<li>每次方法调用会创建新的栈帧</li>
+<li>局部变量存放在线程独立的栈中，不共享，不冲突</li>
+</ul>
+<h6 id="静态变量是线程不安全的"><a href="#静态变量是线程不安全的" class="headerlink" title="静态变量是线程不安全的"></a>静态变量是线程不安全的</h6><ul>
+<li>静态变量属于类，全局共享</li>
+<li>多线程访问会产生数据竞争，必须加锁保护</li>
+</ul>
+<hr>
+<h5 id="习题：银行账户转账"><a href="#习题：银行账户转账" class="headerlink" title="习题：银行账户转账"></a>习题：银行账户转账</h5><h6 id="场景说明"><a href="#场景说明" class="headerlink" title="场景说明"></a>场景说明</h6><p>两个账户 <code>a</code> 和 <code>b</code>，线程 T1 从 a 转账到 b，T2 从 b 转账到 a<br>如果两个账户是不同对象，用 <code>synchronized(this)</code> 是不安全的，因为<strong>锁的是两个不同的对象</strong>！</p>
+<pre><code class="language-java">public void transfer(Account target, int amount) &#123;
+    synchronized (this) &#123;
+        this.balance -= amount;
+        target.balance += amount;
+    &#125;
+&#125;
+</code></pre>
+]]></content>
   </entry>
 </search>
