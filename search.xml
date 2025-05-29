@@ -1101,6 +1101,7 @@
 <h2 id="图的遍历，回溯"><a href="#图的遍历，回溯" class="headerlink" title="图的遍历，回溯"></a>图的遍历，回溯</h2><p>2025.5.24 &amp;&amp; 2025.5.25<br><a href="https://leetcode.cn/problems/permutations/">全排列</a><br><a href="https://leetcode.cn/problems/path-sum-ii/description/">路径总和Ⅱ</a><br><a href="https://leetcode.cn/problems/permutations-ii/description/">全排列</a><br><a href="https://leetcode.cn/problems/flood-fill/">图像渲染</a><br><a href="https://leetcode.cn/problems/word-search/description/">单词搜索</a><br><a href="https://leetcode.cn/problems/number-of-islands/description/">岛屿数量</a></p>
 <p>2025.5.26<br><a href="https://leetcode.cn/problems/surrounded-regions/description/">被围绕的区域</a><br><a href="https://leetcode.cn/problems/number-of-enclaves/description/">飞地的数量</a></p>
 <h2 id="简单的动态规划"><a href="#简单的动态规划" class="headerlink" title="简单的动态规划"></a>简单的动态规划</h2><p><a href="https://leetcode.cn/problems/fibonacci-number/description/">斐波那契数</a><br><a href="https://leetcode.cn/problems/climbing-stairs/description/">爬楼梯</a><br><a href="https://leetcode.cn/problems/decode-ways/description/">解码方法</a></p>
+<p>2025.5.28<br><a href="https://leetcode.cn/problems/maximum-subarray/description/?envType=study-plan-v2&envId=top-100-liked">最大子数组和</a></p>
 ]]></content>
       <categories>
         <category>javaLearn</category>
@@ -1323,9 +1324,102 @@
 <blockquote>
 <p>💡 新生代回收通常使用“复制算法”，老年代回收通常使用“标记-整理算法”。</p>
 </blockquote>
-<h2 id="JMM（Java-Memory-Modle）"><a href="#JMM（Java-Memory-Modle）" class="headerlink" title="JMM（Java Memory Modle）"></a>JMM（Java Memory Modle）</h2><p>java内存模型，JMM定义了一套在多线程读写共享数据时（成员变量，数组）时，对数据的可见性、有序性和原子性的规则和保障。</p>
-<h3 id="synchronized（同步关键字）"><a href="#synchronized（同步关键字）" class="headerlink" title="synchronized（同步关键字）"></a>synchronized（同步关键字）</h3><p>语法</p>
-<figure class="highlight java"><table><tr><td class="code"><pre><span class="line">sychronized(对象)&#123;</span><br><span class="line">    要作为原子操作的代码</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>]]></content>
+<h2 id="类加载（ClassLoader）"><a href="#类加载（ClassLoader）" class="headerlink" title="类加载（ClassLoader）"></a>类加载（ClassLoader）</h2><h2 id="JMM（Java-Memory-Modle）"><a href="#JMM（Java-Memory-Modle）" class="headerlink" title="JMM（Java Memory Modle）"></a>JMM（Java Memory Modle）</h2><p>java内存模型，JMM定义了一套在多线程读写共享数据时（成员变量，数组）时，对数据的可见性、有序性和原子性的规则和保障。</p>
+<h3 id="为什么要加锁"><a href="#为什么要加锁" class="headerlink" title="为什么要加锁"></a>为什么要加锁</h3><ul>
+<li>可见性问题：CPU的速度高，当CPU修改了缓存中的数据但还没写回主存时，线程B读取了主存中的数据，就发生了数据读写冲突。一个线程修改了共享数据，但是另外一个线程无法立刻获取到最新的共享数据</li>
+<li>有序性问题：CPU或编译器对指令进行重排序，导致代码执行顺序和书写顺序不一致。</li>
+</ul>
+<hr>
+<ul>
+<li>synchronized编译后是<code>monitor enter</code>和<code>monitor exit</code>两个指令<ul>
+<li>monitor enter（加锁）会使用<strong>读屏障</strong>，强行从主存重新读取数据，保证数据是最新的</li>
+<li>monitor exit（解锁） 会使用<strong>写屏障</strong>，强行将缓存中的变量刷新到主存中</li>
+</ul>
+</li>
+</ul>
+<h3 id="锁升级"><a href="#锁升级" class="headerlink" title="锁升级"></a>锁升级</h3><blockquote>
+<p>为什么要做锁升级</p>
+</blockquote>
+<ul>
+<li>java线程模型是一对一的，每一个线程调用都涉及到操作系统的从用户态到内核态的转换，开销很大。所以在低并发的情况下就不让你阻塞，只要不阻塞，就不用有切换状态。并发量高的时候再去阻塞。如：购物软件凌晨低并发，周末，晚上休息时间高并发。</li>
+<li>为了降低 低并发情况下获得锁的代价，为了提高低并发时候的性能</li>
+</ul>
+<blockquote>
+<p>那为什么会慢？</p>
+</blockquote>
+<ul>
+<li>synchronized说到底层还是要调用操作系统的原语mutex，然后又涉及到线程的<code>阻塞与唤醒</code></li>
+</ul>
+<h3 id="状态演变"><a href="#状态演变" class="headerlink" title="状态演变"></a>状态演变</h3><p><img src="https://picbedex.oss-cn-shenzhen.aliyuncs.com/20250529133440600.png"></p>
+<h4 id="偏向锁"><a href="#偏向锁" class="headerlink" title="偏向锁"></a>偏向锁</h4><p>最开始是无锁状态，当有第一个线程来访问同步代码块时，JVM将对象头的Mark Word锁标志位设置为偏向锁，然后将线程id记录到markword中。偏向锁考虑只有一个线程抢锁的场景。</p>
+<h4 id="轻量级锁"><a href="#轻量级锁" class="headerlink" title="轻量级锁"></a>轻量级锁</h4><p>当第二个线程来抢锁就升级为轻量级锁，第二个线程拿不到锁就采用CAS + 自旋不断尝试重复获得锁<br>为什么要有轻量级锁？</p>
+<ul>
+<li>考虑的是竞争锁的线程不多，而且线程持有锁的时间也不长。都没有进行上下文切换以及操作系统级的线程阻塞和切换</li>
+</ul>
+<h4 id="重量级锁"><a href="#重量级锁" class="headerlink" title="重量级锁"></a>重量级锁</h4><p>当第二个线程自旋到一定次数之后还没获得锁，或者有别的线程也来抢锁了，那就升级为<code>重量级锁</code>。重量级锁加锁就需要调用操作系统的<strong>底层原语mutex</strong>，所以每次切换线程都需要操作系统从用户态切换成内核态，<strong>开销很大，所以称之为重量级锁</strong>。把那些没拿到锁的线程全都<strong>阻塞</strong>，当升级到重量级锁的时候，对象头的Markword指针就会指向锁监视器monitor。<br>为什么一定要升级为重量级锁？</p>
+<ul>
+<li>因为自旋只适合于锁的竞争比较小，而且执行时间比较短的程序。要是大量线程都在自旋等待，CPU时间被浪费了。</li>
+</ul>
+<h4 id="锁监视器Monitor"><a href="#锁监视器Monitor" class="headerlink" title="锁监视器Monitor"></a>锁监视器Monitor</h4><p>锁监视器主要是用来负责记录锁的拥有者，记录锁的重入次数，负责线程的阻塞唤醒，锁监视器就是一个对象</p>
+<figure class="highlight java"><table><tr><td class="code"><pre><span class="line"><span class="keyword">class</span> <span class="title class_">ObjectMonitior</span>&#123;</span><br><span class="line">    <span class="keyword">void</span>  *_owner; <span class="comment">//锁拥有者</span></span><br><span class="line">    WaitSet _WaitSet; <span class="comment">//等待池（管理调用wait()方法的线程）</span></span><br><span class="line">    EntryList _EntryList; <span class="comment">//锁池（管理因竞争锁失败而阻塞的线程）</span></span><br><span class="line">    <span class="type">int</span> _recursions <span class="comment">//记录锁重入次数</span></span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<ul>
+<li>重入次数作用？<ul>
+<li>当一个线程重复去获取这个锁，这就是可重入锁，冲入一次++，释放一次–，减到0就是释放锁了。</li>
+</ul>
+</li>
+<li>锁池和等待池是干什么的？<ul>
+<li>在重量级锁状态下，当有线程拿到锁，此时监视器的owner字段就记录拿到锁的线程，没有拿到锁的就进入blocking状态，然后放到锁池中；当拿到锁的线程调用了wait()方法，那该线程就释放锁，然后进入waiting状态，然后被放到等待池中，然后某个线程调用了notify，唤醒了这个waiting线程，那这个线程就从waiting状态变成blocking状态，再被放入锁池中，重新去抢锁。</li>
+</ul>
+</li>
+<li>锁竞争失败的线程和调用了wait方法的线程有什么本质区别吗？不都是在阻塞等待吗，为什么要放在锁池和等待池？<ul>
+<li>锁池放的是竞争锁失败的线程，线程状态是blocking，他的目标是尽快去获得锁去执行任务，这是<strong>锁的互斥问题</strong>；等待池是主动放弃锁的进程，现在还暂时不想要锁，这个线程等待被其他线程唤醒后，他们的状态是waiting，是想等待其他资源到位了，然后再被notify唤醒，然后进入锁池中进行抢锁，这是<strong>锁通信问题</strong>。</li>
+</ul>
+</li>
+</ul>
+<h3 id="CAS-（Compare-and-Swap）-体现乐观锁的思想"><a href="#CAS-（Compare-and-Swap）-体现乐观锁的思想" class="headerlink" title="CAS （Compare and Swap） 体现乐观锁的思想"></a>CAS （Compare and Swap） 体现乐观锁的思想</h3><p><code>悲观锁</code></p>
+<ul>
+<li>定义：认为并发访问肯定会出问题，凡是共享资源都必须加锁，线程没获得锁前会被<strong>阻塞</strong>。<br>缺点：</li>
+<li>性能差，线程频繁上下文切换；</li>
+<li>在大量<strong>读操作或低冲突场景</strong>下显得臃肿；</li>
+<li>synchronized、ReentrantLock 属于典型的悲观锁。<blockquote>
+<p>Compare and Swap <strong>对比，交换</strong></p>
+</blockquote>
+</li>
+</ul>
+<p><code>乐观锁</code></p>
+<ul>
+<li>假设线程A\B要访问一个资源，资源门口挂的门牌号是0（表空闲），A，B都想去访问，A先看到了门牌号的值是0，A拿到了CPU的时间片，对比了一下门牌号上还是0，等于old value，就将其改为1。对比门牌号上的值是否和自己第一次看到的值相同。这时B来到了门牌号前，发现自己的值是0但门牌号已经是1了，说明已经有线程去访问了资源，这时候有两个选择。1.可以自旋等待（while true），不断用CAS修改，直到线程B耐心耗尽。</li>
+<li>概念：乐观锁就是当线程访问共享资源的时候，总是乐观的认为没有线程和它竞争，所以不会加锁，只是比较状态值是否和他的预期值相同，相等说明没有被其他线程修改，然后修改状态值并访问共享资源。</li>
+<li>原子性：这是两步操作，如何确保呢？ 软件层面上无法实现，必须要硬件。</li>
+<li>效率：因为没有使用<code>synchronized</code>，所以不会引发阻塞，效率提升的原因。CAS+volatile实现<code>无锁并发</code></li>
+<li>真的无锁吗？<ul>
+<li>在 用户代码层面，CAS 不使用 synchronized 或 ReentrantLock 这类显式锁。</li>
+<li>它通过 CPU 提供的原子指令（如 x86 架构中的 CMPXCHG 指令）实现对内存的原子读-改-写。</li>
+<li>不会让线程进入阻塞状态（不会挂起、不会上下文切换）。</li>
+<li>底层会锁总线防止其他CPU核心访问。</li>
+<li>在硬件层面，CAS 其实会短暂锁住某些资源，只不过它是极快的、非阻塞的，不像软件锁那样代价高。</li>
+</ul>
+</li>
+<li>volatile 是 Java 中的一个<code>关键字</code>，用于修饰变量，主要用于多线程编程中的<code>可见性问题</code>。它的作用可以总结为：<ul>
+<li>保证内存可见性：当一个线程修改了某个 volatile 变量的值，<strong>其他线程能立刻看到这个变化</strong>。</li>
+<li>禁止指令重排序（部分场景）：在 volatile 写操作前的代码不会被编译器或 CPU 移动到写操作之后。<br>所以CAS保证<strong>原子性</strong>，volatile保证<strong>可见性</strong><br>数据库也可以使用CAS的思想</li>
+</ul>
+</li>
+</ul>
+<figure class="highlight sql"><table><tr><td class="code"><pre><span class="line"><span class="keyword">update</span> 表名 <span class="keyword">set</span> 库存 <span class="operator">=</span> 新值 <span class="keyword">where</span> 库存 <span class="operator">=</span> 旧值</span><br></pre></td></tr></table></figure>
+<ul>
+<li>ABA问题<ul>
+<li>假设变量 x 原本是 A</li>
+<li>线程 T1 读取 A，要改成 B</li>
+<li>在这之间，T2 把 A 改成了 C 又改回 A</li>
+<li>T1 执行 CAS：发现 x 还是 A，就以为没变，结果错误更新<blockquote>
+<p>Java 解决办法：加版本号（如 AtomicStampedReference）</p>
+</blockquote>
+</li>
+</ul>
+</li>
+</ul>
+]]></content>
       <categories>
         <category>javaLearn</category>
       </categories>
@@ -1352,9 +1446,8 @@
 <li>一个线程就是一个指令流，是 CPU 调度的基本单位，线程按照一定顺序执行代码，多个线程可以并发地被 CPU 核心调度执行。</li>
 <li>java中，线程作为最小调度单位，进程作为资源分配最小单位。</li>
 </ul>
-<blockquote>
+<hr>
 <p>两者对比</p>
-</blockquote>
 <ul>
 <li>进程基本上相互独立的，而线程存在于进程内，是进程的一个子集</li>
 <li>进程拥有共享的资源，如内存空间等，供其内部的线程共享</li>
@@ -1559,19 +1652,193 @@
 <li>每次方法调用会创建新的栈帧</li>
 <li>局部变量存放在线程独立的栈中，不共享，不冲突</li>
 </ul>
-<h6 id="静态变量是线程不安全的"><a href="#静态变量是线程不安全的" class="headerlink" title="静态变量是线程不安全的"></a>静态变量是线程不安全的</h6><ul>
+<h5 id="静态变量是线程不安全的"><a href="#静态变量是线程不安全的" class="headerlink" title="静态变量是线程不安全的"></a>静态变量是线程不安全的</h5><ul>
 <li>静态变量属于类，全局共享</li>
 <li>多线程访问会产生数据竞争，必须加锁保护</li>
 </ul>
 <hr>
-<h5 id="习题：银行账户转账"><a href="#习题：银行账户转账" class="headerlink" title="习题：银行账户转账"></a>习题：银行账户转账</h5><h6 id="场景说明"><a href="#场景说明" class="headerlink" title="场景说明"></a>场景说明</h6><p>两个账户 <code>a</code> 和 <code>b</code>，线程 T1 从 a 转账到 b，T2 从 b 转账到 a<br>如果两个账户是不同对象，用 <code>synchronized(this)</code> 是不安全的，因为<strong>锁的是两个不同的对象</strong>！</p>
-<pre><code class="language-java">public void transfer(Account target, int amount) &#123;
-    synchronized (this) &#123;
-        this.balance -= amount;
-        target.balance += amount;
-    &#125;
-&#125;
-</code></pre>
-]]></content>
+<h5 id="习题：银行账户转账"><a href="#习题：银行账户转账" class="headerlink" title="习题：银行账户转账"></a>习题：银行账户转账</h5><p>两个账户 <code>a</code> 和 <code>b</code>，线程 T1 从 a 转账到 b，T2 从 b 转账到 a<br>如果两个账户是不同对象，用 <code>synchronized(this)</code> 是不安全的，因为<strong>锁的是两个不同的对象</strong>！</p>
+<figure class="highlight java"><table><tr><td class="code"><pre><span class="line"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title function_">transfer</span><span class="params">(Account target, <span class="type">int</span> amount)</span> &#123;</span><br><span class="line">    <span class="keyword">synchronized</span> (<span class="built_in">this</span>) &#123;</span><br><span class="line">        <span class="built_in">this</span>.balance -= amount;</span><br><span class="line">        target.balance += amount;</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<h3 id="Monitor底层原理-（这里去看jvm的jmm）"><a href="#Monitor底层原理-（这里去看jvm的jmm）" class="headerlink" title="Monitor底层原理 （这里去看jvm的jmm）"></a>Monitor底层原理 （这里去看jvm的jmm）</h3><p>Monitor被翻译为<strong>监视器或管程</strong>，可以理解为提到的<strong>锁</strong></p>
+<ul>
+<li>第一个线程获得对象的锁后，成为owner</li>
+<li>后续来的线程发现owner被占用，只能进入等待队列并切换状态为阻塞</li>
+<li>当临界区代码被执行完后，owner空出，通知Monitor唤醒阻塞队列的线程，（此时的阻塞队列竞争是非公平的，不一定是先进来的就先得到锁）</li>
+<li>对象总是与一个monitor相关联的<br><img src="https://picbedex.oss-cn-shenzhen.aliyuncs.com/20250529100222307.png"></li>
+</ul>
+<h3 id="notify-和wait"><a href="#notify-和wait" class="headerlink" title="notify()和wait()"></a>notify()和wait()</h3><p>在重量级锁的环境下，一个线程如果缺乏资源，就会调用wait方法<strong>主动放弃锁</strong>，进入等待池，自己的状态设置为waiting；等到别的线程将资源送来了，就会调用notify，告诉这个线程资源来了，这时候第一个线程就会离开等待池，状态变为blocking，进入锁池(EntryList)重新去竞争锁。</p>
+<h3 id="park-和unpark"><a href="#park-和unpark" class="headerlink" title="park()和unpark()"></a>park()和unpark()</h3><p><code>park()</code> 和 <code>unpark()</code> 是 Java 中底层线程阻塞&#x2F;唤醒的原语，属于 <code>LockSupport</code> 类提供的工具，用于实现更灵活的并发控制（比 <code>wait/notify</code>、<code>sleep/yield</code> 更底层、更强大）。</p>
+<h3 id="锁的活跃性"><a href="#锁的活跃性" class="headerlink" title="锁的活跃性"></a>锁的活跃性</h3><ul>
+<li>死锁：各自持一把锁，又都想获得对方的锁，哲学家问题<br>  <strong>产生死锁的条件</strong><ul>
+<li>互斥</li>
+<li>占有且等待</li>
+<li>不可抢占</li>
+<li>循环等待 ✅ （最常通过避免循环等待解决）<br>  <strong>解决策略</strong></li>
+<li>固定加锁顺序：如先锁 A 再锁 B，所有线程统一顺序，避免循环等待。</li>
+<li>使用 tryLock()：尝试加锁，失败就放弃，避免永久等待。</li>
+<li>死锁检测与恢复：定期检测资源等待图，发现死锁强制中断线程（一般用于数据库&#x2F;操作系统）。</li>
+</ul>
+</li>
+<li>饥饿：线程<strong>优先级不公平</strong>、<strong>锁分配不均</strong><br>  解决策略<ul>
+<li>使用 公平锁：如 <code>ReentrantLock(true)</code>，按请求顺序分配锁；</li>
+<li>避免线程优先级过高差距；</li>
+<li>控制资源分配策略，避免让某些线程长期得不到调度。</li>
+</ul>
+</li>
+<li>活锁：</li>
+</ul>
+<h4 id="ReentrantLock-可重入锁，公平锁"><a href="#ReentrantLock-可重入锁，公平锁" class="headerlink" title="ReentrantLock(可重入锁，公平锁)"></a>ReentrantLock(可重入锁，公平锁)</h4><ol>
+<li>优点</li>
+</ol>
+<ul>
+<li>可中断</li>
+<li>可以设置超时时间</li>
+<li>可以设置公平锁</li>
+<li>支持多个条件变量（所有条件满足了才从waitSet出来去锁池）<blockquote>
+<p>与synchronized一样支持<strong>可重入</strong></p>
+</blockquote>
+</li>
+</ul>
+<ol start="2">
+<li>可重入</li>
+<li>语法</li>
+</ol>
+<figure class="highlight java"><table><tr><td class="code"><pre><span class="line"><span class="comment">// 公平锁</span></span><br><span class="line"><span class="type">ReentrantLock</span> <span class="variable">fairLock</span> <span class="operator">=</span> <span class="keyword">new</span> <span class="title class_">ReentrantLock</span>(<span class="literal">true</span>);</span><br><span class="line"><span class="comment">// 非公平锁（默认）</span></span><br><span class="line"><span class="type">ReentrantLock</span> <span class="variable">unfairLock</span> <span class="operator">=</span> <span class="keyword">new</span> <span class="title class_">ReentrantLock</span>();</span><br></pre></td></tr></table></figure>
+<ol start="4">
+<li>条件变量</li>
+</ol>
+<ul>
+<li>用于线程间通信，代替 wait() 和 notify()；</li>
+<li>支持多个等待队列（更细粒度的控制）。</li>
+</ul>
+<figure class="highlight java"><table><tr><td class="code"><pre><span class="line"><span class="type">ReentrantLock</span> <span class="variable">lock</span> <span class="operator">=</span> <span class="keyword">new</span> <span class="title class_">ReentrantLock</span>();</span><br><span class="line"><span class="type">Condition</span> <span class="variable">condition</span> <span class="operator">=</span> lock.newCondition();</span><br></pre></td></tr></table></figure>
+<blockquote>
+<p>ReentrantLock + Condition：可以为不同条件建多个等待队列（每个condition内部有一个独立的等待队列）</p>
+<ol start="5">
+<li>锁超时</li>
+</ol>
+</blockquote>
+<ol start="6">
+<li>总结</li>
+</ol>
+<ul>
+<li>ReentrantLock 是显式锁，功能强于 synchronized；</li>
+<li>支持更细粒度的锁策略；</li>
+<li>搭配 Condition 可实现更复杂的线程通信模型；</li>
+<li><strong>需手动释放锁，推荐 try-finally 结构</strong>。</li>
+</ul>
+<h2 id="4-共享模型之不可变"><a href="#4-共享模型之不可变" class="headerlink" title="4.共享模型之不可变"></a>4.共享模型之不可变</h2><ol>
+<li>什么是Java中的不可变类</li>
+</ol>
+<ul>
+<li>不可变类是指无法修改对象的值（<strong>无法继承、线程安全</strong>），String不可变<ul>
+<li>追问：怎么实现不可变类？<ul>
+<li>通过看String的源码，String添加了final(类似于cpp的const)关键字，并且是private对象</li>
+<li>替换方法replace()的实现是返回一个新的字符串。</li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+<h2 id="5-并发工具"><a href="#5-并发工具" class="headerlink" title="5.并发工具"></a>5.并发工具</h2><h3 id="线程池"><a href="#线程池" class="headerlink" title="线程池"></a>线程池</h3><h4 id="1-ThreadPoolExcutor"><a href="#1-ThreadPoolExcutor" class="headerlink" title="1.ThreadPoolExcutor"></a>1.ThreadPoolExcutor</h4><ol>
+<li>线程池状态<br><img src="https://picbedex.oss-cn-shenzhen.aliyuncs.com/20250529164801644.png" alt="线程池状态"></li>
+</ol>
+<ul>
+<li>五状态：Running、Shutdown、Stop、Tidying、Terminated<br>Shutdown就像终结对方的连胜，但不代表这局游戏结束咯。<br><img src="https://picbedex.oss-cn-shenzhen.aliyuncs.com/20250529165203047.png"><br>数字比较，是有符号数，最高位为-4，也可以去看ThreadPoolExecutor的源码</li>
+</ul>
+<ol start="2">
+<li>线程池构造方法<br><img src="https://picbedex.oss-cn-shenzhen.aliyuncs.com/20250529165901446.png" alt="线程池构造方法"></li>
+</ol>
+<ul>
+<li>corePoolSize核心线程数目（最多保留的线程数）</li>
+<li>maximumPoolSize最大线程数目</li>
+<li>keepAliveTime生存时间-针对救急线程</li>
+<li>unit时间单位-针对救急线程</li>
+<li>workQueue阻塞队列</li>
+<li>threadFactory线程工厂-可以为线程创建时起个好名字</li>
+<li>handler拒绝策略<blockquote>
+<p>最大线程数 &#x3D; 核心线程数 + 救急线程数</p>
+</blockquote>
+</li>
+<li>核心线程和救急线程的区别？<ul>
+<li>核心线程在任务执行完成后仍留在线程池中，救急线程执行完后会离开线程池。（外包）</li>
+</ul>
+</li>
+</ul>
+<h4 id="2-Fork-Join"><a href="#2-Fork-Join" class="headerlink" title="2.Fork&#x2F;Join"></a>2.Fork&#x2F;Join</h4><h3 id="JUC"><a href="#JUC" class="headerlink" title="JUC"></a>JUC</h3><h4 id="1-AQS"><a href="#1-AQS" class="headerlink" title="1.AQS"></a>1.AQS</h4><p>全称是：AbstractQueuedSynchronized，是<strong>阻塞式锁</strong>和相关的同步器工具的框架<br><strong>AQS 就是一套模板机制，你通过实现它的几个抽象方法，就可以“自定义一把锁”或“同步器”</strong></p>
+<ul>
+<li>特点：<ul>
+<li>用<code>state</code>属性来表示资源的状态（分独占模式和共享模式），子类需要定义如何维护这个状态，控制如何获得锁和释放锁<ul>
+<li>getState：获取state状态</li>
+<li>setState：设置state状态</li>
+<li>compareAndSetState：乐观锁机制设置state状态</li>
+<li>独占模式只有一个线程能够访问资源，而共享模式可以允许多个线程访问资源</li>
+</ul>
+</li>
+<li>基于FIFO的等待队列，类似于monitor的Entrylist</li>
+<li>条件变量来实现等待、唤醒机制，支持多个条件变量，类似于Monitor 的 WaitSet</li>
+</ul>
+</li>
+<li>子类要实现下列方法<ul>
+<li>tryAcquire</li>
+<li>tryRelease</li>
+<li>tryAcquireShared</li>
+<li>tryReleaseShared</li>
+<li>isHeldExclusively</li>
+</ul>
+</li>
+<li>并发工具类：是一个能让多个线程安全的去访问共享资源的一个工具，每个线程访问的时候要去<strong>判断</strong>当前共享资源是否被占用，是否正在被访问；如果没有线程访问，那当前线程就可以访问；如果当前资源被访问了，要么<strong>重试</strong>，要么<strong>阻塞</strong>，要么<strong>放弃</strong>。</li>
+<li>如何表示共享资源当前正在被访问呢？<ul>
+<li>状态变量。为0时表示空闲，为1时表示被占有，同样是Reentrantlock的思想</li>
+<li>公平策略：AQS是基于FIFO的队列设计的，只需要重写tryAcquire方法就可以自定义公平&#x2F;非公平策略了</li>
+</ul>
+</li>
+<li>Reentrantlock和Synchronized有什么区别？<ul>
+<li>Reentrantlock基于FIFO实现了公平锁和非公平锁；而Synchronized都是非公平</li>
+</ul>
+</li>
+</ul>
+<h4 id="2-Reentrantlock"><a href="#2-Reentrantlock" class="headerlink" title="2.Reentrantlock"></a>2.Reentrantlock</h4><ul>
+<li>类型：独占、可重入、支持公平&#x2F;非公平</li>
+<li>关键 AQS 方法：tryAcquire() &#x2F; tryRelease()</li>
+<li>state 表示：当前线程持有锁的次数（支持递归加锁）</li>
+<li>典型用法：</li>
+</ul>
+<figure class="highlight java"><table><tr><td class="code"><pre><span class="line">lock.lock();</span><br><span class="line"><span class="keyword">try</span> &#123;</span><br><span class="line">    <span class="comment">// 临界区</span></span><br><span class="line">&#125; <span class="keyword">finally</span> &#123;</span><br><span class="line">    lock.unlock();</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<h4 id="3-Semaphore"><a href="#3-Semaphore" class="headerlink" title="3.Semaphore"></a>3.Semaphore</h4><ul>
+<li>类型：共享锁</li>
+<li>关键 AQS 方法：tryAcquireShared() &#x2F; tryReleaseShared()</li>
+<li>state 表示：剩余可用许可数量</li>
+<li>典型用法：限流、连接池并发控制</li>
+</ul>
+<figure class="highlight java"><table><tr><td class="code"><pre><span class="line">semaphore.acquire();   <span class="comment">// 获取许可</span></span><br><span class="line">semaphore.release();   <span class="comment">// 释放许可</span></span><br></pre></td></tr></table></figure>
+
+<h4 id="4-CountDownLatch-（倒计时锁）"><a href="#4-CountDownLatch-（倒计时锁）" class="headerlink" title="4.CountDownLatch （倒计时锁）"></a>4.CountDownLatch （倒计时锁）</h4><ul>
+<li>类型：共享同步器（不可重置）</li>
+<li>关键 AQS 方法：tryAcquireShared()（为 0 才通过） &#x2F; tryReleaseShared()</li>
+<li>state 表示：倒计时数量</li>
+<li>典型用法：等待多个线程完成后再执行</li>
+</ul>
+<figure class="highlight java"><table><tr><td class="code"><pre><span class="line"><span class="type">CountDownLatch</span> <span class="variable">latch</span> <span class="operator">=</span> <span class="keyword">new</span> <span class="title class_">CountDownLatch</span>(<span class="number">3</span>);</span><br><span class="line">latch.countDown(); <span class="comment">// 调用 3 次后 latch.await() 才能继续，countDown计数--</span></span><br><span class="line">latch.await(); <span class="comment">//等待计数归零</span></span><br></pre></td></tr></table></figure>
+
+<h4 id="5-ReentrantReadWriteLock"><a href="#5-ReentrantReadWriteLock" class="headerlink" title="5.ReentrantReadWriteLock"></a>5.ReentrantReadWriteLock</h4><ul>
+<li>类型：读锁共享，写锁独占</li>
+<li>关键点：<ul>
+<li>写锁使用 tryAcquire()，互斥；</li>
+<li>读锁使用 tryAcquireShared()，可多个同时获取；</li>
+</ul>
+</li>
+<li>state 表示：高 16 位写锁计数，低 16 位读锁计数（位运算拆解）</li>
+<li>典型用法：</li>
+</ul>
+<figure class="highlight java"><table><tr><td class="code"><pre><span class="line">readLock.lock();   <span class="comment">// 多线程可以同时读</span></span><br><span class="line">writeLock.lock();  <span class="comment">// 写操作互斥，读写互斥</span></span><br></pre></td></tr></table></figure>
+
+<h4 id="6-FutureTask"><a href="#6-FutureTask" class="headerlink" title="6.FutureTask"></a>6.FutureTask</h4><ul>
+<li>类型：任务状态控制器（封装线程执行结果）</li>
+<li>关键 AQS 方法：用独占锁管理任务执行与等待线程；</li>
+<li>state 表示：任务状态（NEW、RUNNING、COMPLETED）</li>
+<li>典型用法：配合线程池异步获取结果</li>
+</ul>
+<figure class="highlight java"><table><tr><td class="code"><pre><span class="line">FutureTask&lt;Integer&gt; task = <span class="keyword">new</span> <span class="title class_">FutureTask</span>&lt;&gt;(() -&gt; <span class="number">1</span> + <span class="number">2</span>);</span><br><span class="line"><span class="keyword">new</span> <span class="title class_">Thread</span>(task).start();</span><br><span class="line">task.get(); <span class="comment">// 等待并获取结果</span></span><br></pre></td></tr></table></figure>]]></content>
   </entry>
 </search>
