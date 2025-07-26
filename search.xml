@@ -3428,6 +3428,44 @@
 <li>Xshell：让我们能在windows上操作Linux系统，配合Xftp实现上传下载文件</li>
 <li>最终可以实现使用ip访问nginx</li>
 </ul>
+<h2 id="Nginx的配置文件"><a href="#Nginx的配置文件" class="headerlink" title="Nginx的配置文件"></a>Nginx的配置文件</h2><p>有<code>三部分</code>组成</p>
+<h3 id="全局块"><a href="#全局块" class="headerlink" title="全局块"></a>全局块</h3><ul>
+<li>作用：从配置文件到events块的所有内容，主要会设置一些影响 nginx 服务器整体运行的配置命令</li>
+<li>全局块配置如下：</li>
+</ul>
+<figure class="highlight c"><table><tr><td class="code"><pre><span class="line">user www-data;</span><br><span class="line">worker_processes <span class="keyword">auto</span>;</span><br><span class="line">pid /run/nginx.pid;</span><br><span class="line">include /etc/nginx/modules-enabled<span class="comment">/*.conf;</span></span><br></pre></td></tr></table></figure>
+<p>比如<code>worker_processes</code>这个参数，越大的话，可以支持的并发处理量也就越多</p>
+<h3 id="events块"><a href="#events块" class="headerlink" title="events块"></a>events块</h3><ul>
+<li>作用：影响Nginx服务器与用户的网络连接</li>
+</ul>
+<figure class="highlight c"><table><tr><td class="code"><pre><span class="line">events &#123;</span><br><span class="line">	worker_connections <span class="number">768</span>;</span><br><span class="line">	# multi_accept on;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<ul>
+<li>比如worker_connections是支持的最大连接数</li>
+</ul>
+<h3 id="http块"><a href="#http块" class="headerlink" title="http块"></a>http块</h3><ul>
+<li>http块里又分为两块：<code>http全局块</code>和<code>server块</code></li>
+</ul>
+<h3 id="配置示例"><a href="#配置示例" class="headerlink" title="配置示例"></a>配置示例</h3><h4 id="反向代理-1"><a href="#反向代理-1" class="headerlink" title="反向代理"></a>反向代理</h4><ul>
+<li>实现功能：在浏览器中输入<code>www.123.com</code>跳转到linux系统中tomcat主页面中</li>
+<li>首先安装tomcat<ul>
+<li>进入tomcat的官网，可以使用wget下载，也可以在windows下载然后使用xftp移动安装包进入<code>opt</code></li>
+<li>解压 tar -zxvf 压缩包</li>
+<li>启动startup.sh脚本</li>
+</ul>
+</li>
+<li>启用对外访问的端口8080<ul>
+<li>firewall-cmd –add-port&#x3D;8080&#x2F;tcp –permanent</li>
+<li>firewall-cmd –reload</li>
+<li>firewall-cmd –list-all</li>
+</ul>
+</li>
+<li>修改本地的host文件夹：192.168.6.128 <a href="http://www.123.com(这一步是在模拟dns解析过程,让浏览器知道我们应该跳哪)/">www.123.com（这一步是在模拟DNS解析过程，让浏览器知道我们应该跳哪）</a></li>
+<li>反向代理配置（proxy_123.conf）</li>
+</ul>
+<figure class="highlight c++"><table><tr><td class="code"><pre><span class="line">server &#123;</span><br><span class="line">    listen <span class="number">80</span>;</span><br><span class="line">    server_name www<span class="number">.123</span>.com;</span><br><span class="line">    location / &#123;</span><br><span class="line">        proxy_pass http:<span class="comment">//192.168.6.128:8080;</span></span><br><span class="line">        proxy_set_header Host $host;</span><br><span class="line">        proxy_set_header X-Real-IP $remote_addr;</span><br><span class="line">        proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;</span><br><span class="line">        proxy_set_header X-Forwarded-Proto $scheme;</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<ul>
+<li>我们本地测试时用 <code>hosts</code> 模拟 <code>DNS</code>，让浏览器能把域名解析到虚拟机的 <code>IP</code>。上线后就不需要这个步骤，因为 DNS 已经负责把域名解析到服务器公网 IP。浏览器发请求到服务器后，由 Nginx 判断请求路径或域名，转发到对应后端服务（不同端口），然后把返回的结果发回浏览器。这就是路径转发功能</li>
+</ul>
 ]]></content>
   </entry>
   <entry>
