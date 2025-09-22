@@ -1253,6 +1253,27 @@
 <li>配置文件：引入mybatis的配置信息，准备对应的实体类</li>
 <li>准备对应的Mapper、Service（接口、实现类）、Controller基础结构</li>
 </ul>
+<h2 id="路径参数"><a href="#路径参数" class="headerlink" title="路径参数"></a>路径参数</h2><ul>
+<li>比如要写一个url:dept&#x2F;1,dept&#x2F;2，后面的id是变动的，我们就需要RequestVariable注解来获取这个id，多参数也一样</li>
+<li>以下这个代码程序就是获取url里的变量，前一步要使用RequestMapping来绑定路径参数@</li>
+</ul>
+<figure class="highlight java"><table><tr><td class="code"><pre><span class="line"><span class="meta">@RequestMapping(&#x27;/path/&#123;id&#125;/&#123;name&#125;&#x27;)</span></span><br><span class="line"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title function_">GetVariable</span><span class="params">(<span class="meta">@RequestVariable</span> Integer id,<span class="meta">@RequestVariable</span> String name)</span></span><br><span class="line">&#123;</span><br><span class="line">    sout(id + name);</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<h2 id="三层架构"><a href="#三层架构" class="headerlink" title="三层架构"></a>三层架构</h2><ul>
+<li>controller：控制层，接收前端发来的请求，对请求进行处理，并响应数据</li>
+<li>service：业务逻辑层，处理具体的业务逻辑</li>
+<li>dao：数据访问层（data access object，持久层），负责数据的访问操作，包括数据的增删改查</li>
+</ul>
+<h2 id="控制反转（IOC）与依赖注入（DI）"><a href="#控制反转（IOC）与依赖注入（DI）" class="headerlink" title="控制反转（IOC）与依赖注入（DI）"></a>控制反转（IOC）与依赖注入（DI）</h2><ul>
+<li>这两个的功能是为了更好的解耦三层架构，使用控制反转IOC(在类外加上<code>@Component</code>注解)，可以把这个类交给IOC来管理，成为IOC的bean对象。等到别的层需要调用的时候，使用@Autowired进行依赖注入，这样就解耦了。</li>
+<li>声明bean有四个注解：@Component，@Controller（管控制层），@Service（管业务层），@Repository（管数据访问层，这个用的少，会用@Mapper替换）</li>
+<li>依赖注入的是<strong>接口，interface</strong>，我们想要让接口的某一个实现类，就写好实现类；如果有多个实现类，参考下面一条。</li>
+<li>依赖注入时如果有多个同类型的bean，可以通过@Primary(提高优先级)，@Autowired+@Qulifier(“bean的名称”)，@Resource(name&#x3D;”bean的名称”)</li>
+</ul>
+<h3 id="面试问道是否了解IoC以及DI"><a href="#面试问道是否了解IoC以及DI" class="headerlink" title="面试问道是否了解IoC以及DI"></a>面试问道是否了解IoC以及DI</h3><ul>
+<li>IOC 也就是控制反转，核心思想是把对象的创建和管理交给 Spring 容器，而不是我们自己去 new。这样可以降低代码耦合。Spring 会扫描带有 @Component、@Service、@Controller、@Repository 的类，把它们注册成 bean，统一交给 IOC 容器管理。</li>
+<li>DI 是依赖注入，也就是当某个类需要依赖其他对象时，Spring 会自动把对应的 bean 注入进来，我们只需要在属性或构造方法上加 @Autowired 就可以了。</li>
+<li>如果一个接口有多个实现类，Spring 无法确定要注入哪个，这时候可以用 @Qualifier(“beanName”) 或 @Resource(name&#x3D;”beanName”) 来指定，也可以在某个实现类上加 @Primary，让它成为默认注入的对象。</li>
+</ul>
 ]]></content>
       <categories>
         <category>javaLearn</category>
@@ -2033,6 +2054,13 @@
 <li>队列类型上，对于高并发请求建议使用 LinkedBlockingQueue 或 ArrayBlockingQueue 来控制流量和内存使用。</li>
 </ul>
 </li>
+<li>线程池的执行策略<ol>
+<li>如果任务数小于核心线程数，分配一个线程去处理任务</li>
+<li>如果任务数大于核心线程数，进入阻塞队列等待</li>
+<li>如果任务数大于核心线程数并且阻塞队列已满，创建救急线程去处理任务</li>
+<li>如果救急线程数+核心线程数大于最大线程数，执行拒绝策略</li>
+</ol>
+</li>
 </ul>
 <h4 id="2-Fork-Join"><a href="#2-Fork-Join" class="headerlink" title="2.Fork&#x2F;Join"></a>2.Fork&#x2F;Join</h4><h3 id="JUC"><a href="#JUC" class="headerlink" title="JUC"></a>JUC</h3><h4 id="1-AQS"><a href="#1-AQS" class="headerlink" title="1.AQS"></a>1.AQS</h4><p>全称是：AbstractQueuedSynchronized，是<strong>阻塞式锁</strong>和相关的同步器工具的框架<br><strong>AQS 就是一套模板机制，你通过实现它的几个抽象方法，就可以“自定义一把锁”或“同步器”</strong></p>
 <ul>
@@ -2133,6 +2161,20 @@
 <h2 id="I-O多路复用是什么？"><a href="#I-O多路复用是什么？" class="headerlink" title="I&#x2F;O多路复用是什么？"></a>I&#x2F;O多路复用是什么？</h2><ul>
 <li>I&#x2F;O 多路复用是指：通过一个线程同时监听多个 <strong>I&#x2F;O 事件（比如 socket 连接、读写等）</strong>，一旦有事件发生就去处理，<strong>避免为每个连接开一个线程，大大提高了并发性能和资源利用率。</strong></li>
 </ul>
+<h1 id="线程池-1"><a href="#线程池-1" class="headerlink" title="线程池"></a>线程池</h1><ul>
+<li>不使用Executor创建<ol>
+<li>FixedThreadPool和SingleThreadPool允许的阻塞队列长度为<code>Integer.MAX_VALUE</code>，会导致OOM</li>
+<li>CachedThreadPool允许创建的线程数量为<code>Integer.MAX_VALUE</code>，也会导致OOM</li>
+</ol>
+</li>
+<li>四种拒绝策略<ul>
+<li>AbortPolicy：如果任务数超过了阻塞队列，直接拒绝执行</li>
+<li>CallerRunsPolicy：由提交线程池任务的线程来运行</li>
+<li>DiscardPolicy：直接丢弃新来的任务</li>
+<li>DiscardOldestPolicy：丢弃队列里最老的任务，尝试执行当前任务</li>
+</ul>
+</li>
+</ul>
 ]]></content>
   </entry>
   <entry>
@@ -2172,15 +2214,14 @@
 </ul>
 </li>
 <li>外围设备的中断<ul>
-<li>当外围设备完成用户请求的操作后，会向CPU发出相应的中断信号，这时CPU会暂停执行下一条即将要执行的指令转而去执行与中断信号对应的处理程序，如果先前执行的指令是用户态下的程序，那么这个转换的过程自然也就发生了由用户态到内核态的切换。比如硬盘读写操作完成，系统会切换到硬盘读写的中断处理程序中执行后续操作等。如网卡接收到数据包、定时器中断等也会导致从用户态切入内核态，执行中断服务程序。</li>
+<li>当外围设备完成用户请求的操作后，会向CPU发出相应的中断信号，这时CPU会暂停执行下一条即将要执行的指令转而去执行与中断信号对应的处理程序，如果先前执行的指令是用户态下的程序，那么这个转换的过程自然也就发生了由用户态到内核态的切换。比如硬盘读写操作完成，系统会切换到硬盘读写的中断处理程序中执行后续操作等。如网卡接收到数据包、定时器中断等也会导致从用户态切入内核态，执行中断服务程序。<blockquote>
+<p>用户态程序无法直接访问硬件资源，为了在受限的权限下完成磁盘读写、网络通信、进程创建等操作，用户程序需要通过系统调用请求内核代为执行。以 Linux 为例，系统调用通过特殊的 syscall 指令触发软中断（软中断是调用方法，硬中断不可控，比如    IO完成通知、定时器、外设输入），由操作系统内核中的中断处理程序接管执行，完成如 <code>read(), fork()</code> 等功能后再返回用户态。</p>
+</blockquote>
+</li>
 </ul>
 </li>
 </ol>
 </li>
-</ol>
-<blockquote>
-<p>用户态程序无法直接访问硬件资源，为了在受限的权限下完成磁盘读写、网络通信、进程创建等操作，用户程序需要通过系统调用请求内核代为执行。以 Linux 为例，系统调用通过特殊的 syscall 指令触发软中断（软中断是调用方法，硬中断不可控，比如	IO完成通知、定时器、外设输入），由操作系统内核中的中断处理程序接管执行，完成如 <code>read(), fork()</code> 等功能后再返回用户态。</p>
-<ol start="4">
 <li>其他必会知识<ol>
 <li>并行与并发<ul>
 <li>并行(Parallelism)：多个任务在同一时刻被<code>多个处理器</code>或<code>多个核心</code>同时执行，是物理上的同时发生，常用于计算密集型任务。</li>
@@ -2201,7 +2242,6 @@
 </ul>
 </li>
 </ol>
-</blockquote>
 <h1 id="进程管理"><a href="#进程管理" class="headerlink" title="进程管理"></a>进程管理</h1><ol>
 <li>线程，进程，协程的区别<ul>
 <li>进程是操作系统分配资源的基本单位，每个进程有独立的地址空间、文件描述符等资源。</li>
@@ -2635,7 +2675,14 @@
 <li>✅ 主从架构支持高可用</li>
 <li>✅ 消费进度可控（精确到队列和偏移量）</li>
 </ul>
-<h2 id="面试问题"><a href="#面试问题" class="headerlink" title="面试问题"></a>面试问题</h2><h3 id="RabbitMQ-常见的使用场景有哪些？"><a href="#RabbitMQ-常见的使用场景有哪些？" class="headerlink" title="RabbitMQ 常见的使用场景有哪些？"></a>RabbitMQ 常见的使用场景有哪些？</h3><p>场景	说明<br>解耦系统	比如下单成功 → 发短信、发优惠券 → 通过 MQ 异步解耦处理<br>流量削峰	秒杀高并发请求先进入 MQ 排队，后台异步慢慢处理，防止系统崩溃<br>异步处理	比如上传图片后异步生成缩略图，发邮件、日志存储等<br>可靠通知	比如订单状态变更、库存同步等，需要消息必达<br>延迟&#x2F;定时任务	利用死信队列实现定时取消订单、超时提醒等业务逻辑</p>
+<h2 id="面试问题"><a href="#面试问题" class="headerlink" title="面试问题"></a>面试问题</h2><h3 id="RabbitMQ-常见的使用场景有哪些？"><a href="#RabbitMQ-常见的使用场景有哪些？" class="headerlink" title="RabbitMQ 常见的使用场景有哪些？"></a>RabbitMQ 常见的使用场景有哪些？</h3><p>场景</p>
+<ul>
+<li>解耦系统	比如下单成功 → 发短信、发优惠券 → 通过 MQ 异步解耦处理</li>
+<li>流量削峰	秒杀高并发请求先进入 MQ 排队，后台异步慢慢处理，防止系统崩溃</li>
+<li>异步处理	比如上传图片后异步生成缩略图，发邮件、日志存储等</li>
+<li>可靠通知	比如订单状态变更、库存同步等，需要消息必达</li>
+<li>延迟&#x2F;定时任务	利用死信队列实现定时取消订单、超时提醒等业务逻辑</li>
+</ul>
 <h3 id="什么是死信队列？"><a href="#什么是死信队列？" class="headerlink" title="什么是死信队列？"></a>什么是死信队列？</h3><blockquote>
 <p>死信队列是用于存放“无法被正常消费的消息”的队列。消息变成“死信”后会被路由到指定的死信交换机，再进入死信队列中，供后续处理或监控。<br>下单后 15 分钟未支付 → 将消息发送到一个设置了 TTL 的普通队列，TTL 到期后消息变成死信 → 转发到死信队列 → 消费者监听死信队列做“自动取消订单”处理。<br>死信队列用于接收处理失败或过期的消息，避免消息丢失。在实际项目中我用它实现延迟任务，比如用户下单后15分钟未支付，通过设置 TTL+死信队列来触发订单关闭逻辑，既解耦了业务流程，也保证了消息可靠性。</p>
 </blockquote>
@@ -3405,6 +3452,29 @@
 <h3 id="缓存一致性如何实现？"><a href="#缓存一致性如何实现？" class="headerlink" title="缓存一致性如何实现？"></a>缓存一致性如何实现？</h3><ul>
 <li>先更新库，再删除缓存，设置延迟双删。</li>
 </ul>
+<h3 id="持久化"><a href="#持久化" class="headerlink" title="持久化"></a>持久化</h3><ul>
+<li>虽然redis是内存数据库，但是提供了两种方式进行持久化，默认的是RDB，AOF需要自行设置配置开启；</li>
+</ul>
+<h4 id="AOF持久化"><a href="#AOF持久化" class="headerlink" title="AOF持久化"></a>AOF持久化</h4><ul>
+<li>AOF的步骤是，当一条<code>写命令</code>成功执行后，把这条命令追加到一个文件里，然后重启redis的时候，redis先去这个文件里读取命令并执行，就相当于恢复了数据。<ul>
+<li>避免额外检查开销</li>
+<li>不会阻塞当前写操作命令的执行：因为只有命令执行成功后才会被写入</li>
+</ul>
+</li>
+</ul>
+<h4 id="AOF写回策略"><a href="#AOF写回策略" class="headerlink" title="AOF写回策略"></a>AOF写回策略</h4><ul>
+<li>Always：执行完命令同步将AOF日志数据写回硬盘</li>
+<li>Everysec：执行完命令后就将写操作写入到缓冲区，然后<code>每隔一秒</code>将缓冲区的数据写入到硬盘</li>
+<li>No：转由操作系统写</li>
+</ul>
+<h4 id="AOF重写机制"><a href="#AOF重写机制" class="headerlink" title="AOF重写机制"></a>AOF重写机制</h4><ul>
+<li>随着数据库使用的越来越多，AOF文件的体积变大，就需要重写机制，只会保存最新的一条更新数据</li>
+<li>比如使用:set name lcc 然后再使用 set name lccc</li>
+<li>更新的时候只会记住后面的lccc，因为之前的命令已经没有意义了。</li>
+</ul>
+<h4 id="RDB持久化"><a href="#RDB持久化" class="headerlink" title="RDB持久化"></a>RDB持久化</h4><ul>
+<li>RDB是快照，每次执行快照，把<code>内存里的所有数据</code>都记录到硬盘里，所以如果频繁执行快照，就会导致Redis的性能下降，如果设置时间过长，然后恰好宕机，就会丢失这一段时间里的所有数据</li>
+</ul>
 ]]></content>
   </entry>
   <entry>
@@ -3571,6 +3641,7 @@
 </li>
 </ul>
 <figure class="highlight java"><table><tr><td class="code"><pre><span class="line">sb = <span class="keyword">new</span> <span class="title class_">StringBuilder</span>(<span class="string">&quot;new&quot;</span>);</span><br><span class="line"></span><br><span class="line">sb.append(<span class="string">&quot;123&quot;</span>);</span><br></pre></td></tr></table></figure>
+
 ]]></content>
   </entry>
   <entry>
@@ -3796,6 +3867,235 @@
 <li>重复执行，直到通道数据全部读取完毕。</li>
 <li>如果缓冲区还有未读数据且需要续读，则用 compact() 代替 clear() 保留剩余数据。<br><img src="https://picbedex.oss-cn-shenzhen.aliyuncs.com/20250811160506801.png"></li>
 </ol>
+]]></content>
+  </entry>
+  <entry>
+    <title>FastAPI</title>
+    <url>/2025/09/11/FastAPI/</url>
+    <content><![CDATA[<h1 id="Learn-the-FastAPI"><a href="#Learn-the-FastAPI" class="headerlink" title="Learn the FastAPI"></a>Learn the FastAPI</h1><ul>
+<li>fastapi是一个web开发框架，目前我个人感觉是比springboot更方便，因为我只下载了python&amp;&amp;pip两个库，就可以很快的启动后端</li>
+</ul>
+<h1 id="环境创建"><a href="#环境创建" class="headerlink" title="环境创建"></a>环境创建</h1><ol>
+<li>先下载python（我下载了3.12），创建一个新文件夹，然后使用<code>VS Code</code>打开这个文件夹，接着调出cmd，在里面先安装好虚拟环境：使用命令python -m venv venv创建，并使用命令venv\Scripts\activate激活虚拟环境。</li>
+<li>我们需要的是<code>fastapi</code>以及<code>uvicorn</code>，使用pip install，可以换源，之前我已经换过清华源了，会快一些。</li>
+<li>写测试样例：新建py文件test.py</li>
+</ol>
+<figure class="highlight python"><table><tr><td class="code"><pre><span class="line"><span class="keyword">from</span> fastapi <span class="keyword">import</span> FastAPI</span><br><span class="line"></span><br><span class="line">app = FastAPI()</span><br><span class="line"><span class="meta">@app.get(<span class="params"><span class="string">&quot;/add&quot;</span></span>)</span></span><br><span class="line"><span class="keyword">def</span> <span class="title function_">add</span>():</span><br><span class="line">    <span class="keyword">return</span> &#123;<span class="string">&quot;result&quot;</span> : <span class="number">10</span>+<span class="number">20</span>&#125;</span><br><span class="line"></span><br><span class="line"><span class="meta">@app.get(<span class="params"><span class="string">&quot;/sub&quot;</span></span>)</span></span><br><span class="line"><span class="keyword">def</span> <span class="title function_">sub</span>():</span><br><span class="line">    <span class="keyword">return</span> &#123;<span class="string">&quot;result&quot;</span> : <span class="number">10</span>-<span class="number">20</span>&#125;</span><br><span class="line"><span class="meta">@app.get(<span class="params"><span class="string">&quot;/mul&quot;</span></span>)</span></span><br><span class="line"><span class="keyword">def</span> <span class="title function_">mul</span>():</span><br><span class="line">    <span class="keyword">return</span> &#123;<span class="string">&quot;result&quot;</span> : <span class="number">10</span>*<span class="number">20</span>&#125;</span><br></pre></td></tr></table></figure>
+<ul>
+<li>只需要在终端输入<code>uvicorn test:app --reload</code>或<code>uvicorn test:app --reload</code>就可以启动后端项目，具体看你的路径，这样一次可以启动三个方法。</li>
+</ul>
+<ol start="4">
+<li>接口文档：fastapi有一个非常好的优势，可以自动生成接口文档使用<code>/docs</code>或者<code>/redoc</code>就可以打开</li>
+</ol>
+<h1 id="项目基础构建"><a href="#项目基础构建" class="headerlink" title="项目基础构建"></a>项目基础构建</h1><figure class="highlight plaintext"><table><tr><td class="code"><pre><span class="line">fastapi[all]==0.75.2</span><br><span class="line">aioredis==2.0.1</span><br><span class="line">cos-python-sdk-v5==1.9.15</span><br><span class="line">PyJWT==2.3.0</span><br><span class="line">python-dotenv==0.19.1</span><br><span class="line">tortoise-orm[aiomysql]==0.19.0</span><br><span class="line">tencentcloud-sdk-python==3.0.618</span><br><span class="line">wechatpy==2.0.0a11</span><br><span class="line">qrcode[pil]==7.3.1</span><br><span class="line">python-alipay-sdk==3.0.4</span><br><span class="line">passlib==1.7.4</span><br><span class="line">sqlmodel==0.0.6</span><br></pre></td></tr></table></figure>]]></content>
+  </entry>
+  <entry>
+    <title>Redis复盘</title>
+    <url>/2025/09/11/Redis%E5%A4%8D%E7%9B%98/</url>
+    <content><![CDATA[<p>为了更深了解Redis，重新学习一次黑马点评，从原理到实现。</p>
+<h1 id="数据类型"><a href="#数据类型" class="headerlink" title="数据类型"></a>数据类型</h1><ul>
+<li>一种非关系型数据库(NoSQL)、里面都是键值对(key-value)的存储形式，不过value可以使用一个json</li>
+<li>是一种<code>非结构化</code>、<code>存储在内存（因此速度快）</code>的数据库</li>
+<li>单线程，每个命令具备原子性</li>
+<li>低延迟，速度快（基于内存，IO多路复用，良好的编码）</li>
+<li>支持数据持久化</li>
+<li>支持主从集群</li>
+<li>基本的数据结构类型有五种：String、Hash、List、Set、ZSet(SortedSet)</li>
+</ul>
+<h1 id="通用命令"><a href="#通用命令" class="headerlink" title="通用命令"></a>通用命令</h1><ul>
+<li>keys：查找关键词（不要在生产环境用这个，redis是单线程的，会阻塞其他任务） keys *(*是通配符，查所有)</li>
+<li>del：删除一个key</li>
+<li>exists：判断是否存在 （语法：exists key）</li>
+<li>expire：给key设置有效期，有效期到期后这个key自动删除（因为redis是使用内存的，不能无限制往里面加）</li>
+<li>ttl：查看一个key的生存时间</li>
+</ul>
+<h2 id="String"><a href="#String" class="headerlink" title="String"></a>String</h2><ul>
+<li>底层是使用字节存储的，不同的数据类型采用不同的编码，如果存数字，就用字节，如果存字符串，就存编码，甚至可以存图，最大不能存超过512M</li>
+</ul>
+<h2 id="Key层级"><a href="#Key层级" class="headerlink" title="Key层级"></a>Key层级</h2><ul>
+<li>可以使用set heima:user:id</li>
+</ul>
+<h2 id="Hash"><a href="#Hash" class="headerlink" title="Hash"></a>Hash</h2><ul>
+<li>Hash是一个类似于Map&lt;String,Map&lt;String,String&gt;&gt;的结构，其中有开始的关键词key作为键，然后有一个filed和value一起作为值，这样就可以让一个key有多个value</li>
+</ul>
+<h2 id="List"><a href="#List" class="headerlink" title="List"></a>List</h2><ul>
+<li>底层是一个链表，可以LPUSH和RPUSH，想象逐个插入，比如LPUSH 1，2，3，4，5，出来的结果应该是5 4 3 2 1，类似于头插法，RPUSH同理<ul>
+<li>如何用List模拟一个栈？LPUSH&amp;&amp;LPOP</li>
+<li>如何用List模拟一个队列？LPUSH&amp;&amp;RPOP || RPUSH&amp;&amp;LPOP</li>
+<li>如何用List模拟一个阻塞队列？使用BLPOP&#x2F;BRPOP替换上面的队列 BLPOP和BRPOP在没有元素的时候等待指定时间，而不是直接返回null</li>
+</ul>
+</li>
+</ul>
+<h2 id="Set"><a href="#Set" class="headerlink" title="Set"></a>Set</h2><ul>
+<li>set是集合，去重，唯一；可以用来求交集、并集、差集，来判断是不是好友，还能查看一个好友是不是自己的好友(sismember)</li>
+</ul>
+<h2 id="SortedSet"><a href="#SortedSet" class="headerlink" title="SortedSet"></a>SortedSet</h2><ul>
+<li>zset中每一个元素都带有一个score属性，可以基于score属性对元素排序，底层是一个跳表(SkipList)加哈希表，具备以下特征，经常用来做排行榜。<ul>
+<li>可排序</li>
+<li>元素不重复</li>
+<li>查询速度快<br>可以使用incrby，range，rank查询排名</li>
+</ul>
+</li>
+</ul>
+<h1 id="黑马点评"><a href="#黑马点评" class="headerlink" title="黑马点评"></a>黑马点评</h1><h2 id="登录"><a href="#登录" class="headerlink" title="登录"></a>登录</h2><ul>
+<li>使用session登录，session可以使用<code>session.setAttribute(parama)</code>很方便</li>
+<li>短信验证功能：使用session存储code</li>
+<li>实现收发功能：调用sendCode，去IUserService这个接口里实现类</li>
+<li>使用Mybatis-plus的save去生成未注册的用户</li>
+<li>使用类为Object的cacheCode与DTO里的Code进行比较，相同的话</li>
+<li><strong>登陆验证功能</strong>使用ThreadLocal作为拦截器对象，这样我们客户端发送请求，先在拦截器里完成鉴权，然后再将请求发送给不同的接口，去实现一个Interceptor类，然后实现HandlerInterceptor接口</li>
+<li>优化，登录的时候我们直接传了User对象，这个对象里面有很多敏感信息，我们就使用BeanUtil里的copyProperties拷贝给UserDTO，这样就可以把信息传递给DTO，这样很多函数传参的时候也只传给DTO版本而不是完完整整的User版本</li>
+<li>基于Redis实现共享session登录：因为后期如果要部署到集群上，nginx会把请求转发到不同的服务器上，这些服务器之间不共享session，这时候就需要缓存，redis是一种key-value的数据库，我们每时每刻会发送许多的请求到内存，要保证唯一性，那就使用key token+value：code来实现存储</li>
+<li>转换变量的时候使用BeanUtil工具包来，想复制就是copyProperties，想要转换成map就是beanToMap</li>
+<li>本来使用session的都是用stringRedisTemplate去操作，这样又可以实现什么时候token失效，然后如果续期的话，就去拦截器里续期！</li>
+<li>获得请求头就是用request.getHeader()</li>
+<li>DEBUG了十万年，传错了tokenKey</li>
+<li>双拦截器的好处：单拦截器的时候只拦截了登录请求，但是如果用户一直没去点登录请求，redis就不会去刷新有效期，所以我们再设置一个拦截一切路径的拦截器，这样子就可以每点击或者刷新一次，都能重新更新TTL</li>
+</ul>
+<h3 id="ThreadLocal"><a href="#ThreadLocal" class="headerlink" title="ThreadLocal"></a>ThreadLocal</h3><ul>
+<li>ThreadLocal 不是“线程”，而是一个 线程本地变量工具类。它的作用是：<ul>
+<li>每个线程都有一个独立的副本，互不影响。</li>
+<li>用来保存某些需要在同一个线程内共享，<strong>但又不能被其他线程访问的数据</strong>。</li>
+<li>在我们点击一些商品链接的时候，如果我们没有登陆，是不是就被拦截了，有一些商品信息能直接查看详情，就说明放行了</li>
+</ul>
+</li>
+</ul>
+<h2 id="缓存"><a href="#缓存" class="headerlink" title="缓存"></a>缓存</h2><ul>
+<li>缓存的逻辑是这样的：一个查询过来的时候，先查缓存，如果缓存里面没有再去查数据库，如果数据库里也没有，就返回错误；如果数据库里有，就写入缓存(opsForValue().set(key,value))，然后返回商铺信息就可以；redis里面的数据一般都是json格式，可以使用JSONUtil.toBean反序列化为shop对象；也可以反过来使用StrUtil.toJsonStr序列化成json格式。</li>
+</ul>
+<h3 id="缓存更新策略"><a href="#缓存更新策略" class="headerlink" title="缓存更新策略"></a>缓存更新策略</h3><ol>
+<li>对于低一致性需求：使用Redis自带的内存淘汰机制</li>
+<li>对于高一致性需求：主动更新并以超时剔除作为兜底方案</li>
+</ol>
+<ul>
+<li>读操作<ul>
+<li>缓存命中直接返回</li>
+<li>缓存未命中则查询数据库，并写入缓存，设定超时时间</li>
+</ul>
+</li>
+<li>写操作<ul>
+<li>先写数据库，再删除缓存</li>
+<li>要确保数据与缓存操作的原子性</li>
+</ul>
+</li>
+<li>主动更新(Cache Aside)<ul>
+<li>先删除缓存，再操作数据库</li>
+<li>先操作数据库，再删除缓存 这个好一点</li>
+</ul>
+</li>
+</ul>
+<h3 id="缓存三大问题"><a href="#缓存三大问题" class="headerlink" title="缓存三大问题"></a>缓存三大问题</h3><ul>
+<li>雪崩、击穿、穿透<ul>
+<li>击穿有两种解决方式：逻辑过期、互斥锁</li>
+<li>雪崩加上随机时间TTL</li>
+<li>穿透缓存空值&#x2F;布隆过滤器</li>
+</ul>
+</li>
+<li>互斥锁：可以使用setnx来实现，setnx当且仅在key不存在的时候才能成功创建，如果key存在的话是不能更改值的，所以有多个线程来访问的时候，只有第一个线程能够修改值</li>
+<li>QPS(query per seconds)可以用jmeter来查</li>
+</ul>
+<h2 id="优惠券"><a href="#优惠券" class="headerlink" title="优惠券"></a>优惠券</h2><ul>
+<li>优惠券秒杀，每一张优惠券需要有一个唯一的全局id，但是这个id不能是自增的太明显的，所以必须要进行一些拼凑 1 + 31 + 32；首位是0，中间31位是时间，可以用69年，最后32就是每秒生成2的32次方个优惠券</li>
+</ul>
+]]></content>
+  </entry>
+  <entry>
+    <title>面试补充知识点</title>
+    <url>/2025/08/19/%E9%9D%A2%E8%AF%95%E8%A1%A5%E5%85%85%E7%9F%A5%E8%AF%86%E7%82%B9/</url>
+    <content><![CDATA[<h1 id="HashMap-的底层原理以及如何扩容？"><a href="#HashMap-的底层原理以及如何扩容？" class="headerlink" title="HashMap 的底层原理以及如何扩容？"></a>HashMap 的底层原理以及如何扩容？</h1><ul>
+<li>HashMap 由 <strong>数组 + 链表 + 红黑树</strong> 构成</li>
+<li>初始大小为 <strong>16</strong>，通过哈希策略将数据分布到不同的桶中</li>
+<li>扩容机制：<ul>
+<li>当数组长度小于 64 时，扩容并且会 <strong>Rehash</strong></li>
+<li>当数组长度大于等于 64 且链表长度超过 8 时，链表转为 <strong>红黑树</strong>，查询复杂度从 O(n) 变为 O(logN)</li>
+<li>扩容时数组大小翻倍（*2），<strong>装载因子</strong>默认为 0.75，可自定义</li>
+</ul>
+</li>
+</ul>
+<h1 id="Redis-的穿透、击穿、雪崩"><a href="#Redis-的穿透、击穿、雪崩" class="headerlink" title="Redis 的穿透、击穿、雪崩"></a>Redis 的穿透、击穿、雪崩</h1><h2 id="缓存穿透"><a href="#缓存穿透" class="headerlink" title="缓存穿透"></a>缓存穿透</h2><ul>
+<li><strong>现象</strong>：客户端访问不存在的数据，缓存和数据库均未命中，大量请求直达数据库，导致负载过大甚至宕机  </li>
+<li><strong>原因</strong>：<ul>
+<li>业务层误删缓存和数据库的数据</li>
+<li>恶意请求不存在的数据</li>
+</ul>
+</li>
+<li><strong>解决方案</strong>：<ol>
+<li>未命中时将空值写入缓存，下次请求直接返回空值  </li>
+<li>使用 <strong>布隆过滤器</strong>拦截不存在的请求</li>
+</ol>
+</li>
+</ul>
+<h2 id="缓存击穿"><a href="#缓存击穿" class="headerlink" title="缓存击穿"></a>缓存击穿</h2><ul>
+<li><strong>现象</strong>：某个热点数据在缓存失效的瞬间，大量并发请求直达数据库，导致服务崩溃  </li>
+<li><strong>解决方案</strong>：<ol>
+<li>对热点数据设置 <strong>永不过期</strong>  </li>
+<li>使用 <strong>互斥锁</strong>，一个线程重建缓存，其他线程等待</li>
+</ol>
+</li>
+</ul>
+<h2 id="缓存雪崩"><a href="#缓存雪崩" class="headerlink" title="缓存雪崩"></a>缓存雪崩</h2><ul>
+<li><strong>现象</strong>：大量缓存同时过期，或 Redis 节点故障，导致所有请求直达数据库，造成数据库宕机  </li>
+<li><strong>解决方案</strong>：<ol>
+<li>避免同时过期，设置 <strong>随机过期时间</strong>  </li>
+<li>启用 <strong>降级和熔断</strong>措施  </li>
+<li>热点数据设置 <strong>永不过期</strong>  </li>
+<li>使用 <strong>Redis 集群</strong>，单点宕机时仍有节点可用</li>
+</ol>
+</li>
+</ul>
+<h1 id="创建线程的方法？"><a href="#创建线程的方法？" class="headerlink" title="创建线程的方法？"></a>创建线程的方法？</h1><ol>
+<li>继承Thread类，重写run()方法；</li>
+<li>实现Runnable接口，实现run()方法；</li>
+<li>实现Callable接口，实现call方法；</li>
+<li>线程池创建。</li>
+</ol>
+<h1 id="Spring-SpringBoot怎么理解"><a href="#Spring-SpringBoot怎么理解" class="headerlink" title="Spring&#x2F;SpringBoot怎么理解"></a>Spring&#x2F;SpringBoot怎么理解</h1><ul>
+<li>其实Spring就是一个管理类的容器，我们通过注解将我们定义好的类添加到Spring容器里，在我们需要的时候就是用注解从Spring容器里拿出之前定义好的类，可以理解为Spring就是一个Map结构，K是类名，V是类，取出来类后就可以调用类的方法了。</li>
+<li>存进银行的注解：@Component，@Component可以细化为这三个：@Service@Controller@Repository</li>
+<li>从银行取出来的注解：@Resource@Autowired</li>
+</ul>
+<h1 id="Redis怎么理解"><a href="#Redis怎么理解" class="headerlink" title="Redis怎么理解"></a>Redis怎么理解</h1><ul>
+<li>redis很像一个公共的变量，如果是分模块部署的，想要获取公共的东西，就需要去发http请求获取内存里的内容。</li>
+</ul>
+<h1 id="单点登录和鉴权"><a href="#单点登录和鉴权" class="headerlink" title="单点登录和鉴权"></a>单点登录和鉴权</h1><ul>
+<li>可以使用SpringSecurity进行鉴权的判断，当用户第一次登陆的时候，就去数据库查询该用户的权限并封装成token，这样之后每一个请求都会去token判断用户的类型进而判断是否放行。</li>
+</ul>
+<h1 id="消息队列"><a href="#消息队列" class="headerlink" title="消息队列"></a>消息队列</h1><ul>
+<li>其实消息队列就是一个Map，然后用List存取很多个Map，当生产数据的时候，就把他存进List，消费数据的时候，就是用get()，然后remove掉；</li>
+</ul>
+<h1 id="Docker"><a href="#Docker" class="headerlink" title="Docker"></a>Docker</h1><ul>
+<li>docker是一个容器，我们之前部署上线的时候是把项目生成一个jar包，然后上Linux服务器启动这个jar包，但是我们可能还需要redis，mysql等一系列的东西，如果有多台服务器，安装就很麻烦；</li>
+<li>于是我们使用docker把jar包、mysql、redis、nginx、jdk17全部打包成一个镜像，然后把这个镜像上传到linux上，这样linux只需要安装一个docker，然后docker run就可以运行了。</li>
+<li>但是镜像过多，所以出现了k8s去管理镜像。</li>
+</ul>
+<h1 id="索引失效的场景有哪些？"><a href="#索引失效的场景有哪些？" class="headerlink" title="索引失效的场景有哪些？"></a>索引失效的场景有哪些？</h1><ul>
+<li>使用左或者左右模糊匹配的时候，<code>like %超 /like %超%</code></li>
+<li>对索引使用函数：where length(name)&#x3D;6，这样就没有走原来定义好的name了</li>
+<li>对索引进行表达式计算：where id+1&#x3D;10</li>
+<li>联合索引非最左</li>
+<li>where的or条件前语句是索引列后语句不是where id &#x3D; 1 or age &#x3D; 2;id是索引但是age不是就不会走。</li>
+</ul>
+<h1 id="线程池参数该如何设置？"><a href="#线程池参数该如何设置？" class="headerlink" title="线程池参数该如何设置？"></a>线程池参数该如何设置？</h1><ul>
+<li>如果是IO密集型，线程的大部分时间都花在了IO上，就会导致CPU利用率低，所以我们需要多开线程让cpu运作起来，一般是2*核心数</li>
+<li>如果是计算密集型，大部分线程都在处理计算任务，不会频繁进行上下文切换，所以设置为核心数+1即可</li>
+</ul>
+<h1 id="hashCode和equals方法有什么关系？"><a href="#hashCode和equals方法有什么关系？" class="headerlink" title="hashCode和equals方法有什么关系？"></a>hashCode和equals方法有什么关系？</h1><ul>
+<li>如果两个对象相等，那他们equals和hashCode的返回值都相等</li>
+<li>但如果两个对象的hashCode返回值相同，两个对象不一定相同</li>
+<li>所以重写equals方法的时候一定要重写hashCode方法，以保证在使用hash等数据结构的时候能正常工作</li>
+</ul>
+<h1 id="如何使用Spring实现事务？"><a href="#如何使用Spring实现事务？" class="headerlink" title="如何使用Spring实现事务？"></a>如何使用Spring实现事务？</h1><ul>
+<li>事务四大原则ACID：原子、隔离、持久、一致</li>
+<li>使用注解@Transactional</li>
+<li>@Transactional失效的场景有哪些？<ul>
+<li>方法不是public：Spring默认基于代理，只有public方法才会被代理拦截</li>
+<li>方法内部调用，不会经过代理对象</li>
+<li>final&#x2F;static方法</li>
+<li>异常没有抛出</li>
+<li>多线程调用，因为新线程不会继承老线程的上下文</li>
+</ul>
+</li>
+</ul>
 ]]></content>
   </entry>
 </search>
