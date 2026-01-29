@@ -4288,6 +4288,33 @@
 </ol>
 </li>
 </ul>
+<h2 id="JWT更安全的登录？双Token"><a href="#JWT更安全的登录？双Token" class="headerlink" title="JWT更安全的登录？双Token"></a>JWT更安全的登录？双Token</h2><h3 id="What-2"><a href="#What-2" class="headerlink" title="What"></a>What</h3><ul>
+<li>我发现了原来的逻辑是改Localstorage就可以让前端渲染出管理员的界面，这样不行</li>
+<li>于是引入了JWT的accessToken以及refreshToken<ul>
+<li>accessToken一般时间短，15-30分钟，存放在React的内存里，一刷新就没有</li>
+<li>refreshToken时间在7-30天，存放在httponly的cookie里</li>
+<li>此外这个refreshToken还存放在了redis里，使用版本号控制，让非法用户强制下线</li>
+</ul>
+</li>
+</ul>
+<h3 id="How-1"><a href="#How-1" class="headerlink" title="How"></a>How</h3><h4 id="登录功能"><a href="#登录功能" class="headerlink" title="登录功能"></a>登录功能</h4><ul>
+<li>用户首次登陆的时候后端校验账户和密码是否合法，如果合法就签发两个token</li>
+<li>access token 过期 → 前端请求业务接口返回 401</li>
+<li>前端调用 &#x2F;api&#x2F;v1&#x2F;auth&#x2F;refresh（不带 refresh token，浏览器会自动附带 HttpOnly Cookie）</li>
+<li>后端从 Cookie 里拿 refresh token，去 Redis 校验是否存在&#x2F;是否有效</li>
+<li>校验通过 → 生成新 access token（和新的 refresh token），并在 Redis 里更新</li>
+<li>返回新的 access token 给前端，继续请求<blockquote>
+<p>来回时间就是一个rtt</p>
+</blockquote>
+</li>
+</ul>
+<h4 id="踢人功能"><a href="#踢人功能" class="headerlink" title="踢人功能"></a>踢人功能</h4><ul>
+<li>在redis里添加tokenVersion，因为我们登陆的时候用户还是有当前的accessToken，所以他还能存活这么久<ul>
+<li>加一个<code>user:tokenVersion:&lt;uid&gt;</code>在redis里，签发的时候把ver写进JWT，</li>
+<li>踢人就增加版本号，这样让他的所有旧accessToken失效。原因是我们的在redis里的逻辑是 <code>user:tokenVersion:&lt;uid&gt; = N</code>，拦截器校验时比较Redis ver，如果不一致就401</li>
+</ul>
+</li>
+</ul>
 ]]></content>
   </entry>
   <entry>
