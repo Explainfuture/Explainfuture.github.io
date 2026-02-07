@@ -4361,6 +4361,56 @@
 <li>构建 Map&lt;size, filePaths[]&gt;，只保留 filePaths.length &gt;&#x3D; 2 的桶作为候选（不同 size 必不相同）。</li>
 <li>对候选文件用流式读取计算内容 hash（如 SHA-256&#x2F;BLAKE3），构建 Map&lt;hash, filePaths[]&gt;；同一 hash 下的文件认为“高度可能相同”。</li>
 </ul>
+<h2 id="深拷贝和浅拷贝"><a href="#深拷贝和浅拷贝" class="headerlink" title="深拷贝和浅拷贝"></a>深拷贝和浅拷贝</h2><h3 id="What-5"><a href="#What-5" class="headerlink" title="What"></a>What</h3><ul>
+<li>浅拷贝：只复制一层属性；若属性值是<code>对象/数组/函数</code>等引用类型，复制的是引用，因此会共享同一份深层数据。</li>
+<li>深拷贝：递归复制各层级，让嵌套对象&#x2F;数组变成新的引用，通常不共享深层引用。<blockquote>
+<p>Object.create 不是拷贝，是“以某对象作为原型”创建新对象。</p>
+</blockquote>
+</li>
+</ul>
+<h3 id="Why-3"><a href="#Why-3" class="headerlink" title="Why"></a>Why</h3><ul>
+<li>React&#x2F;Redux 等依赖<code>不可变更新 + 浅比较（===）</code>做渲染与 memo 判断：你只需要“沿修改路径拷贝”（结构共享），而不是全量深拷贝。</li>
+<li>全量深拷贝会带来：CPU&#x2F;内存开销、GC 压力、缓存失效（引用每次都变，memo 失效）。</li>
+</ul>
+<h3 id="How-5"><a href="#How-5" class="headerlink" title="How"></a>How</h3><h4 id="深拷贝"><a href="#深拷贝" class="headerlink" title="深拷贝"></a>深拷贝</h4><figure class="highlight js"><table><tr><td class="code"><pre><span class="line"><span class="comment">//方法1：使用structuredClone</span></span><br><span class="line"><span class="keyword">const</span> p = &#123; <span class="attr">name</span>: <span class="string">&#x27;lala&#x27;</span>, <span class="attr">age</span>: <span class="number">18</span>, <span class="attr">arr</span>: [<span class="number">1</span>,<span class="number">2</span>,<span class="number">3</span>] &#125;</span><br><span class="line"><span class="keyword">let</span> s = <span class="title function_">structuredClone</span>(p)</span><br></pre></td></tr></table></figure>
+<h4 id="浅拷贝"><a href="#浅拷贝" class="headerlink" title="浅拷贝"></a>浅拷贝</h4><figure class="highlight js"><table><tr><td class="code"><pre><span class="line"><span class="comment">//方法1：展开运算符</span></span><br><span class="line"><span class="keyword">const</span> p = &#123; <span class="attr">name</span>: <span class="string">&#x27;lala&#x27;</span>, <span class="attr">age</span>: <span class="number">18</span>, <span class="attr">arr</span>: [<span class="number">1</span>,<span class="number">2</span>,<span class="number">3</span>] &#125;</span><br><span class="line"><span class="keyword">let</span> s = &#123;...p&#125;</span><br><span class="line"></span><br><span class="line"><span class="comment">//方法2：使用Object的assign方法</span></span><br><span class="line"><span class="title class_">Demo</span></span><br><span class="line"><span class="keyword">const</span> target = &#123; <span class="attr">a</span>: <span class="number">1</span>, <span class="attr">b</span>: <span class="number">2</span> &#125;;</span><br><span class="line"><span class="keyword">const</span> source = &#123; <span class="attr">b</span>: <span class="number">4</span>, <span class="attr">c</span>: <span class="number">5</span> &#125;;</span><br><span class="line"></span><br><span class="line"><span class="keyword">const</span> returnedTarget = <span class="title class_">Object</span>.<span class="title function_">assign</span>(target, source);</span><br><span class="line"></span><br><span class="line"><span class="variable language_">console</span>.<span class="title function_">log</span>(target);</span><br><span class="line"><span class="comment">// Expected output: Object &#123; a: 1, b: 4, c: 5 &#125;</span></span><br><span class="line"></span><br><span class="line"><span class="variable language_">console</span>.<span class="title function_">log</span>(returnedTarget === target);</span><br><span class="line"><span class="comment">// Expected output: true</span></span><br><span class="line"></span><br><span class="line">s = <span class="title class_">Object</span>.<span class="title function_">assign</span>(&#123;&#125;,p)</span><br></pre></td></tr></table></figure>
+
+<h2 id="对React的理解"><a href="#对React的理解" class="headerlink" title="对React的理解"></a>对React的理解</h2><h3 id="What-6"><a href="#What-6" class="headerlink" title="What"></a>What</h3><ul>
+<li>JSX 不是 HTML，它会被编译成 <code>React.createElement(...)</code> 的调用，产出的是一棵<code>React Element</code> 树（普通 JS 对象描述 UI）。它是“UI 的描述”，不是浏览器 DOM。</li>
+<li>React 以组件为单位，由 <code>state/props</code> 驱动渲染：每次 render 本质是“根据当前 state&#x2F;props 计算下一棵 element 树”。</li>
+</ul>
+<h3 id="How-6"><a href="#How-6" class="headerlink" title="How"></a>How</h3><ul>
+<li>当 <code>state/props</code> 变化时，React 会重新执行组件函数得到 <code>next element tree</code>，再和 <code>prev element tree</code> 做 reconciliation（协调&#x2F;对比），决定哪些地方需要更新。</li>
+</ul>
+<blockquote>
+<p>所以React是一个声明式的UI框架，依托于Props&#x2F;State，JSX会被编译为createElement，得到一个Element树，当<strong>状态变化</strong>时就会render一颗新树，然后通过diff算法来比较计算最小开销，最后把差异提交到真实的DOM</p>
+</blockquote>
+<h2 id="useMemo和useCallback是什么？-react优化相关"><a href="#useMemo和useCallback是什么？-react优化相关" class="headerlink" title="useMemo和useCallback是什么？(react优化相关)"></a>useMemo和useCallback是什么？(react优化相关)</h2><h3 id="What-7"><a href="#What-7" class="headerlink" title="What"></a>What</h3><ul>
+<li><code>useMemo</code>：记住“计算出来的值”（数组&#x2F;对象&#x2F;数字都行），依赖不变就复用上次结果。</li>
+<li><code>useCallback</code>：记住“函数本身”（保持函数引用稳定）。它等价于：<blockquote>
+<p>useCallback(fn, deps)  ≈  useMemo(() &#x3D;&gt; fn, deps) 它们都不会阻止组件 re-render；组件仍会 render，只是你拿到的值&#x2F;函数不重新创建。就类似于，你唯一的输入一定会得到唯一的输出</p>
+</blockquote>
+</li>
+</ul>
+<h3 id="How-7"><a href="#How-7" class="headerlink" title="How"></a>How</h3><figure class="highlight js"><table><tr><td class="code"><pre><span class="line"><span class="keyword">const</span> list = <span class="title function_">useMemo</span>(<span class="function">() =&gt;</span> <span class="title function_">expensiveFilter</span>(data, keyword), [data, keyword])</span><br><span class="line"></span><br><span class="line"><span class="keyword">const</span> onSend = <span class="title function_">useCallback</span>(<span class="function">() =&gt;</span> &#123;</span><br><span class="line">  <span class="title function_">sendMessage</span>(text)</span><br><span class="line">&#125;, [text])</span><br></pre></td></tr></table></figure>
+
+<h3 id="Why-4"><a href="#Why-4" class="headerlink" title="Why"></a>Why</h3><ul>
+<li><strong>省计算</strong>：过滤&#x2F;排序&#x2F;聚合很贵时，用 useMemo 避免每次 render 重算。</li>
+<li><strong>稳定引用，配合浅比较优化</strong>：用 useMemo&#x2F;useCallback 让引用稳定，避免“不必要的触发”。<blockquote>
+<p>“数组&#x2F;对象&#x2F;函数每次 render 都会创建新引用；如果它们作为 props&#x2F;依赖，会让浅比较认为变了，从而触发不必要更新。useMemo&#x2F;useCallback 用来稳定这些引用。”</p>
+</blockquote>
+</li>
+</ul>
+<h4 id="浅比较"><a href="#浅比较" class="headerlink" title="浅比较"></a>浅比较</h4><ul>
+<li>对基本类型(Number,Boolean,String):比 <strong>值（&#x3D;&#x3D;&#x3D;）</strong>。</li>
+<li>对引用类型(arr[],obj{},function()):比 <strong>引用地址（&#x3D;&#x3D;&#x3D;）</strong>，不看里面内容。</li>
+</ul>
+<figure class="highlight js"><table><tr><td class="code"><pre><span class="line"><span class="keyword">const</span> a = &#123; <span class="attr">x</span>: <span class="number">1</span> &#125;</span><br><span class="line"><span class="keyword">const</span> b = &#123; <span class="attr">x</span>: <span class="number">1</span> &#125;</span><br><span class="line">a === b <span class="comment">// false（内容一样，但不是同一个引用）</span></span><br><span class="line"></span><br><span class="line"><span class="keyword">const</span> c = a</span><br><span class="line">a === c <span class="comment">// true（同一个引用）</span></span><br><span class="line"></span><br><span class="line"><span class="keyword">const</span> arr1 = [<span class="number">1</span>,<span class="number">2</span>]</span><br><span class="line"><span class="keyword">const</span> arr2 = [<span class="number">1</span>,<span class="number">2</span>]</span><br><span class="line">arr1 === arr2 <span class="comment">// false</span></span><br></pre></td></tr></table></figure>
+<p>在 React 里常见浅比较场景：</p>
+<ul>
+<li><code>React.memo</code> 默认用浅比较 props：只要某个 prop 引用变了，就认为“变了”。</li>
+<li><code>useEffect/useMemo/useCallback 的依赖数组比较</code>：每一项用 Object.is（和 &#x3D;&#x3D;&#x3D; 很像）做浅比较。</li>
+</ul>
 ]]></content>
   </entry>
   <entry>
