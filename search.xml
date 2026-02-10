@@ -4319,9 +4319,14 @@
 <li>事件循环是浏览器在单线程上运行 JS 的调度机制：把“同步 JS 执行”与“外部事件&#x2F;异步结果（定时器、网络、交互等）”通过任务队列串起来，循环取任务执行。</li>
 </ul>
 <figure class="highlight js"><table><tr><td class="code"><pre><span class="line"><span class="built_in">setTimeout</span>(<span class="function">()=&gt;</span>&#123;</span><br><span class="line">    <span class="variable language_">console</span>.<span class="title function_">log</span>(<span class="number">1</span>);</span><br><span class="line">    </span><br><span class="line">&#125;,<span class="number">0</span>)</span><br><span class="line"><span class="title class_">Promise</span>.<span class="title function_">resolve</span>().<span class="title function_">then</span>(<span class="function">()=&gt;</span>&#123;</span><br><span class="line">    <span class="variable language_">console</span>.<span class="title function_">log</span>(<span class="number">2</span>);</span><br><span class="line">&#125;)</span><br></pre></td></tr></table></figure>
+
 <blockquote>
 <p>会打印2，1。是因为这一段script是一个宏任务，然后setTimeout先是注册了一个定时器任务，把这个回调函数log1放到了宏任务队列里，就到微任务，微任务将这一段script的宏任务收尾，所以先log，然后清空了微任务之后。script 这个宏任务已经执行完了；之后从宏任务队列里取的是 定时器回调这个新的宏任务。</p>
 </blockquote>
+<ul>
+<li>宏任务：整段Script，<code>setTimeout\setInterval</code>回调，DOM事件回调（Click，Input）</li>
+<li>微任务：Promise</li>
+</ul>
 <h3 id="Why-1"><a href="#Why-1" class="headerlink" title="Why"></a>Why</h3><ul>
 <li>js是单线程的，同一时间只能做一件事，避免多线程共享DOM带来的竞态</li>
 <li>让页面响应可控，长任务不会永远占住</li>
@@ -4385,6 +4390,12 @@
 <blockquote>
 <p>所以React是一个声明式的UI框架，依托于Props&#x2F;State，JSX会被编译为createElement，得到一个Element树，当<strong>状态变化</strong>时就会render一颗新树，然后通过diff算法来比较计算最小开销，最后把差异提交到真实的DOM</p>
 </blockquote>
+<h3 id="Bad"><a href="#Bad" class="headerlink" title="Bad"></a>Bad</h3><p>虚拟DOM也有一些不好的地方，它不是免费的抽象，在一些场景里会引入额外成本&#x2F;复杂度。</p>
+<ol>
+<li>额外的计算与内存开销：每次更新 React 都要重新执行组件、生成 element&#x2F;fiber、做 reconciliation，再 commit。对超高频更新（动画、拖拽、实时渲染）可能比“直接命令式改 DOM&#x2F;Canvas&#x2F;WebGL”更重。</li>
+<li>启发式 diff 不是全局最优：React 的对比依赖规则（同层、同类型、key），不是最小编辑距离；key 写错&#x2F;用 index 会导致错误复用、状态串位或不必要重建，性能和正确性都受影响。</li>
+<li>误用会导致性能问题：不稳定引用、无意义 re-render、巨型列表不做虚拟滚动、在 render 里做重计算——这些都会放大虚拟 DOM 的成本，所以工程上常配 memo&#x2F;useMemo&#x2F;useCallback、列表虚拟化、拆分组件。</li>
+</ol>
 <h2 id="useMemo和useCallback是什么？-react优化相关"><a href="#useMemo和useCallback是什么？-react优化相关" class="headerlink" title="useMemo和useCallback是什么？(react优化相关)"></a>useMemo和useCallback是什么？(react优化相关)</h2><h3 id="What-7"><a href="#What-7" class="headerlink" title="What"></a>What</h3><ul>
 <li><code>useMemo</code>：记住“计算出来的值”（数组&#x2F;对象&#x2F;数字都行），依赖不变就复用上次结果。</li>
 <li><code>useCallback</code>：记住“函数本身”（保持函数引用稳定）。它等价于：<blockquote>
@@ -4411,6 +4422,55 @@
 <li><code>React.memo</code> 默认用浅比较 props：只要某个 prop 引用变了，就认为“变了”。</li>
 <li><code>useEffect/useMemo/useCallback 的依赖数组比较</code>：每一项用 Object.is（和 &#x3D;&#x3D;&#x3D; 很像）做浅比较。</li>
 </ul>
+<h2 id="数组怎么合并？"><a href="#数组怎么合并？" class="headerlink" title="数组怎么合并？"></a>数组怎么合并？</h2><h3 id="How-8"><a href="#How-8" class="headerlink" title="How"></a>How</h3><figure class="highlight js"><table><tr><td class="code"><pre><span class="line"><span class="comment">//方法1：concat拼接</span></span><br><span class="line"><span class="keyword">let</span> a = [<span class="number">1</span>,<span class="number">2</span>,<span class="number">3</span>]</span><br><span class="line"><span class="keyword">let</span> b = [<span class="number">4</span>,<span class="number">5</span>,<span class="number">6</span>]</span><br><span class="line"><span class="keyword">let</span> c = [].<span class="title function_">concat</span>(a,b)</span><br><span class="line"><span class="comment">//方法2：展开运算符</span></span><br><span class="line"><span class="keyword">let</span> c = [...a,...b]</span><br></pre></td></tr></table></figure>
+
+<h2 id="如何写一个间隔一秒自动切换颜色的正方形"><a href="#如何写一个间隔一秒自动切换颜色的正方形" class="headerlink" title="如何写一个间隔一秒自动切换颜色的正方形"></a>如何写一个间隔一秒自动切换颜色的正方形</h2><h3 id="How-9"><a href="#How-9" class="headerlink" title="How"></a>How</h3><ul>
+<li>间隔：setInterval</li>
+<li>自动切换 &lt;&#x3D;&#x3D;&gt; <code>状态监听</code> &lt;&#x3D;&#x3D;&gt; 使用hook(<code>useState</code>)</li>
+<li>清除定时器 &lt;&#x3D;&#x3D;&gt; <code>useEffect</code>，需要返回清除函数</li>
+<li>react里传样式传的是一个<code>JSON</code></li>
+</ul>
+<figure class="highlight js"><table><tr><td class="code"><pre><span class="line"><span class="keyword">import</span> &#123; useEffect, useState &#125; <span class="keyword">from</span> <span class="string">&quot;react&quot;</span></span><br><span class="line"></span><br><span class="line"><span class="keyword">function</span> <span class="title function_">App</span>(<span class="params"></span>) &#123;</span><br><span class="line">  <span class="keyword">const</span> color = [<span class="string">&#x27;red&#x27;</span>,<span class="string">&#x27;green&#x27;</span>,<span class="string">&#x27;pink&#x27;</span>]</span><br><span class="line">  <span class="keyword">const</span> [col,setCol] = <span class="title function_">useState</span>(<span class="number">0</span>)</span><br><span class="line"></span><br><span class="line">  <span class="title function_">useEffect</span>(<span class="function">()=&gt;</span>&#123;</span><br><span class="line">    <span class="keyword">const</span> timer = <span class="built_in">setInterval</span>(<span class="function">()=&gt;</span>&#123;</span><br><span class="line">      <span class="title function_">setCol</span>(<span class="function">(<span class="params">prev</span>) =&gt;</span> (prev + <span class="number">1</span>) % color.<span class="property">length</span>)</span><br><span class="line">    &#125;,<span class="number">1000</span>)</span><br><span class="line">    <span class="keyword">return</span> <span class="function">()=&gt;</span><span class="built_in">clearInterval</span>(timer)</span><br><span class="line">  &#125;,[])</span><br><span class="line">  <span class="keyword">return</span> (</span><br><span class="line">  <span class="language-xml"><span class="tag">&lt;<span class="name">div</span>&gt;</span></span></span><br><span class="line"><span class="language-xml">    <span class="tag">&lt;<span class="name">div</span> <span class="attr">style</span>=<span class="string">&#123;&#123;</span> <span class="attr">width:</span> <span class="attr">100</span>, <span class="attr">height:</span> <span class="attr">100</span>, <span class="attr">backgroundColor:</span> <span class="attr">color</span>[<span class="attr">col</span>] &#125;&#125; /&gt;</span></span></span><br><span class="line"><span class="language-xml">  <span class="tag">&lt;/<span class="name">div</span>&gt;</span></span></span><br><span class="line">);</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="keyword">export</span> <span class="keyword">default</span> <span class="title class_">App</span></span><br></pre></td></tr></table></figure>
+<h2 id="useEffect是什么？"><a href="#useEffect是什么？" class="headerlink" title="useEffect是什么？"></a>useEffect是什么？</h2><h3 id="What-8"><a href="#What-8" class="headerlink" title="What"></a>What</h3><ul>
+<li><code>useEffect</code> 是 React 的“副作用hook”：让你在组件渲染到页面之后去做一些事，并且能在需要时清理这些事。</li>
+<li>副作用<ul>
+<li>定时器 setInterval&#x2F;setTimeout</li>
+<li>订阅&#x2F;事件监听 addEventListener</li>
+<li>发请求 fetch&#x2F;axios</li>
+<li>操作 DOM、设置标题 document.title &#x3D; …<blockquote>
+<p>这些都不应该放在组件函数体里反复执行。</p>
+</blockquote>
+</li>
+</ul>
+</li>
+</ul>
+<figure class="highlight js"><table><tr><td class="code"><pre><span class="line"><span class="title function_">useEffect</span>(<span class="function">() =&gt;</span> &#123;</span><br><span class="line">  <span class="comment">// 这里：做副作用</span></span><br><span class="line">  <span class="keyword">return</span> <span class="function">() =&gt;</span> &#123;</span><br><span class="line">    <span class="comment">// 这里：清理副作用</span></span><br><span class="line">  &#125;;</span><br><span class="line">&#125;, [deps]);</span><br></pre></td></tr></table></figure>
+<h3 id="How-10"><a href="#How-10" class="headerlink" title="How"></a>How</h3><h4 id="依赖数组-deps-决定“执行频率”"><a href="#依赖数组-deps-决定“执行频率”" class="headerlink" title="依赖数组 [deps] 决定“执行频率”"></a>依赖数组 [deps] 决定“执行频率”</h4><ul>
+<li>不写第二个参数：每次渲染后都执行（很少用，容易反复绑定&#x2F;请求）</li>
+<li>写 []：只在组件首次挂载后执行一次（适合建定时器&#x2F;订阅一次）</li>
+<li>写 [a, b]：a 或 b 变化时执行（常用于“根据某个 state&#x2F;prop 变化去请求&#x2F;同步”）</li>
+</ul>
+<h4 id="return-的清理函数什么时候执行"><a href="#return-的清理函数什么时候执行" class="headerlink" title="return 的清理函数什么时候执行"></a>return 的清理函数什么时候执行</h4><ul>
+<li>组件卸载时执行一次</li>
+<li>或者依赖变化导致 effect 重新执行时：先清理上一次，再执行新的</li>
+</ul>
+<h2 id="内存泄漏有哪些场景？"><a href="#内存泄漏有哪些场景？" class="headerlink" title="内存泄漏有哪些场景？"></a>内存泄漏有哪些场景？</h2><h3 id="Where"><a href="#Where" class="headerlink" title="Where"></a>Where</h3><ol>
+<li>循环依赖，A依赖B， B依赖A</li>
+<li>定时器&#x2F;轮询没有清理 （useEffect return 一个clearInterval）</li>
+<li>闭包长期持有对象</li>
+</ol>
+<h2 id="数组有哪些遍历方法？"><a href="#数组有哪些遍历方法？" class="headerlink" title="数组有哪些遍历方法？"></a>数组有哪些遍历方法？</h2><ol>
+<li>正常的for循环</li>
+<li>forEach：用于执行回调函数，但是一般不修改原数组内容，用于打印值</li>
+</ol>
+<figure class="highlight js"><table><tr><td class="code"><pre><span class="line"><span class="keyword">let</span> arr = [<span class="number">1</span>,<span class="number">2</span>,<span class="number">3</span>]</span><br><span class="line"><span class="comment">//打印</span></span><br><span class="line">arr.<span class="title function_">forEach</span>(<span class="function">(<span class="params">x</span>)=&gt;</span><span class="variable language_">console</span>.<span class="title function_">log</span>(x))</span><br><span class="line"><span class="comment">//执行函数</span></span><br><span class="line">arr.<span class="title function_">forEach</span>(<span class="function">(<span class="params">x</span>)=&gt;</span><span class="variable language_">console</span>.<span class="title function_">log</span>(x*x))</span><br><span class="line"><span class="comment">//修改值</span></span><br><span class="line">arr.<span class="title function_">forEach</span>(<span class="function">(<span class="params">x,i</span>)=&gt;</span>arr[i] = x*x)</span><br></pre></td></tr></table></figure>
+<ol start="3">
+<li>map: 用于创建一个新的数组，本质也是遍历</li>
+</ol>
+<figure class="highlight js"><table><tr><td class="code"><pre><span class="line"><span class="keyword">let</span> arr = [<span class="number">1</span>,<span class="number">4</span>,<span class="number">9</span>]</span><br><span class="line"><span class="keyword">let</span> b = arr.<span class="title function_">map</span>(<span class="function">(<span class="params">x</span>)=&gt;</span>x*x*x)</span><br><span class="line"><span class="variable language_">console</span>.<span class="title function_">log</span>(b);</span><br></pre></td></tr></table></figure>
+<ol start="4">
+<li>for … of &#x2F; for…in 用于遍历值</li>
+</ol>
 ]]></content>
   </entry>
   <entry>
@@ -4430,6 +4490,36 @@
 </li>
 </ul>
 </li>
+</ul>
+<h2 id="京东"><a href="#京东" class="headerlink" title="京东"></a>京东</h2><ul>
+<li>一面很简单，出的算法题不难</li>
+<li>二面问了很多框架问题，比如Webpack和Vite的区别，为什么快，感觉就像是后端的Spring有什么有点一样。<ul>
+<li>Webpack和vite都是构建工具，Webpack是全量打包，如果修改了某一段js代码，则需要将bundle全部重新编译；Vite有HMR，在dev环境下只会修改单一的js文件，然后替换更改了的模块而已</li>
+<li>React的一些特性，其实就是把组件视为树，通过Props和State来管理UI的渲染与否<ul>
+<li>如何记住状态，则需要Memo和Callback</li>
+<li>如何更新，diff算法，操控虚拟DOM。对比新生成的Element树和旧树，采用最小开销算法比对新旧树（原理：启发式算法，认为更新都只是改一小部分），等到确认了更改部分后，则需要commit到真实DOM上。</li>
+</ul>
+</li>
+<li>操作系统和计算机网络的问题，比如并行和并发，事件循环机制，Http长连接和短链接</li>
+<li>js的模块化，很像是组件的思想，每一个js文件维护自己的js状态，然后导出给主js import 使用</li>
+<li>session以什么样的方式存储？存在服务器上，可能是数据库、redis、内存，但是一般来说都是数据库，不然重启了session就没了</li>
+</ul>
+</li>
+</ul>
+<h2 id="Momenta"><a href="#Momenta" class="headerlink" title="Momenta"></a>Momenta</h2><ul>
+<li>Momenta问的东西比较偏业务，找到Json里的递归的Json，比如将变量名改为驼峰命名，比如间隔打印三色灯，实现函数能够有并发限制的运行promise，八股倒是比较少。</li>
+</ul>
+<h2 id="Shopee"><a href="#Shopee" class="headerlink" title="Shopee"></a>Shopee</h2><ul>
+<li>虾皮则也喜欢考八股，但是面试官居然不知道Spring Boot，我有点不知道咋和他聊下去。</li>
+</ul>
+<h2 id="网易"><a href="#网易" class="headerlink" title="网易"></a>网易</h2><ul>
+<li>问八股比较多，上来就开始问css的基础，这一部分确实看的比较少了，然后给了两个手写题，面试的时候没有写出来，没关系，现在总结出来了，哈哈哈。对hook的使用印象更深刻了。</li>
+</ul>
+<h2 id="第四范式"><a href="#第四范式" class="headerlink" title="第四范式"></a>第四范式</h2><ul>
+<li>真的是非常感谢这一个面试官，因为他是唯一一个我答错了之后会告诉我答案是什么以及思路是什么的人，虽然他提出了很多问题把我问到了，但是还是学习了很多很多，沉淀一下，最后这家公司给了offer，但是北京还是太远了，下一次吧。然后问了一点数组的方法，forEach啥的</li>
+</ul>
+<h2 id="禾赛"><a href="#禾赛" class="headerlink" title="禾赛"></a>禾赛</h2><ul>
+<li>禾赛问了一个 &#x3D;&#x3D; 和 &#x3D;&#x3D;&#x3D; 的区别，我还沾沾自喜说是对引用的比较，哈哈但忘记了两个等号比的啥，被自己坑到了，或者说举的例子不好。然后是数组的去重，如果有字符串该咋办，如果里面有负数该咋办，我真的只想到了O(n)的复杂度，然后真的是脑卡了，忘记了哈希表，因为我把set给排除掉了，下意识把map也排除掉了。</li>
 </ul>
 ]]></content>
   </entry>
