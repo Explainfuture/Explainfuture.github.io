@@ -4323,8 +4323,38 @@
 </ol>
 </li>
 </ul>
+<h2 id="项目登录流转"><a href="#项目登录流转" class="headerlink" title="项目登录流转"></a>项目登录流转</h2><h3 id="How-2"><a href="#How-2" class="headerlink" title="How"></a>How</h3><ol>
+<li>用户点击页面触发接口请求前端，拦截器从<code>localstorage</code>取 <code>hnu_token</code>，放到请求头 <code>Authorization: Bearer xxx</code></li>
+<li>后端从 <code>Authorization</code> 里取Bearer token解析JWT，再校验token是否一致</li>
+<li>token过期&#x2F;无效时，接口会返回401，前端响应拦截器会调用refresh的api，这个请求会自动带上httpOnly的 <code>hnu_refresh_token</code>的cookie</li>
+<li>refresh成功后，后端返回新的accessToken，前端setToken()写回localStorage，然后重放刚刚失效的请求。</li>
+<li>为什么刷新页面登录态不掉，因为不是只放内存：accessToken 持久化在 localStorage。页面刷新后，AuthProvider 初始化会重新读 localStorage，并调用 &#x2F;api&#x2F;v1&#x2F;users&#x2F;me 做一次有效性校验。<blockquote>
+<p>“每次请求都带 Bearer accessToken，后端拦截器验 JWT + Redis 版本；401 时用 cookie 里的 refreshToken 换新 token；刷新页面靠 localStorage 恢复，所以不会直接掉线。”</p>
+</blockquote>
+</li>
+</ol>
+<h2 id="项目路由管理"><a href="#项目路由管理" class="headerlink" title="项目路由管理"></a>项目路由管理</h2><ol>
+<li>公开路由</li>
+</ol>
+<ul>
+<li>&#x2F;login、&#x2F;register、&#x2F;、&#x2F;posts&#x2F;:id 直接可访问。</li>
+</ul>
+<ol start="2">
+<li>登录保护路由</li>
+</ol>
+<ul>
+<li>我封装了 RequireAuth，基于 useAuth() 的 token + loading 判断。</li>
+<li>没登录就 Navigate 到 &#x2F;login。</li>
+</ul>
+<ol start="3">
+<li>管理员路由</li>
+</ol>
+<ul>
+<li>我再封装 RequireAdmin，在登录基础上再判断 user.role &#x3D;&#x3D;&#x3D; ‘ADMIN’，否则跳回首页。</li>
+</ul>
 <h2 id="浏览器的事件循环机制是什么？"><a href="#浏览器的事件循环机制是什么？" class="headerlink" title="浏览器的事件循环机制是什么？"></a>浏览器的事件循环机制是什么？</h2><h3 id="What-3"><a href="#What-3" class="headerlink" title="What"></a>What</h3><ul>
 <li>事件循环是浏览器在单线程上运行 JS 的调度机制：把“同步 JS 执行”与“外部事件&#x2F;异步结果（定时器、网络、交互等）”通过任务队列串起来，循环取任务执行。</li>
+<li>由三部分组成：调用栈、Web APIS、任务队列</li>
 </ul>
 <figure class="highlight js"><table><tr><td class="code"><pre><span class="line"><span class="built_in">setTimeout</span>(<span class="function">()=&gt;</span>&#123;</span><br><span class="line">    <span class="variable language_">console</span>.<span class="title function_">log</span>(<span class="number">1</span>);</span><br><span class="line">    </span><br><span class="line">&#125;,<span class="number">0</span>)</span><br><span class="line"><span class="title class_">Promise</span>.<span class="title function_">resolve</span>().<span class="title function_">then</span>(<span class="function">()=&gt;</span>&#123;</span><br><span class="line">    <span class="variable language_">console</span>.<span class="title function_">log</span>(<span class="number">2</span>);</span><br><span class="line">&#125;)</span><br></pre></td></tr></table></figure>
 
@@ -4339,7 +4369,7 @@
 <li>js是单线程的，同一时间只能做一件事，避免多线程共享DOM带来的竞态</li>
 <li>让页面响应可控，长任务不会永远占住</li>
 </ul>
-<h3 id="How-2"><a href="#How-2" class="headerlink" title="How"></a>How</h3><ul>
+<h3 id="How-3"><a href="#How-3" class="headerlink" title="How"></a>How</h3><ul>
 <li>“执行一个宏任务 → 然后清空微任务队列 →（必要时渲染）→ 下一轮宏任务”。</li>
 <li>执行的顺序<ul>
 <li>宏任务：定时器(setTimeout,setInterval)回调、点击回调、整段Script</li>
@@ -4356,12 +4386,13 @@
 </li>
 </ul>
 </li>
+<li>在浏览器的事件循环标准中，UI 渲染通常发生在所有微任务（Microtasks）执行完毕之后，以及下一个宏任务（Macrotask）开始之前。</li>
 </ul>
 <h2 id="节流和防抖有什么区别？"><a href="#节流和防抖有什么区别？" class="headerlink" title="节流和防抖有什么区别？"></a>节流和防抖有什么区别？</h2><h3 id="What-4"><a href="#What-4" class="headerlink" title="What"></a>What</h3><ul>
 <li>防抖(debounce)：在连续触发中不断重置计时器，停止触发一段时间后才执行一次（“取最后一次”）。</li>
 <li>节流(throttle)：在连续触发中按固定间隔执行，单位时间最多执行一次（“限速”）。</li>
 </ul>
-<h3 id="How-3"><a href="#How-3" class="headerlink" title="How"></a>How</h3><figure class="highlight js"><table><tr><td class="code"><pre><span class="line"><span class="keyword">function</span> <span class="title function_">debounce</span>(<span class="params">fn,wait = <span class="number">300</span></span>) &#123;</span><br><span class="line">    <span class="keyword">let</span> timer = <span class="literal">null</span></span><br><span class="line">    <span class="keyword">return</span> <span class="keyword">function</span>(<span class="params">...args</span>) &#123;</span><br><span class="line">        <span class="keyword">if</span> (timer) &#123;</span><br><span class="line">            <span class="built_in">clearTimeout</span>(timer)&#125;</span><br><span class="line">        timer = <span class="built_in">setTimeout</span>(<span class="function">()=&gt;</span>&#123;</span><br><span class="line">            fn.<span class="title function_">apply</span>(<span class="variable language_">this</span>,args)</span><br><span class="line">        &#125;,wait)</span><br><span class="line">    &#125;</span><br><span class="line">&#125; </span><br><span class="line"></span><br><span class="line"><span class="keyword">function</span> <span class="title function_">throttle</span>(<span class="params">fn,wait = <span class="number">200</span></span>) &#123;</span><br><span class="line">    <span class="keyword">let</span> last = <span class="number">0</span></span><br><span class="line">    <span class="keyword">return</span> <span class="keyword">function</span> (<span class="params">...args</span>) &#123;</span><br><span class="line">        <span class="keyword">const</span> now = <span class="title class_">Date</span>.<span class="title function_">now</span>()</span><br><span class="line">        <span class="keyword">if</span> (now - last &gt;= wait) &#123;</span><br><span class="line">            last = now</span><br><span class="line">            fn.<span class="title function_">apply</span>(<span class="variable language_">this</span>,args)</span><br><span class="line">        &#125;</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<h3 id="How-4"><a href="#How-4" class="headerlink" title="How"></a>How</h3><figure class="highlight js"><table><tr><td class="code"><pre><span class="line"><span class="keyword">function</span> <span class="title function_">debounce</span>(<span class="params">fn,wait = <span class="number">300</span></span>) &#123;</span><br><span class="line">    <span class="keyword">let</span> timer = <span class="literal">null</span></span><br><span class="line">    <span class="keyword">return</span> <span class="keyword">function</span>(<span class="params">...args</span>) &#123;</span><br><span class="line">        <span class="keyword">if</span> (timer) &#123;</span><br><span class="line">            <span class="built_in">clearTimeout</span>(timer)&#125;</span><br><span class="line">        timer = <span class="built_in">setTimeout</span>(<span class="function">()=&gt;</span>&#123;</span><br><span class="line">            fn.<span class="title function_">apply</span>(<span class="variable language_">this</span>,args)</span><br><span class="line">        &#125;,wait)</span><br><span class="line">    &#125;</span><br><span class="line">&#125; </span><br><span class="line"></span><br><span class="line"><span class="keyword">function</span> <span class="title function_">throttle</span>(<span class="params">fn,wait = <span class="number">200</span></span>) &#123;</span><br><span class="line">    <span class="keyword">let</span> last = <span class="number">0</span></span><br><span class="line">    <span class="keyword">return</span> <span class="keyword">function</span> (<span class="params">...args</span>) &#123;</span><br><span class="line">        <span class="keyword">const</span> now = <span class="title class_">Date</span>.<span class="title function_">now</span>()</span><br><span class="line">        <span class="keyword">if</span> (now - last &gt;= wait) &#123;</span><br><span class="line">            last = now</span><br><span class="line">            fn.<span class="title function_">apply</span>(<span class="variable language_">this</span>,args)</span><br><span class="line">        &#125;</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
 <h3 id="Why-2"><a href="#Why-2" class="headerlink" title="Why"></a>Why</h3><ul>
 <li>防抖：解决“抖动触发导致的重复计算&#x2F;重复请求”，减少无效开销（如输入联想、频繁点击）。</li>
 <li>节流：解决“持续高频触发导致的性能压力&#x2F;掉帧”，让回调执行频率可控（如滚动、鼠标移动、拖拽）。<blockquote>
@@ -4369,7 +4400,7 @@
 </blockquote>
 </li>
 </ul>
-<h2 id="遍历找到D盘的两个重复文件？"><a href="#遍历找到D盘的两个重复文件？" class="headerlink" title="遍历找到D盘的两个重复文件？"></a>遍历找到D盘的两个重复文件？</h2><h3 id="How-4"><a href="#How-4" class="headerlink" title="How"></a>How</h3><ul>
+<h2 id="遍历找到D盘的两个重复文件？"><a href="#遍历找到D盘的两个重复文件？" class="headerlink" title="遍历找到D盘的两个重复文件？"></a>遍历找到D盘的两个重复文件？</h2><h3 id="How-5"><a href="#How-5" class="headerlink" title="How"></a>How</h3><ul>
 <li>文件夹有递归嵌套的结构，每一个文件夹就像是树一样，遍历树就使用DFS&#x2F;BFS&#x2F;递归</li>
 <li>构建 Map&lt;size, filePaths[]&gt;，只保留 filePaths.length &gt;&#x3D; 2 的桶作为候选（不同 size 必不相同）。</li>
 <li>对候选文件用流式读取计算内容 hash（如 SHA-256&#x2F;BLAKE3），构建 Map&lt;hash, filePaths[]&gt;；同一 hash 下的文件认为“高度可能相同”。</li>
@@ -4385,14 +4416,14 @@
 <li>React&#x2F;Redux 等依赖<code>不可变更新 + 浅比较（===）</code>做渲染与 memo 判断：你只需要“沿修改路径拷贝”（结构共享），而不是全量深拷贝。</li>
 <li>全量深拷贝会带来：CPU&#x2F;内存开销、GC 压力、缓存失效（引用每次都变，memo 失效）。</li>
 </ul>
-<h3 id="How-5"><a href="#How-5" class="headerlink" title="How"></a>How</h3><h4 id="深拷贝"><a href="#深拷贝" class="headerlink" title="深拷贝"></a>深拷贝</h4><figure class="highlight js"><table><tr><td class="code"><pre><span class="line"><span class="comment">//方法1：使用structuredClone</span></span><br><span class="line"><span class="keyword">const</span> p = &#123; <span class="attr">name</span>: <span class="string">&#x27;lala&#x27;</span>, <span class="attr">age</span>: <span class="number">18</span>, <span class="attr">arr</span>: [<span class="number">1</span>,<span class="number">2</span>,<span class="number">3</span>] &#125;</span><br><span class="line"><span class="keyword">let</span> s = <span class="title function_">structuredClone</span>(p)</span><br></pre></td></tr></table></figure>
+<h3 id="How-6"><a href="#How-6" class="headerlink" title="How"></a>How</h3><h4 id="深拷贝"><a href="#深拷贝" class="headerlink" title="深拷贝"></a>深拷贝</h4><figure class="highlight js"><table><tr><td class="code"><pre><span class="line"><span class="comment">//方法1：使用structuredClone</span></span><br><span class="line"><span class="keyword">const</span> p = &#123; <span class="attr">name</span>: <span class="string">&#x27;lala&#x27;</span>, <span class="attr">age</span>: <span class="number">18</span>, <span class="attr">arr</span>: [<span class="number">1</span>,<span class="number">2</span>,<span class="number">3</span>] &#125;</span><br><span class="line"><span class="keyword">let</span> s = <span class="title function_">structuredClone</span>(p)</span><br></pre></td></tr></table></figure>
 <h4 id="浅拷贝"><a href="#浅拷贝" class="headerlink" title="浅拷贝"></a>浅拷贝</h4><figure class="highlight js"><table><tr><td class="code"><pre><span class="line"><span class="comment">//方法1：展开运算符</span></span><br><span class="line"><span class="keyword">const</span> p = &#123; <span class="attr">name</span>: <span class="string">&#x27;lala&#x27;</span>, <span class="attr">age</span>: <span class="number">18</span>, <span class="attr">arr</span>: [<span class="number">1</span>,<span class="number">2</span>,<span class="number">3</span>] &#125;</span><br><span class="line"><span class="keyword">let</span> s = &#123;...p&#125;</span><br><span class="line"></span><br><span class="line"><span class="comment">//方法2：使用Object的assign方法</span></span><br><span class="line"><span class="title class_">Demo</span></span><br><span class="line"><span class="keyword">const</span> target = &#123; <span class="attr">a</span>: <span class="number">1</span>, <span class="attr">b</span>: <span class="number">2</span> &#125;;</span><br><span class="line"><span class="keyword">const</span> source = &#123; <span class="attr">b</span>: <span class="number">4</span>, <span class="attr">c</span>: <span class="number">5</span> &#125;;</span><br><span class="line"></span><br><span class="line"><span class="keyword">const</span> returnedTarget = <span class="title class_">Object</span>.<span class="title function_">assign</span>(target, source);</span><br><span class="line"></span><br><span class="line"><span class="variable language_">console</span>.<span class="title function_">log</span>(target);</span><br><span class="line"><span class="comment">// Expected output: Object &#123; a: 1, b: 4, c: 5 &#125;</span></span><br><span class="line"></span><br><span class="line"><span class="variable language_">console</span>.<span class="title function_">log</span>(returnedTarget === target);</span><br><span class="line"><span class="comment">// Expected output: true</span></span><br><span class="line"></span><br><span class="line">s = <span class="title class_">Object</span>.<span class="title function_">assign</span>(&#123;&#125;,p)</span><br></pre></td></tr></table></figure>
 
 <h2 id="对React的理解"><a href="#对React的理解" class="headerlink" title="对React的理解"></a>对React的理解</h2><h3 id="What-6"><a href="#What-6" class="headerlink" title="What"></a>What</h3><ul>
 <li>JSX 不是 HTML，它会被编译成 <code>React.createElement(...)</code> 的调用，产出的是一棵<code>React Element</code> 树（普通 JS 对象描述 UI）。它是“UI 的描述”，不是浏览器 DOM。</li>
 <li>React 以组件为单位，由 <code>state/props</code> 驱动渲染：每次 render 本质是“根据当前 state&#x2F;props 计算下一棵 element 树”。</li>
 </ul>
-<h3 id="How-6"><a href="#How-6" class="headerlink" title="How"></a>How</h3><ul>
+<h3 id="How-7"><a href="#How-7" class="headerlink" title="How"></a>How</h3><ul>
 <li>当 <code>state/props</code> 变化时，React 会重新执行组件函数得到 <code>next element tree</code>，再和 <code>prev element tree</code> 做 reconciliation（协调&#x2F;对比），决定哪些地方需要更新。</li>
 </ul>
 <blockquote>
@@ -4411,7 +4442,7 @@
 </blockquote>
 </li>
 </ul>
-<h3 id="How-7"><a href="#How-7" class="headerlink" title="How"></a>How</h3><figure class="highlight js"><table><tr><td class="code"><pre><span class="line"><span class="keyword">const</span> list = <span class="title function_">useMemo</span>(<span class="function">() =&gt;</span> <span class="title function_">expensiveFilter</span>(data, keyword), [data, keyword])</span><br><span class="line"></span><br><span class="line"><span class="keyword">const</span> onSend = <span class="title function_">useCallback</span>(<span class="function">() =&gt;</span> &#123;</span><br><span class="line">  <span class="title function_">sendMessage</span>(text)</span><br><span class="line">&#125;, [text])</span><br></pre></td></tr></table></figure>
+<h3 id="How-8"><a href="#How-8" class="headerlink" title="How"></a>How</h3><figure class="highlight js"><table><tr><td class="code"><pre><span class="line"><span class="keyword">const</span> list = <span class="title function_">useMemo</span>(<span class="function">() =&gt;</span> <span class="title function_">expensiveFilter</span>(data, keyword), [data, keyword])</span><br><span class="line"></span><br><span class="line"><span class="keyword">const</span> onSend = <span class="title function_">useCallback</span>(<span class="function">() =&gt;</span> &#123;</span><br><span class="line">  <span class="title function_">sendMessage</span>(text)</span><br><span class="line">&#125;, [text])</span><br></pre></td></tr></table></figure>
 
 <h3 id="Why-4"><a href="#Why-4" class="headerlink" title="Why"></a>Why</h3><ul>
 <li><strong>省计算</strong>：过滤&#x2F;排序&#x2F;聚合很贵时，用 useMemo 避免每次 render 重算。</li>
@@ -4430,9 +4461,9 @@
 <li><code>React.memo</code> 默认用浅比较 props：只要某个 prop 引用变了，就认为“变了”。</li>
 <li><code>useEffect/useMemo/useCallback 的依赖数组比较</code>：每一项用 Object.is（和 &#x3D;&#x3D;&#x3D; 很像）做浅比较。</li>
 </ul>
-<h2 id="数组怎么合并？"><a href="#数组怎么合并？" class="headerlink" title="数组怎么合并？"></a>数组怎么合并？</h2><h3 id="How-8"><a href="#How-8" class="headerlink" title="How"></a>How</h3><figure class="highlight js"><table><tr><td class="code"><pre><span class="line"><span class="comment">//方法1：concat拼接</span></span><br><span class="line"><span class="keyword">let</span> a = [<span class="number">1</span>,<span class="number">2</span>,<span class="number">3</span>]</span><br><span class="line"><span class="keyword">let</span> b = [<span class="number">4</span>,<span class="number">5</span>,<span class="number">6</span>]</span><br><span class="line"><span class="keyword">let</span> c = [].<span class="title function_">concat</span>(a,b)</span><br><span class="line"><span class="comment">//方法2：展开运算符</span></span><br><span class="line"><span class="keyword">let</span> c = [...a,...b]</span><br></pre></td></tr></table></figure>
+<h2 id="数组怎么合并？"><a href="#数组怎么合并？" class="headerlink" title="数组怎么合并？"></a>数组怎么合并？</h2><h3 id="How-9"><a href="#How-9" class="headerlink" title="How"></a>How</h3><figure class="highlight js"><table><tr><td class="code"><pre><span class="line"><span class="comment">//方法1：concat拼接</span></span><br><span class="line"><span class="keyword">let</span> a = [<span class="number">1</span>,<span class="number">2</span>,<span class="number">3</span>]</span><br><span class="line"><span class="keyword">let</span> b = [<span class="number">4</span>,<span class="number">5</span>,<span class="number">6</span>]</span><br><span class="line"><span class="keyword">let</span> c = [].<span class="title function_">concat</span>(a,b)</span><br><span class="line"><span class="comment">//方法2：展开运算符</span></span><br><span class="line"><span class="keyword">let</span> c = [...a,...b]</span><br></pre></td></tr></table></figure>
 
-<h2 id="如何写一个间隔一秒自动切换颜色的正方形"><a href="#如何写一个间隔一秒自动切换颜色的正方形" class="headerlink" title="如何写一个间隔一秒自动切换颜色的正方形"></a>如何写一个间隔一秒自动切换颜色的正方形</h2><h3 id="How-9"><a href="#How-9" class="headerlink" title="How"></a>How</h3><ul>
+<h2 id="如何写一个间隔一秒自动切换颜色的正方形"><a href="#如何写一个间隔一秒自动切换颜色的正方形" class="headerlink" title="如何写一个间隔一秒自动切换颜色的正方形"></a>如何写一个间隔一秒自动切换颜色的正方形</h2><h3 id="How-10"><a href="#How-10" class="headerlink" title="How"></a>How</h3><ul>
 <li>间隔：setInterval</li>
 <li>自动切换 &lt;&#x3D;&#x3D;&gt; <code>状态监听</code> &lt;&#x3D;&#x3D;&gt; 使用hook(<code>useState</code>)</li>
 <li>清除定时器 &lt;&#x3D;&#x3D;&gt; <code>useEffect</code>，需要返回清除函数</li>
@@ -4453,7 +4484,7 @@
 </li>
 </ul>
 <figure class="highlight js"><table><tr><td class="code"><pre><span class="line"><span class="title function_">useEffect</span>(<span class="function">() =&gt;</span> &#123;</span><br><span class="line">  <span class="comment">// 这里：做副作用</span></span><br><span class="line">  <span class="keyword">return</span> <span class="function">() =&gt;</span> &#123;</span><br><span class="line">    <span class="comment">// 这里：清理副作用</span></span><br><span class="line">  &#125;;</span><br><span class="line">&#125;, [deps]);</span><br></pre></td></tr></table></figure>
-<h3 id="How-10"><a href="#How-10" class="headerlink" title="How"></a>How</h3><h4 id="依赖数组-deps-决定“执行频率”"><a href="#依赖数组-deps-决定“执行频率”" class="headerlink" title="依赖数组 [deps] 决定“执行频率”"></a>依赖数组 [deps] 决定“执行频率”</h4><ul>
+<h3 id="How-11"><a href="#How-11" class="headerlink" title="How"></a>How</h3><h4 id="依赖数组-deps-决定“执行频率”"><a href="#依赖数组-deps-决定“执行频率”" class="headerlink" title="依赖数组 [deps] 决定“执行频率”"></a>依赖数组 [deps] 决定“执行频率”</h4><ul>
 <li>不写第二个参数：每次渲染后都执行（很少用，容易反复绑定&#x2F;请求）</li>
 <li>写 []：只在组件首次挂载后执行一次（适合建定时器&#x2F;订阅一次）</li>
 <li>写 [a, b]：a 或 b 变化时执行（常用于“根据某个 state&#x2F;prop 变化去请求&#x2F;同步”）</li>
@@ -4488,7 +4519,15 @@
 <li>三个状态：pending、fulfilled、rejected。<strong>状态不可逆</strong></li>
 <li>then去执行fulfilled的回调，catch去执行rejected的回调</li>
 </ul>
-<h3 id="How-11"><a href="#How-11" class="headerlink" title="How"></a>How</h3><figure class="highlight js"><table><tr><td class="code"><pre><span class="line"><span class="keyword">const</span> p = <span class="keyword">new</span> <span class="title class_">Promise</span>(<span class="function">(<span class="params">resolve,reject</span>)=&gt;</span>&#123;</span><br><span class="line">    <span class="keyword">if</span> (<span class="literal">true</span>) &#123;</span><br><span class="line">        <span class="title function_">resolve</span>(<span class="string">&#x27;ok&#x27;</span>)</span><br><span class="line">    &#125;</span><br><span class="line">    <span class="keyword">else</span> &#123;</span><br><span class="line">        <span class="title function_">reject</span>(<span class="keyword">new</span> <span class="title class_">Error</span>(<span class="string">&#x27;error&#x27;</span>))</span><br><span class="line">    &#125;</span><br><span class="line">&#125;)</span><br><span class="line">p.<span class="title function_">then</span>(<span class="function">(<span class="params">data</span>)=&gt;</span>&#123;</span><br><span class="line">    <span class="variable language_">console</span>.<span class="title function_">log</span>(data)</span><br><span class="line">&#125;)</span><br><span class="line">.<span class="title function_">catch</span>(<span class="function">(<span class="params">err</span>)=&gt;</span>&#123;</span><br><span class="line">    <span class="variable language_">console</span>.<span class="title function_">log</span>(err)</span><br><span class="line">&#125;)</span><br></pre></td></tr></table></figure>
+<h3 id="How-12"><a href="#How-12" class="headerlink" title="How"></a>How</h3><figure class="highlight js"><table><tr><td class="code"><pre><span class="line"><span class="keyword">const</span> p = <span class="keyword">new</span> <span class="title class_">Promise</span>(<span class="function">(<span class="params">resolve,reject</span>)=&gt;</span>&#123;</span><br><span class="line">    <span class="keyword">if</span> (<span class="literal">true</span>) &#123;</span><br><span class="line">        <span class="title function_">resolve</span>(<span class="string">&#x27;ok&#x27;</span>)</span><br><span class="line">    &#125;</span><br><span class="line">    <span class="keyword">else</span> &#123;</span><br><span class="line">        <span class="title function_">reject</span>(<span class="keyword">new</span> <span class="title class_">Error</span>(<span class="string">&#x27;error&#x27;</span>))</span><br><span class="line">    &#125;</span><br><span class="line">&#125;)</span><br><span class="line">p.<span class="title function_">then</span>(<span class="function">(<span class="params">data</span>)=&gt;</span>&#123;</span><br><span class="line">    <span class="variable language_">console</span>.<span class="title function_">log</span>(data)</span><br><span class="line">&#125;)</span><br><span class="line">.<span class="title function_">catch</span>(<span class="function">(<span class="params">err</span>)=&gt;</span>&#123;</span><br><span class="line">    <span class="variable language_">console</span>.<span class="title function_">log</span>(err)</span><br><span class="line">&#125;)</span><br></pre></td></tr></table></figure>
+<h4 id="两个API"><a href="#两个API" class="headerlink" title="两个API"></a>两个API</h4><ul>
+<li>Promise.all: 所有成功才会走then，如果有一个失败了，就会报错；</li>
+</ul>
+<figure class="highlight js"><table><tr><td class="code"><pre><span class="line"><span class="keyword">const</span> p1 = <span class="title class_">Promise</span>.<span class="title function_">resolve</span>(<span class="string">&#x27;data1&#x27;</span>)</span><br><span class="line"><span class="keyword">const</span> p2 = <span class="title class_">Promise</span>.<span class="title function_">resolve</span>(<span class="string">&#x27;data2&#x27;</span>)</span><br><span class="line"><span class="keyword">const</span> p3 = <span class="title class_">Promise</span>.<span class="title function_">reject</span>(<span class="string">&#x27;data3&#x27;</span>)</span><br><span class="line"></span><br><span class="line"><span class="title class_">Promise</span>.<span class="title function_">all</span>([p1,p2])</span><br><span class="line">.<span class="title function_">then</span>(<span class="function">(<span class="params">res</span>)=&gt;</span><span class="variable language_">console</span>.<span class="title function_">log</span>(res))</span><br><span class="line">.<span class="title function_">catch</span>(<span class="function">(<span class="params">err</span>)=&gt;</span><span class="variable language_">console</span>.<span class="title function_">log</span>(err))</span><br><span class="line"></span><br><span class="line">[ <span class="string">&#x27;data1&#x27;</span>, <span class="string">&#x27;data2&#x27;</span> ]</span><br></pre></td></tr></table></figure>
+<ul>
+<li>Promise.allSettled: 为什么会出现他，如果我们主页有四个图表，肯定不想因为某一个挂了就不渲染其他正常的地方，allSettled只会返回一个then，附上它的status</li>
+</ul>
+<figure class="highlight js"><table><tr><td class="code"><pre><span class="line"><span class="keyword">const</span> p1 = <span class="title class_">Promise</span>.<span class="title function_">resolve</span>(<span class="string">&#x27;成功&#x27;</span>)</span><br><span class="line"><span class="keyword">const</span> p3 = <span class="title class_">Promise</span>.<span class="title function_">reject</span>(<span class="string">&#x27;网络延迟&#x27;</span>)</span><br><span class="line"></span><br><span class="line"><span class="title class_">Promise</span>.<span class="title function_">allSettled</span>([p1,p3])</span><br><span class="line">.<span class="title function_">then</span>(<span class="function">(<span class="params">res</span>)=&gt;</span><span class="variable language_">console</span>.<span class="title function_">log</span>(res))</span><br><span class="line">.<span class="title function_">catch</span>(<span class="function">(<span class="params">err</span>)=&gt;</span><span class="variable language_">console</span>.<span class="title function_">log</span>(err))</span><br><span class="line"></span><br><span class="line">[</span><br><span class="line">  &#123; <span class="attr">status</span>: <span class="string">&#x27;fulfilled&#x27;</span>, <span class="attr">value</span>: <span class="string">&#x27;成功&#x27;</span> &#125;,</span><br><span class="line">  &#123; <span class="attr">status</span>: <span class="string">&#x27;rejected&#x27;</span>, <span class="attr">reason</span>: <span class="string">&#x27;网络延迟&#x27;</span> &#125;</span><br><span class="line">]</span><br></pre></td></tr></table></figure>
 <h2 id="对async和await的理解"><a href="#对async和await的理解" class="headerlink" title="对async和await的理解"></a>对async和await的理解</h2><h3 id="What-10"><a href="#What-10" class="headerlink" title="What"></a>What</h3><ul>
 <li>async 保证函数返回 Promise；return x 等价 Promise.resolve(x)，throw err 等价 Promise.reject(err)；await 会等待一个 Promise，成功返回值，失败抛异常。</li>
 </ul>
@@ -4499,30 +4538,26 @@
 <li>在 async 里 throw err，等价于 return Promise.reject(err)</li>
 <li><code>await</code> 后面接受任何值，但如果是 <strong>Promise 才会“等待”</strong>；不是 Promise 就立刻得到该值（等价于 await Promise.resolve(x)）。这个async函数里就需要await后面的Promise对象的状态，如果是fulfilled，走try里面的逻辑，如果是rejected，走catch里的逻辑</li>
 </ul>
-<h3 id="How-12"><a href="#How-12" class="headerlink" title="How"></a>How</h3><figure class="highlight js"><table><tr><td class="code"><pre><span class="line"><span class="keyword">async</span> <span class="keyword">function</span> <span class="title function_">requestJSON</span>(<span class="params">url</span>) &#123;</span><br><span class="line">  <span class="keyword">const</span> res = <span class="keyword">await</span> <span class="title function_">fetch</span>(url);   <span class="comment">//  await 等网络返回 Response</span></span><br><span class="line">  <span class="keyword">if</span> (!res.<span class="property">ok</span>) <span class="keyword">throw</span> <span class="keyword">new</span> <span class="title class_">Error</span>(<span class="string">`HTTP <span class="subst">$&#123;res.status&#125;</span>`</span>);</span><br><span class="line">  <span class="keyword">return</span> <span class="keyword">await</span> res.<span class="title function_">json</span>();        <span class="comment">//  await 等 body 解析成 JSON</span></span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="title function_">requestJSON</span>(<span class="string">&quot;https://api.github.com/users/octocat&quot;</span>)</span><br><span class="line">  .<span class="title function_">then</span>(<span class="variable language_">console</span>.<span class="property">log</span>)</span><br><span class="line">  .<span class="title function_">catch</span>(<span class="function"><span class="params">e</span> =&gt;</span> <span class="variable language_">console</span>.<span class="title function_">log</span>(<span class="string">&quot;err:&quot;</span>, e.<span class="property">message</span>));</span><br></pre></td></tr></table></figure>
+<h3 id="How-13"><a href="#How-13" class="headerlink" title="How"></a>How</h3><figure class="highlight js"><table><tr><td class="code"><pre><span class="line"><span class="keyword">async</span> <span class="keyword">function</span> <span class="title function_">requestJSON</span>(<span class="params">url</span>) &#123;</span><br><span class="line">  <span class="keyword">const</span> res = <span class="keyword">await</span> <span class="title function_">fetch</span>(url);   <span class="comment">//  await 等网络返回 Response</span></span><br><span class="line">  <span class="keyword">if</span> (!res.<span class="property">ok</span>) <span class="keyword">throw</span> <span class="keyword">new</span> <span class="title class_">Error</span>(<span class="string">`HTTP <span class="subst">$&#123;res.status&#125;</span>`</span>);</span><br><span class="line">  <span class="keyword">return</span> <span class="keyword">await</span> res.<span class="title function_">json</span>();        <span class="comment">//  await 等 body 解析成 JSON</span></span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="title function_">requestJSON</span>(<span class="string">&quot;https://api.github.com/users/octocat&quot;</span>)</span><br><span class="line">  .<span class="title function_">then</span>(<span class="variable language_">console</span>.<span class="property">log</span>)</span><br><span class="line">  .<span class="title function_">catch</span>(<span class="function"><span class="params">e</span> =&gt;</span> <span class="variable language_">console</span>.<span class="title function_">log</span>(<span class="string">&quot;err:&quot;</span>, e.<span class="property">message</span>));</span><br></pre></td></tr></table></figure>
 <h2 id="受控组件和非受控组件"><a href="#受控组件和非受控组件" class="headerlink" title="受控组件和非受控组件"></a>受控组件和非受控组件</h2><h3 id="What-11"><a href="#What-11" class="headerlink" title="What"></a>What</h3><ul>
 <li>受控组件（Controlled）：表单值 由 React state 控制。value&#x2F;checked 绑定 state，onChange 更新 state。单一数据源：state。</li>
 <li>非受控组件（Uncontrolled）：<strong>表单值</strong> 由 <strong>DOM</strong> 自己维护。<strong>React 不用 state 绑住值</strong>，需要时用 ref 读取（或表单提交时读）。数据源：DOM。</li>
 </ul>
-<h2 id="cookie和localStorage有什么区别？"><a href="#cookie和localStorage有什么区别？" class="headerlink" title="cookie和localStorage有什么区别？"></a>cookie和localStorage有什么区别？</h2><h3 id="What-12"><a href="#What-12" class="headerlink" title="What"></a>What</h3><ul>
-<li>Cookie<ul>
-<li>浏览器存的一小段键值数据（每条很小），会随请求自动带给服务器（同域&#x2F;同路径&#x2F;同策略下）。</li>
-<li>有过期时间、作用域（domain&#x2F;path）、安全属性（Secure&#x2F;HttpOnly&#x2F;SameSite）。</li>
-</ul>
-</li>
-<li>localStorage<ul>
-<li>浏览器的 Web Storage，存键值字符串，只存在浏览器端，不会自动发给服务器。</li>
-<li>持久化（除非你手动清或用户清理浏览器数据）。</li>
-</ul>
-</li>
+<h2 id="浏览器存数据有哪些方式？-localStorage和sessionStorage有什么区别"><a href="#浏览器存数据有哪些方式？-localStorage和sessionStorage有什么区别" class="headerlink" title="浏览器存数据有哪些方式？ localStorage和sessionStorage有什么区别"></a>浏览器存数据有哪些方式？ localStorage和sessionStorage有什么区别</h2><h3 id="What-12"><a href="#What-12" class="headerlink" title="What"></a>What</h3><ul>
+<li>Cookie：最早的存储方式，容量小（约 4KB），每次请求都会带在 HTTP 头部，主要用于身份验证（Session ID）。</li>
+<li>Web Storage：包含 localStorage 和 sessionStorage。</li>
+<li>IndexedDB：浏览器内置的“非关系型数据库”，可以存储大量结构化数据（甚至是文件和二进制数据），且支持索引和事务。</li>
+<li>Cache API：主要用于 Service Worker，用来缓存网络资源（如 HTML、JS、图片），实现离线访问。</li>
 </ul>
 <h3 id="Why-7"><a href="#Why-7" class="headerlink" title="Why"></a>Why</h3><ul>
-<li>Cookie 的出现（更偏“会话&#x2F;身份”）<ul>
-<li>早期 HTTP 是无状态的：服务器不知道两次请求是不是同一个人。Cookie 用来让浏览器在后续请求里自动带上一个标识（比如 sessionId），服务器就能识别用户会话。</li>
+<li>localStorage<ul>
+<li>永久有效。除非你手动删除或用户清理浏览器缓存，否则关闭浏览器后数据依然存在。</li>
+<li>同源共享。同一域名下的所有页面、标签页都可以读写同一个 localStorage。</li>
 </ul>
 </li>
-<li>localStorage 的出现（更偏“前端持久化数据”）<ul>
-<li>前端 SPA 时代需要在本地存更多数据（主题、草稿、缓存、token 等），Cookie 容量小且每次请求都带上会浪费带宽，所以有了 localStorage 这种“只在前端用的大容量持久存储”。</li>
+<li>sessionStorage<ul>
+<li>会话级有效。一旦标签页（Tab）或窗口被关闭，数据就会被清空。</li>
+<li>标签页独立。即使是同一个网站，在不同标签页打开，它们的 sessionStorage 也是互不干扰的。</li>
 </ul>
 </li>
 </ul>
@@ -4554,7 +4589,7 @@
 <ul>
 <li>当DOM很多的时候，Layout计算慢，滚动也需要重排</li>
 </ul>
-<h3 id="How-13"><a href="#How-13" class="headerlink" title="How"></a>How</h3><ul>
+<h3 id="How-14"><a href="#How-14" class="headerlink" title="How"></a>How</h3><ul>
 <li>如果用户屏幕大小就这么多，为什么要去渲染全部的评论，只需要用<code>评论区容器的px / 每条评论容器的px</code> 就是渲染出来的评论数。</li>
 <li>滚动时候用scrollTop，它表示滚动了多少px，1600px &#x2F; 80px &#x3D; 20条</li>
 </ul>
@@ -4571,7 +4606,43 @@
 <li>计算需要多少条 visibleCount &#x3D; containerHeight &#x2F; itemHeight</li>
 <li>渲染 data.slice(start, start + visibleCount)</li>
 </ol>
-]]></content>
+<h2 id="手写一个倒计时的拓展"><a href="#手写一个倒计时的拓展" class="headerlink" title="手写一个倒计时的拓展"></a>手写一个倒计时的拓展</h2><figure class="highlight js"><table><tr><td class="code"><pre><span class="line"><span class="keyword">import</span> &#123; useEffect, useState &#125; <span class="keyword">from</span> <span class="string">&#x27;react&#x27;</span></span><br><span class="line"><span class="keyword">import</span> <span class="string">&#x27;./App.css&#x27;</span></span><br><span class="line"></span><br><span class="line"><span class="keyword">function</span> <span class="title function_">App</span>(<span class="params"></span>) &#123;</span><br><span class="line">  <span class="keyword">const</span> [count, setCount] = <span class="title function_">useState</span>(<span class="number">100</span>)</span><br><span class="line">  <span class="variable language_">console</span>.<span class="title function_">log</span>(count)</span><br><span class="line">  <span class="title function_">useEffect</span>(<span class="function">()=&gt;</span>&#123;</span><br><span class="line">    <span class="comment">//形成的闭包是什么？？？理论上一次为什么两次？</span></span><br><span class="line">    <span class="keyword">const</span> timer = <span class="built_in">setInterval</span>(<span class="function">()=&gt;</span>&#123;</span><br><span class="line">      <span class="comment">//setCount((prev)=&gt;(prev &gt; 0 ? prev - 1: 0 ))</span></span><br><span class="line">      <span class="title function_">setCount</span>(count - <span class="number">1</span>)</span><br><span class="line">    &#125;,<span class="number">1000</span>)</span><br><span class="line"></span><br><span class="line">    <span class="keyword">return</span> <span class="function">()=&gt;</span><span class="built_in">clearInterval</span>(timer)</span><br><span class="line">  &#125;,[])</span><br><span class="line">  </span><br><span class="line">  <span class="keyword">return</span> (</span><br><span class="line">    <span class="language-xml"><span class="tag">&lt;<span class="name">div</span>&gt;</span>&#123;count&#125;<span class="tag">&lt;/<span class="name">div</span>&gt;</span></span></span><br><span class="line">  )</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="keyword">export</span> <span class="keyword">default</span> <span class="title class_">App</span></span><br></pre></td></tr></table></figure>
+<h3 id="What-14"><a href="#What-14" class="headerlink" title="What"></a>What</h3><ul>
+<li>useEffect(fn,[])，[]表示依赖列表为空，意思是：<blockquote>
+<p><strong>effect 不依赖任何 state &#x2F; props，因此只在组件首次挂载时执行一次。</strong></p>
+</blockquote>
+</li>
+</ul>
+<ol>
+<li>所以第一次，如果使用函数式的更新，即使依赖项为[]，也会拿到最新的prev</li>
+<li>第二次由于没填写依赖项，永远拿的是第一个值，因为没有依赖，所以不会重新执行</li>
+<li>console.log两次是因为开发时有了strict模式，默认走两次，会让副作用出现。</li>
+</ol>
+<h2 id="React-的通信方式有哪些？"><a href="#React-的通信方式有哪些？" class="headerlink" title="React 的通信方式有哪些？"></a>React 的通信方式有哪些？</h2><ul>
+<li>Props </li>
+<li>Callback：父组件传函数，子组件调用</li>
+<li>兄弟组件通信：把状态提升到共同父组件</li>
+<li>全局状态管理</li>
+</ul>
+<h2 id="能把hook写在条件判断里吗？"><a href="#能把hook写在条件判断里吗？" class="headerlink" title="能把hook写在条件判断里吗？"></a>能把hook写在条件判断里吗？</h2><ul>
+<li>不能，从React的渲染机制来看，Props&#x2F;State改变了就会重新渲染，如果我们写在了某一个循环判断里，然后成功渲染了，但是由于数据改变了，又会调用App()去渲染，这样就会多次渲染，会报错。<blockquote>
+<p>Uncaught Error: Too many re-renders. React limits the number of renders to prevent an infinite loop.</p>
+</blockquote>
+</li>
+</ul>
+<h2 id="图片的懒加载是怎么实现的？"><a href="#图片的懒加载是怎么实现的？" class="headerlink" title="图片的懒加载是怎么实现的？"></a>图片的懒加载是怎么实现的？</h2><ol>
+<li>原生：img标签里的loading属性设置为lazy</li>
+<li>Intersection Observer API</li>
+</ol>
+<figure class="highlight js"><table><tr><td class="code"><pre><span class="line"><span class="keyword">const</span> images = <span class="variable language_">document</span>.<span class="title function_">querySelectorAll</span>(<span class="string">&#x27;img[data-src]&#x27;</span>);</span><br><span class="line"></span><br><span class="line"><span class="keyword">const</span> observer = <span class="keyword">new</span> <span class="title class_">IntersectionObserver</span>(<span class="function">(<span class="params">entries, observer</span>) =&gt;</span> &#123;</span><br><span class="line">  entries.<span class="title function_">forEach</span>(<span class="function"><span class="params">entry</span> =&gt;</span> &#123;</span><br><span class="line">    <span class="keyword">if</span> (entry.<span class="property">isIntersecting</span>) &#123;</span><br><span class="line">      <span class="keyword">const</span> img = entry.<span class="property">target</span>;</span><br><span class="line">      img.<span class="property">src</span> = img.<span class="property">dataset</span>.<span class="property">src</span>; <span class="comment">// 替换真实链接</span></span><br><span class="line">      observer.<span class="title function_">unobserve</span>(img);   <span class="comment">// 停止观察该图片</span></span><br><span class="line">    &#125;</span><br><span class="line">  &#125;);</span><br><span class="line">&#125;);</span><br><span class="line"></span><br><span class="line">images.<span class="title function_">forEach</span>(<span class="function"><span class="params">img</span> =&gt;</span> observer.<span class="title function_">observe</span>(img));</span><br></pre></td></tr></table></figure>
+<blockquote>
+<p>预热加载： 在 Intersection Observer 中设置 rootMargin: “200px”，让图片在进入视口前 200 像素就开始加载，用户几乎感知不到加载过程。</p>
+</blockquote>
+<h2 id="大模型这种“蹦字”的效果，前端是怎么拿到的？底层协议是什么？"><a href="#大模型这种“蹦字”的效果，前端是怎么拿到的？底层协议是什么？" class="headerlink" title="大模型这种“蹦字”的效果，前端是怎么拿到的？底层协议是什么？"></a>大模型这种“蹦字”的效果，前端是怎么拿到的？底层协议是什么？</h2><ul>
+<li>通过fetch 配合 ReadableStream，fetch配合ReadableStream</li>
+<li>使用 fetch 请求大模型接口时，返回的 response.body 是一个流</li>
+</ul>
+<figure class="highlight js"><table><tr><td class="code"><pre><span class="line"><span class="keyword">const</span> response = <span class="keyword">await</span> <span class="title function_">fetch</span>(<span class="string">&#x27;/api/chat&#x27;</span>, &#123; <span class="attr">method</span>: <span class="string">&#x27;POST&#x27;</span>, <span class="attr">body</span>: <span class="title class_">JSON</span>.<span class="title function_">stringify</span>(&#123; prompt &#125;) &#125;);</span><br><span class="line"><span class="keyword">const</span> reader = response.<span class="property">body</span>.<span class="title function_">getReader</span>(); <span class="comment">// 获取读取器</span></span><br><span class="line"><span class="keyword">const</span> decoder = <span class="keyword">new</span> <span class="title class_">TextDecoder</span>(); <span class="comment">// 负责将二进制字节流转为字符串，也可以转为UTF-8</span></span><br><span class="line"></span><br><span class="line"><span class="keyword">while</span> (<span class="literal">true</span>) &#123;</span><br><span class="line">  <span class="keyword">const</span> &#123; done, value &#125; = <span class="keyword">await</span> reader.<span class="title function_">read</span>(); <span class="comment">// 读取下一块数据</span></span><br><span class="line">  <span class="keyword">if</span> (done) <span class="keyword">break</span>; <span class="comment">// 读取完毕</span></span><br><span class="line">  </span><br><span class="line">  <span class="keyword">const</span> chunk = decoder.<span class="title function_">decode</span>(value); <span class="comment">// 此时拿到的是类似 &quot;data: &#123;&quot;content&quot;: &quot;你好&quot;&#125;&quot; 的字符串</span></span><br><span class="line">  <span class="comment">// 经过正则或 JSON 解析，提取出文字并渲染到页面上</span></span><br><span class="line">  <span class="title function_">processText</span>(chunk); </span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>]]></content>
   </entry>
   <entry>
     <title>思考复盘</title>
@@ -4620,6 +4691,13 @@
 </ul>
 <h2 id="禾赛"><a href="#禾赛" class="headerlink" title="禾赛"></a>禾赛</h2><ul>
 <li>禾赛问了一个 &#x3D;&#x3D; 和 &#x3D;&#x3D;&#x3D; 的区别，我还沾沾自喜说是对引用的比较，哈哈但忘记了两个等号比的啥，被自己坑到了，或者说举的例子不好。然后是数组的去重，如果有字符串该咋办，如果里面有负数该咋办，我真的只想到了O(n)的复杂度，然后真的是脑卡了，忘记了哈希表，因为我把set给排除掉了，下意识把map也排除掉了。</li>
+</ul>
+<h2 id="九坤"><a href="#九坤" class="headerlink" title="九坤"></a>九坤</h2><ul>
+<li>这家公司是目前来说最感谢的，两位面试官都是字节的，而且面试的方式也很独特，一位让现场使用agent构建项目，另一位也是让从0开始构建项目。</li>
+<li>第一位演示了正在做的项目，第二位让现场写一个倒计时，然后就写出的代码进行提问，确实让我对React的理解加深了，React是State和Props驱动的，也对StrictModel有初步认识，还有useEffect()</li>
+</ul>
+<h2 id="迅雷"><a href="#迅雷" class="headerlink" title="迅雷"></a>迅雷</h2><ul>
+<li>这位面试官很有意思，他问的问题基本都是业内会遇到的，而非纯八股，我觉得非常好，也给了我一些实用的建议。</li>
 </ul>
 ]]></content>
   </entry>
