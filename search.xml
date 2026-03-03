@@ -4329,7 +4329,7 @@
 <li>token过期&#x2F;无效时，接口会返回401，前端响应拦截器会调用refresh的api，这个请求会自动带上httpOnly的 <code>hnu_refresh_token</code>的cookie</li>
 <li>refresh成功后，后端返回新的accessToken，前端setToken()写回localStorage，然后重放刚刚失效的请求。</li>
 <li>为什么刷新页面登录态不掉，因为不是只放内存：accessToken 持久化在 localStorage。页面刷新后，AuthProvider 初始化会重新读 localStorage，并调用 &#x2F;api&#x2F;v1&#x2F;users&#x2F;me 做一次有效性校验。<blockquote>
-<p>“每次请求都带 Bearer accessToken，后端拦截器验 JWT + Redis 版本；401 时用 cookie 里的 refreshToken 换新 token；刷新页面靠 localStorage 恢复，所以不会直接掉线。”</p>
+<p>refresh token 为什么放 Cookie，不放前端 localStorage？<br>答：refresh token 通过 HttpOnly Cookie 下发，前端 JS 拿不到，减少 XSS 窃取风险；access token 才放 localStorage 走请求头。<br>“每次请求都带 Bearer accessToken，后端拦截器验 JWT + Redis 版本；401 时用 cookie 里的 refreshToken 换新 token；刷新页面靠 localStorage 恢复，所以不会直接掉线。”</p>
 </blockquote>
 </li>
 </ol>
@@ -4642,7 +4642,30 @@
 <li>通过fetch 配合 ReadableStream，fetch配合ReadableStream</li>
 <li>使用 fetch 请求大模型接口时，返回的 response.body 是一个流</li>
 </ul>
-<figure class="highlight js"><table><tr><td class="code"><pre><span class="line"><span class="keyword">const</span> response = <span class="keyword">await</span> <span class="title function_">fetch</span>(<span class="string">&#x27;/api/chat&#x27;</span>, &#123; <span class="attr">method</span>: <span class="string">&#x27;POST&#x27;</span>, <span class="attr">body</span>: <span class="title class_">JSON</span>.<span class="title function_">stringify</span>(&#123; prompt &#125;) &#125;);</span><br><span class="line"><span class="keyword">const</span> reader = response.<span class="property">body</span>.<span class="title function_">getReader</span>(); <span class="comment">// 获取读取器</span></span><br><span class="line"><span class="keyword">const</span> decoder = <span class="keyword">new</span> <span class="title class_">TextDecoder</span>(); <span class="comment">// 负责将二进制字节流转为字符串，也可以转为UTF-8</span></span><br><span class="line"></span><br><span class="line"><span class="keyword">while</span> (<span class="literal">true</span>) &#123;</span><br><span class="line">  <span class="keyword">const</span> &#123; done, value &#125; = <span class="keyword">await</span> reader.<span class="title function_">read</span>(); <span class="comment">// 读取下一块数据</span></span><br><span class="line">  <span class="keyword">if</span> (done) <span class="keyword">break</span>; <span class="comment">// 读取完毕</span></span><br><span class="line">  </span><br><span class="line">  <span class="keyword">const</span> chunk = decoder.<span class="title function_">decode</span>(value); <span class="comment">// 此时拿到的是类似 &quot;data: &#123;&quot;content&quot;: &quot;你好&quot;&#125;&quot; 的字符串</span></span><br><span class="line">  <span class="comment">// 经过正则或 JSON 解析，提取出文字并渲染到页面上</span></span><br><span class="line">  <span class="title function_">processText</span>(chunk); </span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>]]></content>
+<figure class="highlight js"><table><tr><td class="code"><pre><span class="line"><span class="keyword">const</span> response = <span class="keyword">await</span> <span class="title function_">fetch</span>(<span class="string">&#x27;/api/chat&#x27;</span>, &#123; <span class="attr">method</span>: <span class="string">&#x27;POST&#x27;</span>, <span class="attr">body</span>: <span class="title class_">JSON</span>.<span class="title function_">stringify</span>(&#123; prompt &#125;) &#125;);</span><br><span class="line"><span class="keyword">const</span> reader = response.<span class="property">body</span>.<span class="title function_">getReader</span>(); <span class="comment">// 获取读取器</span></span><br><span class="line"><span class="keyword">const</span> decoder = <span class="keyword">new</span> <span class="title class_">TextDecoder</span>(); <span class="comment">// 负责将二进制字节流转为字符串，也可以转为UTF-8</span></span><br><span class="line"></span><br><span class="line"><span class="keyword">while</span> (<span class="literal">true</span>) &#123;</span><br><span class="line">  <span class="keyword">const</span> &#123; done, value &#125; = <span class="keyword">await</span> reader.<span class="title function_">read</span>(); <span class="comment">// 读取下一块数据</span></span><br><span class="line">  <span class="keyword">if</span> (done) <span class="keyword">break</span>; <span class="comment">// 读取完毕</span></span><br><span class="line">  </span><br><span class="line">  <span class="keyword">const</span> chunk = decoder.<span class="title function_">decode</span>(value); <span class="comment">// 此时拿到的是类似 &quot;data: &#123;&quot;content&quot;: &quot;你好&quot;&#125;&quot; 的字符串</span></span><br><span class="line">  <span class="comment">// 经过正则或 JSON 解析，提取出文字并渲染到页面上</span></span><br><span class="line">  <span class="title function_">processText</span>(chunk); </span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<h2 id="响应式布局？"><a href="#响应式布局？" class="headerlink" title="响应式布局？"></a>响应式布局？</h2><h3 id="What-15"><a href="#What-15" class="headerlink" title="What"></a>What</h3><ul>
+<li>页面根据设备尺寸自动调整布局（媒体查询、flex、grid）</li>
+</ul>
+<h3 id="Why-8"><a href="#Why-8" class="headerlink" title="Why"></a>Why</h3><ul>
+<li>适配手机、平板、PC提升用户体验</li>
+</ul>
+<h3 id="How-15"><a href="#How-15" class="headerlink" title="How"></a>How</h3><ul>
+<li>使用 @media、flex&#x2F;grid（使用弹性布局替代固定像素。）、百分比布局、rem&#x2F;vw（相对单位）、移动端优先设计。</li>
+</ul>
+<h2 id="State和Props的区别"><a href="#State和Props的区别" class="headerlink" title="State和Props的区别"></a>State和Props的区别</h2><h3 id="What-16"><a href="#What-16" class="headerlink" title="What"></a>What</h3><ul>
+<li>都是js对象，用于保存信息并触发渲染，Props是组件的<strong>配置参数（外部传入）</strong>，State是组件的<strong>私有状态（内部管理）</strong></li>
+<li>Props只读，State可变</li>
+</ul>
+<h2 id="如何区分一个变量是数组还是对象？"><a href="#如何区分一个变量是数组还是对象？" class="headerlink" title="如何区分一个变量是数组还是对象？"></a>如何区分一个变量是数组还是对象？</h2><h3 id="How-16"><a href="#How-16" class="headerlink" title="How"></a>How</h3><ol>
+<li>typeof是没用的，只能认出基本类型，typeof {}和typeof []的结果都是object</li>
+<li>用instanceof在原型链上找</li>
+</ol>
+<figure class="highlight js"><table><tr><td class="code"><pre><span class="line"><span class="keyword">const</span> a = &#123;&#125;</span><br><span class="line"><span class="keyword">const</span> b = []</span><br><span class="line"><span class="variable language_">console</span>.<span class="title function_">log</span>(a <span class="keyword">instanceof</span> <span class="title class_">Object</span>) <span class="comment">//true 如果是Array就是false</span></span><br><span class="line"><span class="variable language_">console</span>.<span class="title function_">log</span>(b <span class="keyword">instanceof</span> <span class="title class_">Object</span>) <span class="comment">//true</span></span><br></pre></td></tr></table></figure>
+<ol start="3">
+<li>API,isArray()</li>
+<li>Object.prototype.toString.call()</li>
+</ol>
+]]></content>
   </entry>
   <entry>
     <title>思考复盘</title>
@@ -4698,6 +4721,9 @@
 </ul>
 <h2 id="迅雷"><a href="#迅雷" class="headerlink" title="迅雷"></a>迅雷</h2><ul>
 <li>这位面试官很有意思，他问的问题基本都是业内会遇到的，而非纯八股，我觉得非常好，也给了我一些实用的建议。</li>
+</ul>
+<h2 id="百度"><a href="#百度" class="headerlink" title="百度"></a>百度</h2><ul>
+<li>这位面试官问的问题是：响应式布局，重排和重绘比较偏渲染的问题，后续问了一下业务，是做文心一言，由此看来问题和业务会有一些相关性。</li>
 </ul>
 ]]></content>
   </entry>
